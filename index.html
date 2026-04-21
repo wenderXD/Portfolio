@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vladyslav Ivanko — UI/UX Designer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:     #FFFFFF;
+      --accent: #2D5BE3;
+      --text:   #0A0A18;
+      --muted:  #8888A4;
+      --dim:    rgba(45,91,227,0.07);
+    }
+
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      cursor: none;
+    }
+
+    #cur-dot {
+      position: fixed; z-index: 9999;
+      width: 7px; height: 7px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; transform: translate(-50%,-50%);
+    }
+    #cur-ring {
+      position: fixed; z-index: 9998;
+      width: 30px; height: 30px;
+      border: 1px solid rgba(45,91,227,0.4); border-radius: 50%;
+      pointer-events: none; transform: translate(-50%,-50%);
+      transition: width .2s, height .2s, border-color .2s;
+    }
+    body:has(a:hover) #cur-ring { width: 44px; height: 44px; border-color: var(--accent); }
+
+    #canvas-wrap { position: fixed; inset: 0; z-index: 0; }
+    #canvas-wrap canvas { display: block; }
+
+    .vignette {
+      position: fixed; inset: 0; z-index: 2;
+      background: radial-gradient(ellipse 72% 72% at 50% 55%, transparent 18%, rgba(255,255,255,.55) 65%, rgba(255,255,255,.96) 100%);
+      pointer-events: none;
+    }
+    .scanlines {
+      position: fixed; inset: 0; z-index: 3;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.012) 3px, rgba(0,0,0,.012) 4px);
+      pointer-events: none;
+    }
+
+    .corner {
+      position: fixed; z-index: 20;
+      opacity: 0; animation: fadeIn .8s ease forwards;
+    }
+    .c-tl { top: 28px; left: 40px; animation-delay: 1.8s; }
+    .c-tr { top: 28px; right: 40px; animation-delay: 1.9s; }
+    .c-bl { bottom: 56px; left: 40px; animation-delay: 2s; }
+    .c-br { bottom: 56px; right: 40px; animation-delay: 2.1s; }
+
+    .ck {
+      display: flex; flex-direction: column; gap: 5px;
+      padding: 4px 14px;
+      border-left: 1px solid rgba(45,91,227,.22);
+      min-width: 130px;
+    }
+    .c-tr .ck, .c-br .ck {
+      border-left: none; border-right: 1px solid rgba(45,91,227,.22);
+      align-items: flex-end; text-align: right;
+    }
+    .ck-l {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .36em; color: rgba(0,0,0,.32);
+      text-transform: uppercase;
+    }
+    .ck-v {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; letter-spacing: .18em; color: var(--text);
+      text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 7px;
+      font-variant-numeric: tabular-nums;
+    }
+    .ck-v .ck-hint {
+      font-size: 8px; letter-spacing: .22em; color: rgba(0,0,0,.3);
+      margin-left: 4px;
+    }
+
+    .live-dot {
+      display: inline-block; width: 6px; height: 6px;
+      background: var(--accent); border-radius: 50%;
+      vertical-align: middle;
+      box-shadow: 0 0 8px rgba(45,91,227,.5);
+      animation: blink 2s ease infinite;
+    }
+
+    .h-line { position: fixed; left: 40px; right: 40px; z-index: 20; height: 1px; background: rgba(0,0,0,.08); }
+    .h-line--top { top: 82px; opacity: 0; animation: fadeIn .5s ease 2.2s forwards; }
+    .h-line--bot { bottom: 52px; opacity: 0; animation: fadeIn .5s ease 2.2s forwards; }
+
+    /* ── Side rails (chart-axis feel) ─────── */
+    .rail {
+      position: fixed; z-index: 20; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 34px;
+      font-family: 'IBM Plex Mono', monospace;
+      opacity: 0; animation: fadeIn .9s ease 2.4s forwards;
+    }
+    .rail-l { left: 22px; align-items: flex-start; }
+    .rail-r { right: 22px; align-items: flex-end; }
+    .rail-mark {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 9px; letter-spacing: .18em; color: rgba(0,0,0,.28);
+      font-variant-numeric: tabular-nums;
+    }
+    .rail-l .rail-mark::after {
+      content: ''; width: 14px; height: 1px; background: rgba(0,0,0,.2);
+    }
+    .rail-r .rail-mark::before {
+      content: ''; width: 14px; height: 1px; background: rgba(0,0,0,.2);
+    }
+    .rail-mark--zero { color: var(--accent); }
+    .rail-l .rail-mark--zero::after,
+    .rail-r .rail-mark--zero::before {
+      background: var(--accent); width: 24px;
+    }
+
+    .overlay {
+      position: fixed; inset: 0; z-index: 15;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 14px;
+      font-size: 10px; font-weight: 400;
+      letter-spacing: .42em; color: var(--text);
+      text-transform: uppercase; margin-bottom: 22px;
+      opacity: 0; animation: riseUp .9s ease .5s forwards;
+    }
+    .eyebrow::before, .eyebrow::after {
+      content: ''; width: 24px; height: 1px;
+      background: rgba(45,91,227,.4);
+    }
+
+    .headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(60px, 10vw, 160px);
+      line-height: .88; letter-spacing: .015em; text-align: center;
+      opacity: 0; animation: riseUp 1s ease .85s forwards;
+      position: relative;
+    }
+    .headline em { font-style: normal; color: var(--accent); position: relative; display: inline-block; }
+    .headline em::after {
+      content: ''; position: absolute;
+      left: 0; right: 0; top: 100%; margin-top: 2px;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0); transform-origin: left;
+      animation: lineIn .7s ease 1.8s forwards;
+    }
+    .hl-serial {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; letter-spacing: .4em; color: rgba(45,91,227,.75);
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 34px;
+      padding: 6px 16px;
+      background: rgba(255,255,255,.6);
+      border: 1px solid rgba(45,91,227,.14);
+      backdrop-filter: blur(4px);
+      opacity: 0; animation: riseUp .9s ease 2.1s forwards;
+    }
+    .hl-serial span.hl-dot {
+      width: 3px; height: 3px; background: rgba(45,91,227,.5);
+      border-radius: 50%;
+    }
+
+    .sub {
+      font-size: clamp(11px,1.2vw,14px); font-weight: 300;
+      letter-spacing: .22em; color: var(--muted);
+      margin-top: 28px; text-align: center;
+      opacity: 0; animation: riseUp .9s ease 1.2s forwards;
+    }
+
+    .spec {
+      display: flex; align-items: center; gap: 26px;
+      margin-top: 34px;
+      opacity: 0; animation: riseUp .9s ease 1.45s forwards;
+    }
+    .spec-col {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .spec-col b {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px; line-height: 1; letter-spacing: .04em;
+      color: var(--text); font-weight: 400;
+    }
+    .spec-col.accent b { color: var(--accent); }
+    .spec-col em {
+      font-style: normal; font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .32em; color: rgba(0,0,0,.35);
+      text-transform: uppercase;
+    }
+    .spec-sep { width: 1px; height: 22px; background: rgba(0,0,0,.1); }
+
+    .cta-wrap {
+      position: fixed; bottom: 82px; left: 50%;
+      transform: translateX(-50%); z-index: 20;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      opacity: 0; animation: fadeIn .8s ease 2.3s forwards;
+    }
+    .cta {
+      display: inline-flex; align-items: center; gap: 16px;
+      pointer-events: all;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 400;
+      letter-spacing: .42em; color: var(--accent);
+      text-decoration: none; text-transform: uppercase;
+      border: 1px solid rgba(45,91,227,.3);
+      padding: 15px 26px 15px 32px;
+      position: relative;
+      transition: background .25s, border-color .25s, color .25s, padding .25s;
+      cursor: none;
+    }
+    .cta::before {
+      content: ''; position: absolute; left: 12px; top: 50%;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); transform: translateY(-50%);
+      box-shadow: 0 0 8px rgba(45,91,227,.5);
+      animation: blink 2.4s ease infinite;
+    }
+    .cta:hover { background: var(--dim); border-color: var(--accent); padding-right: 32px; }
+    .cta-ar { width: 20px; height: 8px; display: block; transition: transform .25s; }
+    .cta:hover .cta-ar { transform: translateX(6px); }
+    .cta-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .34em; color: rgba(0,0,0,.32);
+      text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 12px;
+    }
+    .cta-meta::before, .cta-meta::after {
+      content: ''; width: 22px; height: 1px; background: rgba(0,0,0,.14);
+    }
+
+    .ticker-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+      height: 40px; display: flex; align-items: stretch;
+      border-top: 1px solid rgba(0,0,0,.07);
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(8px); overflow: hidden;
+      opacity: 0; animation: fadeIn .8s ease 2.5s forwards;
+    }
+    .ticker-badge {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 18px;
+      border-right: 1px solid rgba(0,0,0,.08);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; letter-spacing: .3em;
+      color: var(--accent); text-transform: uppercase;
+      background: rgba(45,91,227,.04);
+      flex-shrink: 0;
+    }
+    .ticker-scroll { flex: 1; display: flex; align-items: center; overflow: hidden; }
+    .ticker-inner {
+      display: flex; gap: 44px; padding: 0 28px;
+      animation: scroll 44s linear infinite; white-space: nowrap;
+    }
+    .tick { display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: .12em; font-family: 'IBM Plex Mono', monospace; }
+    .tick__sym { color: var(--muted); font-weight: 400; }
+    .tick__val { color: var(--text); font-variant-numeric: tabular-nums; }
+    .tick__chg { font-size: 9px; font-variant-numeric: tabular-nums; }
+    .tick__chg.up { color: #2D5BE3; }
+    .tick__chg.dn { color: #D64040; }
+
+    @keyframes riseUp  { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+    @keyframes lineIn  { to { transform:scaleX(1); } }
+    @keyframes blink   { 0%,100% { opacity:1; } 50% { opacity:.25; } }
+    @keyframes scroll  { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+
+    /* ─── Projects Overlay ──────────────────────── */
+    .pov {
+      position: fixed; inset: 0; z-index: 200;
+      display: flex;
+      background: #ffffff;
+      opacity: 0; pointer-events: none;
+      transition: opacity .4s cubic-bezier(.4,0,.2,1);
+    }
+    .pov.open { opacity: 1; pointer-events: all; }
+
+    /* Sidebar */
+    .pov-sidebar {
+      width: 240px; flex-shrink: 0;
+      border-right: 1px solid rgba(0,0,0,.07);
+      display: flex; flex-direction: column;
+      transform: translateX(-16px); opacity: 0;
+      transition: transform .52s cubic-bezier(.4,0,.2,1) .06s,
+                  opacity .45s ease .06s;
+    }
+    .pov.open .pov-sidebar { transform: translateX(0); opacity: 1; }
+
+    .pov-sb-hd {
+      padding: 34px 28px 16px;
+      display: flex; justify-content: space-between; align-items: baseline;
+      border-bottom: 1px solid rgba(0,0,0,.07);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; letter-spacing: .4em; text-transform: uppercase;
+      color: rgba(0,0,0,.3);
+    }
+
+    .pov-nav { flex: 1; overflow-y: auto; padding: 6px 0; }
+    .pov-nav::-webkit-scrollbar { width: 0; }
+
+
+    .pov-item {
+      width: 100%; display: flex; align-items: center; gap: 14px;
+      padding: 13px 28px;
+      background: none; border: none; cursor: none; text-align: left;
+      position: relative; transition: background .18s;
+    }
+    .pov-item::before {
+      content: ''; position: absolute; left: 0; top: 10px; bottom: 10px;
+      width: 2px; background: var(--accent); border-radius: 1px;
+      opacity: 0; transition: opacity .18s;
+    }
+    .pov-item:hover::before, .pov-item.sel::before { opacity: 1; }
+    .pov-item:hover, .pov-item.sel { background: rgba(45,91,227,.05); }
+
+    .pi-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; color: rgba(0,0,0,.18); min-width: 16px;
+      transition: color .18s;
+    }
+    .pov-item.sel .pi-num { color: var(--accent); }
+
+    .pi-body { display: flex; flex-direction: column; gap: 4px; }
+    .pi-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 300; letter-spacing: .05em;
+      color: rgba(0,0,0,.45); transition: color .18s;
+    }
+    .pov-item:hover .pi-name, .pov-item.sel .pi-name { color: var(--text); }
+    .pi-tags {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .13em; text-transform: uppercase;
+      color: rgba(0,0,0,.22);
+    }
+
+    /* Main */
+    .pov-main {
+      flex: 1; display: flex; flex-direction: column; min-width: 0;
+      padding: 28px 36px 24px;
+      transform: translateY(10px); opacity: 0;
+      transition: transform .52s cubic-bezier(.4,0,.2,1) .14s,
+                  opacity .45s ease .14s;
+    }
+    .pov.open .pov-main { transform: translateY(0); opacity: 1; }
+
+    .pov-topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(0,0,0,.07);
+      margin-bottom: 22px; flex-shrink: 0;
+    }
+
+    .pov-meta { display: flex; align-items: center; gap: 16px; min-width: 0; }
+    .pov-meta-n {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px; line-height: 1; letter-spacing: .04em;
+      color: rgba(45,91,227,.18); flex-shrink: 0;
+    }
+    .pov-meta-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; color: var(--text); letter-spacing: .05em; line-height: 1;
+    }
+    .pov-meta-desc {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; color: rgba(0,0,0,.38);
+      letter-spacing: .12em; margin-top: 5px;
+    }
+
+    .pov-topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+    .pov-close-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px;
+      background: none; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
+      color: rgba(0,0,0,.35);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .25em; text-transform: uppercase;
+      cursor: none; transition: all .18s;
+    }
+    .pov-close-btn:hover { color: var(--text); border-color: rgba(0,0,0,.3); }
+
+    .figma-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 14px;
+      border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
+      color: rgba(0,0,0,.4);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .2em; text-transform: uppercase;
+      text-decoration: none;
+      transition: color .2s, border-color .2s, background .2s;
+      cursor: none;
+    }
+    .figma-btn:hover { color: var(--accent); border-color: rgba(45,91,227,.3); background: var(--dim); }
+    .figma-btn.hidden { display: none; }
+
+    /* Preview */
+    .pov-preview {
+      flex: 1; display: flex; flex-direction: column;
+      overflow: hidden; position: relative; min-height: 0;
+      background: #f0f2f8;
+    }
+
+    /* ─── Password prompt ────────────────────── */
+    .pw-prompt {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(10,10,24,.5); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .25s ease;
+    }
+    .pw-prompt.open { opacity: 1; pointer-events: all; }
+    .pw-box {
+      background: #fff; border-radius: 6px; padding: 32px 32px 28px;
+      width: min(360px, 92vw);
+      box-shadow: 0 16px 60px rgba(0,0,0,.18);
+      transform: translateY(12px); transition: transform .25s cubic-bezier(.4,0,.2,1);
+    }
+    .pw-prompt.open .pw-box { transform: translateY(0); }
+    .pw-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: .06em;
+      color: var(--text); margin-bottom: 4px;
+    }
+    .pw-sub {
+      font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: .2em;
+      text-transform: uppercase; color: rgba(0,0,0,.3); margin-bottom: 20px;
+    }
+    .pw-input {
+      width: 100%; font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+      color: var(--text); background: #fafafa;
+      border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
+      padding: 10px 12px; outline: none; transition: border-color .15s;
+      letter-spacing: .1em;
+    }
+    .pw-input:focus { border-color: var(--accent); background: #fff; }
+    .pw-error {
+      font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: .1em;
+      color: #c44; margin-top: 8px; min-height: 14px;
+    }
+    .pw-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .pw-cancel {
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      text-transform: uppercase; padding: 9px 18px;
+      background: none; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
+      color: rgba(0,0,0,.4); cursor: none; transition: all .15s;
+    }
+    .pw-cancel:hover { border-color: rgba(0,0,0,.25); color: var(--text); }
+    .pw-enter {
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      text-transform: uppercase; padding: 9px 22px;
+      background: var(--accent); border: none; border-radius: 3px;
+      color: #fff; cursor: none; transition: opacity .15s;
+    }
+    .pw-enter:hover { opacity: .85; }
+
+    /* ─── Admin Panel ─────────────────────────── */
+    .adm {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(10,10,24,.55); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .adm.open { opacity: 1; pointer-events: all; }
+
+    .adm-box {
+      background: #fff;
+      width: min(640px, 94vw); max-height: 88vh;
+      border-radius: 6px; overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,.22);
+      display: flex; flex-direction: column;
+      transform: translateY(16px);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    .adm.open .adm-box { transform: translateY(0); }
+
+    .adm-hd {
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid rgba(0,0,0,.07);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .adm-hd-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: .06em; color: var(--text);
+    }
+    .adm-hd-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .18em; color: rgba(0,0,0,.3);
+      text-transform: uppercase; margin-top: 2px;
+    }
+    .adm-x {
+      background: none; border: none; cursor: none;
+      font-size: 18px; color: rgba(0,0,0,.3); line-height: 1;
+      transition: color .15s; padding: 4px;
+    }
+    .adm-x:hover { color: var(--text); }
+
+    .adm-body { flex: 1; overflow-y: auto; padding: 24px 28px; }
+    .adm-body::-webkit-scrollbar { width: 0; }
+
+    .adm-section-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .35em; text-transform: uppercase;
+      color: rgba(0,0,0,.3); margin-bottom: 10px;
+    }
+
+    .adm-proj-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 28px; }
+    .adm-proj-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border: 1px solid rgba(0,0,0,.07); border-radius: 4px;
+      background: #fafafa;
+    }
+    .adm-proj-row-name {
+      flex: 1;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; color: var(--text);
+    }
+    .adm-proj-row-tags {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .1em; color: rgba(0,0,0,.3);
+      text-transform: uppercase;
+    }
+    .adm-del-btn {
+      background: none; border: 1px solid rgba(209,64,64,.25); border-radius: 3px;
+      color: #c44; padding: 4px 9px; cursor: none;
+      font-family: 'IBM Plex Mono', monospace; font-size: 7px; letter-spacing: .1em;
+      transition: all .15s; flex-shrink: 0;
+    }
+    .adm-del-btn:hover { background: rgba(209,64,64,.06); border-color: #c44; }
+    .adm-edit-btn {
+      background: none; border: 1px solid rgba(45,91,227,.2); border-radius: 3px;
+      color: var(--accent); padding: 4px 9px; cursor: none;
+      font-family: 'IBM Plex Mono', monospace; font-size: 7px; letter-spacing: .1em;
+      transition: all .15s; flex-shrink: 0;
+    }
+    .adm-edit-btn:hover { background: var(--dim); border-color: var(--accent); }
+    .adm-edit-banner {
+      background: rgba(45,91,227,.05); border: 1px solid rgba(45,91,227,.15);
+      border-radius: 4px; padding: 8px 12px; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      animation: fadeIn .2s ease;
+    }
+    .adm-edit-banner-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; letter-spacing: .12em; color: var(--accent);
+    }
+    .adm-edit-discard {
+      font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: .15em;
+      text-transform: uppercase; color: rgba(0,0,0,.3);
+      background: none; border: none; cursor: none; padding: 2px 6px;
+      transition: color .15s;
+    }
+    .adm-edit-discard:hover { color: var(--text); }
+
+    .adm-storage { padding: 4px 0 16px; }
+    .adm-storage-row {
+      display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .adm-storage-chip {
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .18em;
+      text-transform: uppercase; padding: 6px 10px; border-radius: 3px;
+      background: rgba(0,0,0,.05); color: rgba(0,0,0,.5);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;
+    }
+    .adm-storage-chip.ok { background: rgba(45,91,227,.08); color: var(--accent); }
+    .adm-storage-btn {
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      text-transform: uppercase; padding: 7px 14px;
+      background: none; border: 1px solid rgba(0,0,0,.12); border-radius: 3px;
+      color: rgba(0,0,0,.55); cursor: none; transition: all .15s;
+    }
+    .adm-storage-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .adm-storage-hint {
+      font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: .08em;
+      color: rgba(0,0,0,.38); line-height: 1.7; margin-top: 4px;
+    }
+
+    .adm-divider { height: 1px; background: rgba(0,0,0,.07); margin-bottom: 24px; }
+
+    /* ─── Photo Upload Zone ─────────────── */
+    .photo-zone {
+      border: 1.5px dashed rgba(45,91,227,.25); border-radius: 5px;
+      background: rgba(45,91,227,.03);
+      padding: 20px 16px 14px;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      cursor: pointer; transition: border-color .18s, background .18s;
+    }
+    .photo-zone:hover, .photo-zone.drag-over {
+      border-color: var(--accent); background: rgba(45,91,227,.07);
+    }
+    .photo-zone-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(0,0,0,.35); text-align: center; pointer-events: none;
+    }
+    .photo-zone-label span { color: var(--accent); }
+    .photo-zone-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; color: rgba(0,0,0,.22); letter-spacing: .06em;
+      pointer-events: none;
+    }
+    .photo-thumbs {
+      display: flex; flex-wrap: wrap; gap: 7px;
+      width: 100%; margin-top: 4px;
+    }
+    .photo-thumb {
+      position: relative; width: 72px; height: 54px;
+      border-radius: 3px; overflow: hidden;
+      border: 1px solid rgba(0,0,0,.1);
+      flex-shrink: 0;
+    }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-thumb-rm {
+      position: absolute; top: 3px; right: 3px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(0,0,0,.55); border: none;
+      color: #fff; font-size: 9px; line-height: 16px; text-align: center;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      padding: 0;
+    }
+    .photo-thumb-rm:hover { background: #c44; }
+
+    .adm-form { display: flex; flex-direction: column; gap: 14px; }
+    .adm-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .adm-field { display: flex; flex-direction: column; gap: 5px; }
+    .adm-field.full { grid-column: 1 / -1; }
+    .adm-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(0,0,0,.4);
+    }
+    .adm-input {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text);
+      background: #fafafa; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
+      padding: 8px 10px; outline: none; transition: border-color .15s;
+    }
+    .adm-input:focus { border-color: var(--accent); background: #fff; }
+    .adm-hint {
+      font-family: 'IBM Plex Mono', monospace; font-size: 8px;
+      color: rgba(0,0,0,.28); letter-spacing: .05em;
+    }
+    .adm-check-row { display: flex; gap: 18px; }
+    .adm-check-label {
+      display: flex; align-items: center; gap: 7px; cursor: none;
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: rgba(0,0,0,.5);
+    }
+    .adm-check-label input { accent-color: var(--accent); cursor: none; }
+
+    .adm-ft {
+      padding: 16px 28px;
+      border-top: 1px solid rgba(0,0,0,.07);
+      display: flex; justify-content: flex-end; gap: 10px;
+      flex-shrink: 0;
+    }
+    .adm-cancel {
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      text-transform: uppercase; padding: 9px 20px;
+      background: none; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
+      color: rgba(0,0,0,.4); cursor: none; transition: all .15s;
+    }
+    .adm-cancel:hover { border-color: rgba(0,0,0,.25); color: var(--text); }
+    .adm-save {
+      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      text-transform: uppercase; padding: 9px 24px;
+      background: var(--accent); border: none; border-radius: 3px;
+      color: #fff; cursor: none; transition: opacity .15s;
+    }
+    .adm-save:hover { opacity: .85; }
+
+    /* ─── Photo Carousel ─────────────────── */
+    .frame-p {
+      flex: 1; width: 100%; min-height: 0;
+      display: flex; flex-direction: column;
+    }
+    .pc-main-section {
+      flex: 1; min-height: 0;
+      display: flex; align-items: stretch; justify-content: center;
+      padding: 12px;
+    }
+    .pc-extra-bar {
+      flex-shrink: 0;
+      border-top: 1px solid rgba(0,0,0,.1);
+      background: rgba(255,255,255,.8);
+    }
+    .pc-extra-toggle {
+      width: 100%;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px;
+      background: none; border: none; cursor: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 400;
+      letter-spacing: .28em; text-transform: uppercase;
+      color: var(--text);
+      transition: color .15s, background .15s;
+    }
+    .pc-extra-toggle > span:first-child {
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .pc-extra-toggle > span:first-child::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(45,91,227,.45);
+    }
+    #pc-extra-count { color: var(--accent); letter-spacing: .12em; }
+    .pc-extra-toggle:hover { color: var(--accent); background: rgba(45,91,227,.04); }
+    .pc-extra-arrow {
+      width: 14px; height: 8px; flex-shrink: 0;
+      transition: transform .22s;
+      color: var(--accent);
+    }
+    .pc-extra-bar.open .pc-extra-arrow { transform: rotate(180deg); }
+    .pc-extra-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 6px; padding: 0 16px;
+      max-height: 0; overflow: hidden;
+      transition: max-height .3s cubic-bezier(.4,0,.2,1), padding-bottom .3s ease;
+    }
+    .pc-extra-bar.open .pc-extra-grid { max-height: 230px; overflow-y: auto; padding-bottom: 14px; }
+    .pc-extra-item {
+      aspect-ratio: 16/10; border-radius: 3px; overflow: hidden;
+      border: 1px solid rgba(0,0,0,.08); cursor: none;
+      transition: border-color .15s, transform .15s;
+    }
+    .pc-extra-item:hover { border-color: var(--accent); transform: scale(1.03); }
+    .pc-extra-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pc-wrap {
+      position: relative;
+      width: 100%; height: 100%;
+      overflow: visible;
+    }
+    .pc-track {
+      width: 100%; height: 100%;
+      position: relative;
+    }
+    .pc-slide {
+      position: absolute;
+      left: 50%; top: 50%;
+      /* width/height set per-slide by JS to match image aspect ratio */
+      max-width: 58%; max-height: 86%;
+      background: transparent;
+      opacity: 0; visibility: hidden;
+      transform: translate(-50%,-50%);
+      will-change: transform, opacity;
+      transition: transform .52s cubic-bezier(.4,0,.2,1),
+                  opacity .42s ease,
+                  box-shadow .52s ease;
+    }
+    .pc-track.no-anim .pc-slide { transition: none !important; }
+    .pc-slide img {
+      display: block; width: 100%; height: 100%;
+      user-select: none; -webkit-user-drag: none;
+      pointer-events: none;
+    }
+    .pc-empty {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; letter-spacing: .25em; text-transform: uppercase;
+      color: rgba(0,0,0,.2);
+    }
+    .pc-btn {
+      position: absolute; top: 50%; z-index: 50;
+      transform: translateY(-50%);
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.88); border: 1px solid rgba(0,0,0,.1);
+      border-radius: 50%; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .18s; backdrop-filter: blur(4px);
+      color: rgba(0,0,0,.45);
+    }
+    .pc-btn:hover { background: #fff; border-color: var(--accent); color: var(--accent); }
+    .pc-btn.pc-prev { left: 12px; }
+    .pc-btn.pc-next { right: 12px; }
+    .pc-btn svg { display: block; flex-shrink: 0; }
+    .pc-dots {
+      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; z-index: 10;
+    }
+    .pc-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(0,0,0,.18); cursor: none;
+      transition: background .18s, transform .18s;
+    }
+    .pc-dot.active { background: var(--accent); transform: scale(1.25); }
+    .pc-counter {
+      position: absolute; top: 10px; right: 14px; z-index: 10;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .2em; color: rgba(0,0,0,.3);
+    }
+  </style>
+</head>
+<body>
+
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+<div id="canvas-wrap"></div>
+<div class="vignette"></div>
+<div class="scanlines"></div>
+<div class="h-line h-line--top"></div>
+<div class="h-line h-line--bot"></div>
+
+<div class="corner c-tl">
+  <div class="ck">
+    <span class="ck-l">Session</span>
+    <span class="ck-v"><span class="live-dot"></span>Open<span class="ck-hint">NYSE</span></span>
+  </div>
+</div>
+<div class="corner c-tr">
+  <div class="ck">
+    <span class="ck-l">Local Time</span>
+    <span class="ck-v" id="local-time">—</span>
+  </div>
+</div>
+<div class="corner c-bl">
+  <div class="ck">
+    <span class="ck-l">Portfolio</span>
+    <span class="ck-v">Vol · 02 / 2026</span>
+  </div>
+</div>
+<div class="corner c-br">
+  <div class="ck">
+    <span class="ck-l">BTC / USD</span>
+    <span class="ck-v" id="live-price">—</span>
+  </div>
+</div>
+
+<aside class="rail rail-l" aria-hidden="true">
+  <span class="rail-mark">+2.0%</span>
+  <span class="rail-mark">+1.0%</span>
+  <span class="rail-mark rail-mark--zero">0.00</span>
+  <span class="rail-mark">−1.0%</span>
+  <span class="rail-mark">−2.0%</span>
+</aside>
+<aside class="rail rail-r" aria-hidden="true">
+  <span class="rail-mark">H 162.4</span>
+  <span class="rail-mark">·</span>
+  <span class="rail-mark rail-mark--zero" id="rail-mid">MID</span>
+  <span class="rail-mark">·</span>
+  <span class="rail-mark">L 94.8</span>
+</aside>
+
+<div class="overlay">
+  <p class="eyebrow">UI/UX Designer · Trading & Crypto</p>
+  <h1 class="headline">VLADYSLAV<br><em>IVANKO</em></h1>
+  <div class="hl-serial">
+    <span>File A-02</span><span class="hl-dot"></span>
+    <span>Edition 2026</span><span class="hl-dot"></span>
+    <span>Live</span>
+  </div>
+  <p class="sub">Crafting interfaces where data drives decision</p>
+  <div class="spec">
+    <div class="spec-col accent"><b id="spec-count">00</b><em>Case Studies</em></div>
+    <span class="spec-sep"></span>
+    <div class="spec-col"><b>03</b><em>Years · UX</em></div>
+    <span class="spec-sep"></span>
+    <div class="spec-col"><b>WARSAW</b><em>Based · Remote</em></div>
+  </div>
+</div>
+
+<div class="cta-wrap">
+  <a class="cta" href="#" id="cta-open">
+    <span class="cta-lbl">Enter Portfolio</span>
+    <svg class="cta-ar" viewBox="0 0 20 8" fill="none" aria-hidden="true">
+      <path d="M0 4h18M14 1l4 3-4 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>
+  <span class="cta-meta"><span id="cta-count">00</span> Projects · Updated Q2 2026</span>
+</div>
+
+<!-- ══════════ PROJECTS OVERLAY ══════════ -->
+<div id="pov" class="pov" aria-hidden="true">
+
+  <aside class="pov-sidebar">
+    <div class="pov-sb-hd"><span>Projects</span><span id="pov-total">—</span></div>
+    <nav class="pov-nav" id="pov-nav"></nav>
+  </aside>
+
+  <div class="pov-main">
+    <div class="pov-topbar">
+      <div class="pov-meta">
+        <div class="pov-meta-n" id="pov-num">—</div>
+        <div>
+          <div class="pov-meta-title" id="pov-title">—</div>
+          <div class="pov-meta-desc"  id="pov-desc">—</div>
+        </div>
+      </div>
+      <div class="pov-topbar-right">
+        <a id="figma-link" class="figma-btn hidden" href="#" target="_blank" rel="noopener">
+          <svg width="10" height="15" viewBox="0 0 10 15" fill="none" aria-hidden="true" style="flex-shrink:0;display:block">
+            <path d="M0 12.5A2.5 2.5 0 0 0 2.5 15 2.5 2.5 0 0 0 5 12.5V10H2.5A2.5 2.5 0 0 0 0 12.5Z" fill="currentColor" opacity=".55"/>
+            <path d="M0 7.5A2.5 2.5 0 0 0 2.5 10H5V5H2.5A2.5 2.5 0 0 0 0 7.5Z" fill="currentColor" opacity=".7"/>
+            <path d="M0 2.5A2.5 2.5 0 0 1 2.5 0H5V5H2.5A2.5 2.5 0 0 1 0 2.5Z" fill="currentColor" opacity=".55"/>
+            <path d="M5 0H7.5A2.5 2.5 0 0 1 10 2.5 2.5 2.5 0 0 1 7.5 5H5Z" fill="currentColor"/>
+            <circle cx="7.5" cy="7.5" r="2.5" fill="currentColor" opacity=".9"/>
+          </svg>
+          Figma
+        </a>
+        <button class="pov-close-btn" id="pov-close">✕ Close</button>
+      </div>
+    </div>
+
+    <div class="pov-preview" id="pov-preview">
+      <div class="frame-p" id="frame-p">
+        <div class="pc-main-section">
+          <div class="pc-wrap">
+            <div class="pc-track" id="pc-track"></div>
+            <button class="pc-btn pc-prev" id="pc-prev" aria-label="Previous photo">
+              <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="pc-btn pc-next" id="pc-next" aria-label="Next photo">
+              <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="pc-dots" id="pc-dots"></div>
+            <div class="pc-counter" id="pc-counter"></div>
+          </div>
+        </div>
+        <div class="pc-extra-bar" id="pc-extra-bar" style="display:none">
+          <button class="pc-extra-toggle" id="pc-extra-toggle">
+            <span>Additional Photos <span id="pc-extra-count"></span></span>
+            <svg class="pc-extra-arrow" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="pc-extra-grid" id="pc-extra-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════ PASSWORD PROMPT ══════════ -->
+<div id="pw-prompt" class="pw-prompt" aria-hidden="true">
+  <div class="pw-box">
+    <div class="pw-title">Admin Access</div>
+    <div class="pw-sub">Enter password to manage projects</div>
+    <input class="pw-input" id="pw-input" type="password" placeholder="Password" autocomplete="off">
+    <div class="pw-error" id="pw-error"></div>
+    <div class="pw-actions">
+      <button class="pw-cancel" id="pw-cancel">Cancel</button>
+      <button class="pw-enter" id="pw-enter">Enter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADMIN PANEL ══════════ -->
+<div id="adm" class="adm" aria-hidden="true">
+  <div class="adm-box">
+    <div class="adm-hd">
+      <div>
+        <div class="adm-hd-title">Manage Projects</div>
+        <div class="adm-hd-sub">Add or remove portfolio entries</div>
+      </div>
+      <button class="adm-x" id="adm-close">✕</button>
+    </div>
+    <div class="adm-body">
+      <div class="adm-section-title">Backup</div>
+      <div class="adm-storage">
+        <div class="adm-storage-row">
+          <button class="adm-storage-btn" id="st-export">Export JSON</button>
+        </div>
+        <div class="adm-storage-hint">Downloads a copy of all projects as JSON. Your data lives on the server — this is just a local backup.</div>
+      </div>
+      <div class="adm-divider"></div>
+      <div class="adm-section-title">Current Projects</div>
+      <div class="adm-proj-list" id="adm-proj-list"></div>
+      <div class="adm-divider"></div>
+      <div class="adm-section-title" id="adm-form-title">Add New Project</div>
+      <div class="adm-edit-banner" id="adm-edit-banner" style="display:none">
+        <span class="adm-edit-banner-text" id="adm-edit-banner-text">Editing: —</span>
+        <button class="adm-edit-discard" id="adm-edit-discard">Discard</button>
+      </div>
+      <div class="adm-form" id="adm-form">
+        <div class="adm-row">
+          <div class="adm-field">
+            <label class="adm-label" for="af-title">Title</label>
+            <input class="adm-input" id="af-title" type="text" placeholder="e.g. TradeFlow">
+          </div>
+          <div class="adm-field">
+            <label class="adm-label" for="af-tags">Tags</label>
+            <input class="adm-input" id="af-tags" type="text" placeholder="e.g. DeFi · Web · Mobile">
+          </div>
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label" for="af-desc">Description</label>
+          <input class="adm-input" id="af-desc" type="text" placeholder="Short project description">
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label">Main Photos <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· shown in carousel · paste Ctrl+V</span></label>
+          <div class="photo-zone" id="photo-zone-main">
+            <div class="photo-zone-label">Drop or <span>click to browse</span></div>
+            <div class="photo-zone-sub">PNG · JPG · WEBP · paste from clipboard</div>
+            <div class="photo-thumbs" id="photo-thumbs-main"></div>
+          </div>
+          <input type="file" id="af-photos-main" accept="image/*" multiple style="display:none">
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label">Additional Photos <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· expandable section · paste Ctrl+V</span></label>
+          <div class="photo-zone" id="photo-zone-extra">
+            <div class="photo-zone-label">Drop or <span>click to browse</span></div>
+            <div class="photo-zone-sub">PNG · JPG · WEBP · paste from clipboard</div>
+            <div class="photo-thumbs" id="photo-thumbs-extra"></div>
+          </div>
+          <input type="file" id="af-photos-extra" accept="image/*" multiple style="display:none">
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label" for="af-figma">Figma URL (optional)</label>
+          <input class="adm-input" id="af-figma" type="url" placeholder="https://www.figma.com/design/...">
+        </div>
+      </div>
+    </div>
+    <div class="adm-ft">
+      <button class="adm-cancel" id="adm-cancel">Cancel</button>
+      <button class="adm-save" id="adm-save">Add Project</button>
+    </div>
+  </div>
+</div>
+
+<div class="ticker-bar">
+  <div class="ticker-badge"><span class="live-dot"></span>Live · Feed</div>
+  <div class="ticker-scroll"><div class="ticker-inner" id="ticker"></div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script>
+/* ── Cursor ──────────────────────────── */
+(function () {
+  var dot = document.getElementById('cur-dot');
+  var ring = document.getElementById('cur-ring');
+  var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+  addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; });
+  (function loop() {
+    rx += (mx - rx) * 0.13;
+    ry += (my - ry) * 0.13;
+    dot.style.left = mx + 'px';  dot.style.top = my + 'px';
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ── Live Clock ──────────────────────── */
+(function () {
+  var el = document.getElementById('local-time');
+  if (!el) return;
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function tick() {
+    var d = new Date();
+    el.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* ── Ticker ──────────────────────────── */
+(function () {
+  var tickers = [
+    ['BTC/USD',67234.50,+2.34],['ETH/USD',3521.20,+1.87],['S&P 500',5234.18,-0.42],
+    ['NASDAQ',18421.31,+0.93],['GOLD',2341.60,+0.21],['EUR/USD',1.0842,-0.18],
+    ['GBP/USD',1.2634,+0.09],['OIL WTI',82.41,+1.23],['TSLA',184.23,-3.12],['AAPL',211.48,+0.74],
+  ];
+  var el = document.getElementById('ticker');
+  var html = '';
+  for (var r = 0; r < 2; r++) {
+    for (var i = 0; i < tickers.length; i++) {
+      var t = tickers[i], sign = t[2] >= 0 ? '+' : '', cls = t[2] >= 0 ? 'up' : 'dn';
+      html += '<span class="tick"><span class="tick__sym">' + t[0] + '</span><span class="tick__val">' +
+        t[1].toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) +
+        '</span><span class="tick__chg ' + cls + '">' + sign + t[2].toFixed(2) + '%</span></span>';
+    }
+  }
+  el.innerHTML = html;
+})();
+
+/* ── Three.js Candlestick Background ── */
+(function () {
+  if (typeof THREE === 'undefined') { console.error('Three.js failed to load'); return; }
+
+  var CANDLE_COUNT = 44;
+  var SPACING = 0.90;
+  var CANDLE_W = 0.58;
+  var FORM_DURATION = 2.5;   // seconds for full formation animation
+  var FORM_STAGGER  = 0.04;  // stagger delay per candle
+
+  // ── Scene ─────────────────────────────
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xF0F2FA);
+  scene.fog = new THREE.FogExp2(0xF0F2FA, 0.018);
+
+  var camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 200);
+  camera.position.set(0, 9, 26);
+  camera.lookAt(0, 0, 0);
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.getElementById('canvas-wrap').appendChild(renderer.domElement);
+
+  // ── Lights ────────────────────────────
+  scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+
+  var keyLight = new THREE.PointLight(0xC8D8FF, 2.5, 60);
+  keyLight.position.set(-8, 18, 12);
+  keyLight.castShadow = true;
+  scene.add(keyLight);
+
+  scene.add(new THREE.PointLight(0xB0D0F8, 1.2, 80).position.set(18, 6, -8) || scene.children[scene.children.length - 1]);
+
+  var fillLight = new THREE.PointLight(0xB0D0F8, 1.2, 80);
+  fillLight.position.set(18, 6, -8);
+  scene.add(fillLight);
+
+  var topLight = new THREE.DirectionalLight(0xffffff, 0.6);
+  topLight.position.set(0, 20, 5);
+  scene.add(topLight);
+
+  var latestGlow = new THREE.PointLight(0x6FA8DC, 0, 8);
+  scene.add(latestGlow);
+
+  // ── Grid floor ────────────────────────
+  var grid = new THREE.GridHelper(120, 30, 0x8B9AC0, 0xCBD0E4);
+  grid.material.opacity = 0.32;
+  grid.material.transparent = true;
+  grid.position.y = -4.5;
+  scene.add(grid);
+
+  // Background vertical grid (faint ticker tape feel)
+  var vGrid = new THREE.GridHelper(60, 20, 0xB0B8D0, 0xD8DCEC);
+  vGrid.material.opacity = 0.12;
+  vGrid.material.transparent = true;
+  vGrid.rotation.x = Math.PI / 2;
+  vGrid.position.z = -18;
+  scene.add(vGrid);
+
+  var floorMat = new THREE.MeshStandardMaterial({ color: 0xE8ECF8, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+  var floor = new THREE.Mesh(new THREE.PlaneGeometry(80, 40), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -4.5;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  // ── Generate candle data ──────────────
+  var rawData = [];
+  (function () {
+    var price = 100, trend = 0;
+    for (var i = 0; i < CANDLE_COUNT; i++) {
+      trend = trend * 0.7 + (Math.random() - 0.48) * 5.5;
+      var o = price;
+      var c = price + trend + (Math.random() - 0.5) * 3.0;
+      var h = Math.max(o, c) + Math.random() * 4.0 + 0.4;
+      var l = Math.min(o, c) - Math.random() * 4.0 - 0.4;
+      rawData.push({ open: o, close: c, hi: h, lo: l });
+      price = c;
+    }
+  })();
+
+  // Normalization
+  var allPrices = [];
+  for (var i = 0; i < rawData.length; i++) {
+    var r = rawData[i];
+    allPrices.push(r.open, r.close, r.hi, r.lo);
+  }
+  var normMin = Math.min.apply(null, allPrices);
+  var normMax = Math.max.apply(null, allPrices);
+  var normScale = 9 / ((normMax - normMin) || 1);
+
+  function norm(v) { return (v - normMin) * normScale - 4.5; }
+
+  var nData = [];
+  for (var i = 0; i < CANDLE_COUNT; i++) {
+    var r = rawData[i];
+    nData.push({
+      open: norm(r.open), close: norm(r.close),
+      hi: norm(r.hi), lo: norm(r.lo),
+      bull: r.close >= r.open,
+    });
+  }
+
+  // ── Colors with REAL contrast ─────────
+  var COL_BULL = new THREE.Color(0xC8CCE0);  // light steel blue — visible on the warm-white bg
+  var COL_BEAR = new THREE.Color(0x6FA8DC);  // medium blue
+  var EMI_BULL = new THREE.Color(0xA0A4C0);
+  var EMI_BEAR = new THREE.Color(0x4A88BC);
+
+  // ── Build candles ─────────────────────
+  var BODY_GEO = new THREE.BoxGeometry(CANDLE_W, 1, CANDLE_W);
+  var WICK_GEO = new THREE.CylinderGeometry(0.05, 0.05, 1, 8);
+  var EDGES_GEO = new THREE.EdgesGeometry(BODY_GEO);
+
+  var candleGroup = new THREE.Group();
+  scene.add(candleGroup);
+
+  var candles = [];
+  var startX = -(CANDLE_COUNT * SPACING) / 2;
+
+  for (var i = 0; i < CANDLE_COUNT; i++) {
+    var c = nData[i];
+    var x = startX + i * SPACING;
+    var bull = c.bull;
+
+    var bodyH = Math.max(0.04, Math.abs(c.close - c.open));
+    var bodyY = (c.close + c.open) / 2;
+    var upH = Math.max(0.05, c.hi - Math.max(c.open, c.close));
+    var upY = Math.max(c.open, c.close) + upH / 2;
+    var dnH = Math.max(0.05, Math.min(c.open, c.close) - c.lo);
+    var dnY = Math.min(c.open, c.close) - dnH / 2;
+
+    var bodyMat = new THREE.MeshStandardMaterial({
+      color: bull ? COL_BULL.clone() : COL_BEAR.clone(),
+      roughness: 0.18, metalness: 0.5,
+      emissive: bull ? EMI_BULL.clone() : EMI_BEAR.clone(),
+      emissiveIntensity: 0.08,
+    });
+
+    var body = new THREE.Mesh(BODY_GEO, bodyMat);
+    body.position.set(x, -4.5, 0);  // start at floor
+    body.scale.y = 0.001;            // start invisible
+    body.castShadow = true;
+    candleGroup.add(body);
+
+    var edgeMat = new THREE.LineBasicMaterial({
+      color: bull ? 0x8888A8 : 0x3A78B0, transparent: true, opacity: 0.8
+    });
+    var edges = new THREE.LineSegments(EDGES_GEO, edgeMat);
+    body.add(edges);
+
+    var wickMat = bodyMat.clone();
+    var upWick = new THREE.Mesh(WICK_GEO, wickMat);
+    upWick.position.set(x, -4.5, 0);
+    upWick.scale.y = 0.001;
+    candleGroup.add(upWick);
+
+    var dnWick = new THREE.Mesh(WICK_GEO, wickMat.clone());
+    dnWick.position.set(x, -4.5, 0);
+    dnWick.scale.y = 0.001;
+    candleGroup.add(dnWick);
+
+    candles.push({
+      body: body, edges: edges, upWick: upWick, dnWick: dnWick, x: x,
+      // Final target positions (what the candle should look like when fully formed)
+      final: { bodyH: bodyH, bodyY: bodyY, upH: upH, upY: upY, dnH: dnH, dnY: dnY, bull: bull },
+      // Live target (same as final initially, updated for last candle tick)
+      target: { bodyH: bodyH, bodyY: bodyY, upH: upH, upY: upY, dnH: dnH, dnY: dnY, bull: bull },
+      // Formation delay for this candle
+      formDelay: i * FORM_STAGGER,
+    });
+  }
+
+  // ── Volume bars (behind candles) ──────
+  var VOL_GEO = new THREE.BoxGeometry(CANDLE_W * 0.82, 1, CANDLE_W * 0.42);
+  var volumeBars = [];
+  var volumeGroup = new THREE.Group();
+  scene.add(volumeGroup);
+
+  for (var vi = 0; vi < CANDLE_COUNT; vi++) {
+    var vx = startX + vi * SPACING;
+    var vBull = nData[vi].bull;
+    var vH = 0.22 + Math.random() * 1.25;
+    var vMat = new THREE.MeshStandardMaterial({
+      color: vBull ? 0xB6C2E4 : 0x7AA0D0,
+      roughness: 0.75, metalness: 0.1,
+      transparent: true, opacity: 0.5,
+    });
+    var vMesh = new THREE.Mesh(VOL_GEO, vMat);
+    vMesh.position.set(vx, -4.5, -3.8);
+    vMesh.scale.y = 0.001;
+    volumeGroup.add(vMesh);
+    volumeBars.push({ mesh: vMesh, h: vH });
+  }
+
+  // ── Close-price polyline ──────────────
+  var lineGeo = new THREE.BufferGeometry();
+  var linePts = new Float32Array(CANDLE_COUNT * 3);
+  for (var li = 0; li < CANDLE_COUNT; li++) {
+    linePts[li * 3]     = startX + li * SPACING;
+    linePts[li * 3 + 1] = -4.5;
+    linePts[li * 3 + 2] = 0.48;
+  }
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(linePts, 3));
+  var priceLine = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({
+    color: 0x2D5BE3, transparent: true, opacity: 0.45,
+  }));
+  scene.add(priceLine);
+  var linePosAttr = priceLine.geometry.attributes.position;
+
+  // Faint shadow-line underneath price line for depth
+  var lineShadowGeo = new THREE.BufferGeometry();
+  var lineShadowPts = new Float32Array(CANDLE_COUNT * 3);
+  for (var si = 0; si < CANDLE_COUNT; si++) {
+    lineShadowPts[si * 3]     = startX + si * SPACING;
+    lineShadowPts[si * 3 + 1] = -4.5;
+    lineShadowPts[si * 3 + 2] = 0.47;
+  }
+  lineShadowGeo.setAttribute('position', new THREE.BufferAttribute(lineShadowPts, 3));
+  var priceLineShadow = new THREE.Line(lineShadowGeo, new THREE.LineBasicMaterial({
+    color: 0x2D5BE3, transparent: true, opacity: 0.12,
+  }));
+  scene.add(priceLineShadow);
+  var lineShadowAttr = priceLineShadow.geometry.attributes.position;
+
+  // ── Latest close marker (pulsing) ─────
+  var closeDot = new THREE.Mesh(
+    new THREE.SphereGeometry(0.18, 18, 14),
+    new THREE.MeshBasicMaterial({ color: 0x2D5BE3, transparent: true, opacity: 0.9 })
+  );
+  closeDot.position.set(startX + (CANDLE_COUNT - 1) * SPACING, -4.5, 0.48);
+  scene.add(closeDot);
+
+  var closeHalo = new THREE.Mesh(
+    new THREE.RingGeometry(0.22, 0.34, 28),
+    new THREE.MeshBasicMaterial({ color: 0x2D5BE3, transparent: true, opacity: 0.4, side: THREE.DoubleSide })
+  );
+  closeHalo.position.copy(closeDot.position);
+  scene.add(closeHalo);
+
+  // ── Easing ────────────────────────────
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  // ── Camera state ──────────────────────
+  var targetCX = 0, targetCY = 9, camX = 0, camY = 9;
+  addEventListener('mousemove', function (e) {
+    targetCX = ((e.clientX / innerWidth) - 0.5) * 10;
+    targetCY = 9 - ((e.clientY / innerHeight) - 0.5) * 4;
+  });
+
+  // ── Last candle live tick ─────────────
+  var lastTick = 0;
+  function tickLast(now) {
+    if (now - lastTick < 600) return;
+    lastTick = now;
+
+    var last = rawData[CANDLE_COUNT - 1];
+    last.close += (Math.random() - 0.47) * 0.6;
+    last.hi = Math.max(last.hi, last.close);
+    last.lo = Math.min(last.lo, last.close);
+
+    var cn = nData[CANDLE_COUNT - 1];
+    cn.open = norm(last.open); cn.close = norm(last.close);
+    cn.hi = norm(last.hi); cn.lo = norm(last.lo);
+    cn.bull = last.close >= last.open;
+
+    var tgt = candles[CANDLE_COUNT - 1].target;
+    tgt.bodyH = Math.max(0.04, Math.abs(cn.close - cn.open));
+    tgt.bodyY = (cn.close + cn.open) / 2;
+    tgt.upH = Math.max(0.02, cn.hi - Math.max(cn.open, cn.close));
+    tgt.upY = Math.max(cn.open, cn.close) + tgt.upH / 2;
+    tgt.dnH = Math.max(0.02, Math.min(cn.open, cn.close) - cn.lo);
+    tgt.dnY = Math.min(cn.open, cn.close) - tgt.dnH / 2;
+    tgt.bull = cn.bull;
+
+    var px = (67000 + last.close * 80).toFixed(2);
+    document.getElementById('live-price').textContent =
+      Number(px).toLocaleString('en-US', { minimumFractionDigits: 2 });
+  }
+
+  // ── Reusable color temps ──────────────
+  var _tc = new THREE.Color();
+  var _te = new THREE.Color();
+
+  // ── Animation loop ────────────────────
+  var startTime = performance.now();
+  var prevNow = startTime;
+
+  renderer.setAnimationLoop(function (now) {
+    var dt = Math.min((now - prevNow) / 1000, 0.1);
+    prevNow = now;
+    var elapsed = (now - startTime) / 1000;  // total seconds since start
+    var time = now * 0.001;
+
+    // ── Camera ──────────────────────────
+    camX += (targetCX - camX) * 0.028;
+    camY += (targetCY - camY) * 0.028;
+    camera.position.x = camX + Math.sin(time * 0.12) * 1.8;
+    camera.position.y = camY + Math.sin(time * 0.09) * 0.4;
+    camera.position.z = 26 + Math.sin(time * 0.06) * 1.2;
+    camera.lookAt(0, 0, 0);
+
+    // ── Lights ──────────────────────────
+    keyLight.position.x = Math.sin(time * 0.25) * 12;
+    keyLight.intensity = 2.8 + Math.sin(time * 0.4) * 0.5;
+
+    // ── Formation + smooth update ───────
+    var lerpT = 1 - Math.exp(-6 * dt);
+
+    for (var i = 0; i < CANDLE_COUNT; i++) {
+      var cn = candles[i];
+      var tgt = cn.target;
+
+      // Formation progress: 0 → 1 with stagger and easing
+      var formT = Math.max(0, Math.min(1, (elapsed - cn.formDelay) / FORM_DURATION));
+      var ease = easeOutCubic(formT);
+
+      // Interpolate toward target, scaled by formation progress
+      var bh = tgt.bodyH * ease;
+      var by = -4.5 + (tgt.bodyY - (-4.5)) * ease;
+      var uh = tgt.upH * ease;
+      var uy = -4.5 + (tgt.upY - (-4.5)) * ease;
+      var dh = tgt.dnH * ease;
+      var dy = -4.5 + (tgt.dnY - (-4.5)) * ease;
+
+      // Once formed, apply smooth lerp for live updates
+      if (formT >= 1) {
+        var curBh = cn.body.scale.y;
+        var curBy = cn.body.position.y;
+        bh = curBh + (tgt.bodyH - curBh) * lerpT;
+        by = curBy + (tgt.bodyY - curBy) * lerpT;
+        uh = cn.upWick.scale.y + (tgt.upH - cn.upWick.scale.y) * lerpT;
+        uy = cn.upWick.position.y + (tgt.upY - cn.upWick.position.y) * lerpT;
+        dh = cn.dnWick.scale.y + (tgt.dnH - cn.dnWick.scale.y) * lerpT;
+        dy = cn.dnWick.position.y + (tgt.dnY - cn.dnWick.position.y) * lerpT;
+      }
+
+      cn.body.scale.y = Math.max(0.001, bh);
+      cn.body.position.y = by;
+      cn.upWick.scale.y = Math.max(0.001, uh);
+      cn.upWick.position.y = uy;
+      cn.dnWick.scale.y = Math.max(0.001, dh);
+      cn.dnWick.position.y = dy;
+
+      // Color
+      _tc.copy(tgt.bull ? COL_BULL : COL_BEAR);
+      _te.copy(tgt.bull ? EMI_BULL : EMI_BEAR);
+      cn.body.material.color.lerp(_tc, lerpT);
+      cn.body.material.emissive.lerp(_te, lerpT);
+      cn.upWick.material.color.lerp(_tc, lerpT);
+      cn.dnWick.material.color.lerp(_tc, lerpT);
+
+      // Subtle breathing (only after formed)
+      if (formT > 0.5) {
+        var breath = Math.sin(time * 0.5 + i * 0.37) * 0.06 * Math.min(1, (formT - 0.5) * 4);
+        cn.body.position.y += breath;
+        cn.upWick.position.y += breath;
+        cn.dnWick.position.y += breath;
+      }
+    }
+
+    // ── Volume bars + price line ────────
+    var linePosArr       = linePosAttr.array;
+    var lineShadowArr    = lineShadowAttr.array;
+    for (var vi2 = 0; vi2 < CANDLE_COUNT; vi2++) {
+      var vb = volumeBars[vi2];
+      var cn3 = candles[vi2];
+      var formT2 = Math.max(0, Math.min(1, (elapsed - cn3.formDelay) / FORM_DURATION));
+      var eased2 = easeOutCubic(formT2);
+      var vScale = Math.max(0.001, vb.h * eased2);
+      vb.mesh.scale.y = vScale;
+      vb.mesh.position.y = -4.5 + vScale / 2;
+
+      var closeY = nData[vi2].close;
+      var ly = -4.5 + (closeY - (-4.5)) * eased2;
+      linePosArr[vi2 * 3 + 1]    = ly;
+      lineShadowArr[vi2 * 3 + 1] = ly - 0.08;
+    }
+    linePosAttr.needsUpdate = true;
+    lineShadowAttr.needsUpdate = true;
+
+    // Latest close dot + halo pulse
+    var lastCloseY = linePosArr[(CANDLE_COUNT - 1) * 3 + 1];
+    closeDot.position.y = lastCloseY;
+    closeHalo.position.y = lastCloseY;
+    closeHalo.lookAt(camera.position);
+    var pulse = (Math.sin(time * 3.0) + 1) * 0.5;  // 0..1
+    closeDot.material.opacity = 0.7 + pulse * 0.3;
+    var haloScale = 1 + pulse * 1.1;
+    closeHalo.scale.set(haloScale, haloScale, haloScale);
+    closeHalo.material.opacity = 0.45 * (1 - pulse * 0.85);
+
+    // ── Latest glow ─────────────────────
+    var last = candles[CANDLE_COUNT - 1];
+    latestGlow.position.set(last.x, last.body.position.y, 0);
+    latestGlow.intensity = 1.2 + Math.sin(time * 3) * 0.8;
+
+    // ── Live tick ───────────────────────
+    tickLast(now);
+
+    renderer.render(scene, camera);
+  });
+
+  // ── Resize ────────────────────────────
+  addEventListener('resize', function () {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+})();
+</script>
+
+<script>
+/* ── Projects Overlay + Admin ──────────────────────── */
+(function () {
+
+  var BUILTIN = [];
+
+  /* ── Persistent storage (backend API) ── */
+  var PW_KEY = 'portfolio_pw';
+  function getAdminPw()   { try { return sessionStorage.getItem(PW_KEY) || ''; } catch (e) { return ''; } }
+  function setAdminPw(p)  { try { sessionStorage.setItem(PW_KEY, p); } catch (e) {} }
+  function clearAdminPw() { try { sessionStorage.removeItem(PW_KEY); } catch (e) {} }
+
+  var _cache = [];
+
+  function loadCustomProjects() { return _cache.slice(); }
+  function buildProjectList()   { return BUILTIN.concat(_cache); }
+
+  function fetchProjects() {
+    return fetch('/api/projects', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (arr) { _cache = Array.isArray(arr) ? arr : []; return _cache; })
+      .catch(function () { return _cache; });
+  }
+
+  function saveCustomProjects(arr) {
+    return fetch('/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: getAdminPw(), projects: arr }),
+    }).then(function (r) {
+      if (r.status === 401) {
+        clearAdminPw();
+        alert('Admin session invalid. Close and re-open admin, then re-enter password.');
+        return false;
+      }
+      if (!r.ok) {
+        return r.text().then(function (t) {
+          alert('Save failed: HTTP ' + r.status + '\n' + t);
+          return false;
+        });
+      }
+      _cache = arr.slice();
+      return true;
+    }).catch(function (e) {
+      alert('Network error: ' + (e && e.message || e));
+      return false;
+    });
+  }
+
+  function uploadImage(dataURL) {
+    return fetch(dataURL).then(function (r) { return r.blob(); }).then(function (blob) {
+      var ext = ((blob.type || '').split('/')[1] || 'bin').split(';')[0];
+      return fetch('/api/upload?ext=' + encodeURIComponent(ext), {
+        method: 'POST',
+        headers: {
+          'Content-Type': blob.type || 'application/octet-stream',
+          'x-admin-password': getAdminPw(),
+        },
+        body: blob,
+      });
+    }).then(function (r) {
+      if (!r.ok) {
+        return r.text().then(function (t) { throw new Error('upload ' + r.status + ' ' + t); });
+      }
+      return r.json();
+    }).then(function (j) { return j.url; });
+  }
+
+  var PROJECTS = buildProjectList();
+
+  /* ── DOM ─────────────────────────────── */
+  var ov          = document.getElementById('pov');
+  var navEl       = document.getElementById('pov-nav');
+  var numEl       = document.getElementById('pov-num');
+  var titleEl     = document.getElementById('pov-title');
+  var descEl      = document.getElementById('pov-desc');
+  var figmaLink   = document.getElementById('figma-link');
+  var pcTrack     = document.getElementById('pc-track');
+  var pcDots      = document.getElementById('pc-dots');
+  var pcCounter   = document.getElementById('pc-counter');
+  var extraBar    = document.getElementById('pc-extra-bar');
+  var extraGrid   = document.getElementById('pc-extra-grid');
+  var extraCount  = document.getElementById('pc-extra-count');
+  var extraToggle = document.getElementById('pc-extra-toggle');
+
+  var curProj  = 0;
+  var curPhoto = 0;
+
+  /* ── Sidebar nav ─────────────────────── */
+  function buildNav() {
+    navEl.innerHTML = '';
+    var countStr = String(PROJECTS.length).padStart(2, '0');
+    document.getElementById('pov-total').textContent = countStr;
+    var heroCount = document.getElementById('spec-count');
+    var ctaCount  = document.getElementById('cta-count');
+    if (heroCount) heroCount.textContent = countStr;
+    if (ctaCount)  ctaCount.textContent  = countStr;
+    PROJECTS.forEach(function (p, i) {
+      var btn = document.createElement('button');
+      btn.className = 'pov-item' + (i === curProj ? ' sel' : '');
+      btn.innerHTML =
+        '<span class="pi-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+        '<span class="pi-body"><span class="pi-name">' + p.title + '</span>' +
+        '<span class="pi-tags">' + p.tags + '</span></span>';
+      btn.addEventListener('click', function () { selectProject(i); });
+      navEl.appendChild(btn);
+    });
+  }
+  buildNav();
+
+  /* ── Select project ──────────────────── */
+  function selectProject(i) {
+    curProj = i;
+    var p = PROJECTS[i];
+    navEl.querySelectorAll('.pov-item').forEach(function (el, j) { el.classList.toggle('sel', j === i); });
+    numEl.textContent   = String(i + 1).padStart(2, '0');
+    titleEl.textContent = p.title;
+    descEl.textContent  = p.desc;
+    if (p.figmaUrl) { figmaLink.href = p.figmaUrl; figmaLink.classList.remove('hidden'); }
+    else            { figmaLink.href = '#';         figmaLink.classList.add('hidden'); }
+    buildCarousel(p.photos || []);
+    buildExtraPhotos(p.extraPhotos || []);
+  }
+
+  /* ── Barrel carousel ────────────────── */
+  function buildCarousel(photos) {
+    curPhoto = 0;
+    pcTrack.classList.add('no-anim');
+    pcTrack.innerHTML = '';
+    pcDots.innerHTML  = '';
+    var multi = photos.length > 1;
+    document.getElementById('pc-prev').style.display = multi ? '' : 'none';
+    document.getElementById('pc-next').style.display = multi ? '' : 'none';
+    pcDots.style.display = multi ? '' : 'none';
+    if (!photos.length) {
+      pcTrack.innerHTML = '<div class="pc-empty">No photos added</div>';
+      pcCounter.textContent = '';
+      pcTrack.classList.remove('no-anim');
+      return;
+    }
+    photos.forEach(function (src, idx) {
+      var slide = document.createElement('div');
+      slide.className = 'pc-slide';
+      var img = document.createElement('img');
+      img.src = src; img.alt = 'Photo ' + (idx + 1); img.draggable = false;
+      img.addEventListener('load', function () { fitSlide(slide, img); updateBarrel(); });
+      if (img.complete && img.naturalWidth) fitSlide(slide, img);
+      slide.appendChild(img); pcTrack.appendChild(slide);
+      var dot = document.createElement('div');
+      dot.className = 'pc-dot';
+      dot.addEventListener('click', function () { goPhoto(idx); });
+      pcDots.appendChild(dot);
+    });
+    updateBarrel();
+    updateCounter(photos.length);
+    /* force reflow, then restore transitions for navigation */
+    void pcTrack.offsetHeight;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { pcTrack.classList.remove('no-anim'); });
+    });
+  }
+
+  function fitSlide(slide, img) {
+    var r = img.naturalWidth / img.naturalHeight;
+    var trackW = pcTrack.offsetWidth  || slide.parentElement.offsetWidth  || 800;
+    var trackH = pcTrack.offsetHeight || slide.parentElement.offsetHeight || 600;
+    var maxW = trackW * 0.58;
+    var maxH = trackH * 0.86;
+    var w, h;
+    if (r >= maxW / maxH) { w = maxW; h = maxW / r; }
+    else                  { h = maxH; w = maxH * r; }
+    slide.style.width  = w + 'px';
+    slide.style.height = h + 'px';
+  }
+
+  function updateBarrel() {
+    var slides = Array.from(pcTrack.querySelectorAll('.pc-slide'));
+    var dots   = Array.from(pcDots.querySelectorAll('.pc-dot'));
+    var n      = slides.length;
+    var step   = (pcTrack.offsetWidth || 800) * 0.26;
+    slides.forEach(function (slide, idx) {
+      var img = slide.querySelector('img');
+      var ready = img && img.naturalWidth > 0;
+      var raw = idx - curPhoto;
+      if (raw > n / 2)  raw -= n;
+      if (raw < -n / 2) raw += n;
+      var abs = Math.abs(raw);
+
+      /* Always set transform so later fade-ins don't animate position */
+      var transX = raw * step;
+      var scl    = 1 - abs * 0.15;
+      slide.style.transform = 'translate(-50%,-50%) translateX(' + transX + 'px) scale(' + scl + ')';
+
+      if (abs > 2 || !ready) {
+        slide.style.visibility = 'hidden';
+        slide.style.opacity    = '0';
+        slide.style.zIndex     = '0';
+        return;
+      }
+      slide.style.visibility = 'visible';
+      slide.style.opacity    = [1, 0.55, 0.28][abs];
+      slide.style.zIndex     = 30 - abs * 8;
+      slide.style.cursor     = abs === 0 ? 'none' : 'pointer';
+      slide.onclick          = abs > 0 ? (function (i) { return function () { goPhoto(i); }; })(idx) : null;
+    });
+    dots.forEach(function (dot, i) { dot.classList.toggle('active', i === curPhoto); });
+  }
+
+  function goPhoto(targetIdx) {
+    var slides = Array.from(pcTrack.querySelectorAll('.pc-slide'));
+    var n = slides.length;
+    if (!n) return;
+    var oldPhoto = curPhoto;
+    curPhoto = ((targetIdx % n) + n) % n;
+    var step = (pcTrack.offsetWidth || 800) * 0.26;
+
+    /* Pre-position slides that would otherwise teleport across the screen
+       (wrapping: offset jumps more than 1 step) */
+    slides.forEach(function (slide, idx) {
+      var oldRaw = idx - oldPhoto;
+      if (oldRaw > n / 2)  oldRaw -= n;
+      if (oldRaw < -n / 2) oldRaw += n;
+      var newRaw = idx - curPhoto;
+      if (newRaw > n / 2)  newRaw -= n;
+      if (newRaw < -n / 2) newRaw += n;
+
+      if (Math.abs(oldRaw - newRaw) > 1) {
+        var newAbs = Math.abs(newRaw);
+        slide.style.transition = 'none';
+        slide.style.visibility = 'visible';
+        slide.style.opacity    = [1, 0.55, 0.28][newAbs] || 0;
+        slide.style.zIndex     = 30 - newAbs * 8;
+        slide.style.transform  =
+          'translate(-50%,-50%) translateX(' + (newRaw * step) + 'px) scale(' + (1 - newAbs * 0.15) + ')';
+        slide.offsetHeight; /* force reflow before re-enabling transition */
+        slide.style.transition = '';
+      }
+    });
+
+    updateBarrel();
+    updateCounter(n);
+  }
+  function updateCounter(n) { pcCounter.textContent = (curPhoto + 1) + ' / ' + n; }
+
+  document.getElementById('pc-prev').addEventListener('click', function () { goPhoto(curPhoto - 1); });
+  document.getElementById('pc-next').addEventListener('click', function () { goPhoto(curPhoto + 1); });
+  document.addEventListener('keydown', function (e) {
+    if (!ov.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft')  goPhoto(curPhoto - 1);
+    if (e.key === 'ArrowRight') goPhoto(curPhoto + 1);
+  });
+
+  window.addEventListener('resize', function () {
+    var slides = Array.from(pcTrack.querySelectorAll('.pc-slide'));
+    slides.forEach(function (slide) {
+      var img = slide.querySelector('img');
+      if (img && img.naturalWidth) fitSlide(slide, img);
+    });
+    updateBarrel();
+  });
+
+  /* Drag / swipe to navigate */
+  (function () {
+    var startX = null, dragging = false;
+    pcTrack.addEventListener('mousedown', function (e) { startX = e.clientX; dragging = false; });
+    pcTrack.addEventListener('mousemove', function (e) { if (startX !== null && Math.abs(e.clientX - startX) > 6) dragging = true; });
+    pcTrack.addEventListener('mouseup',   function (e) {
+      if (startX === null) return;
+      var dx = e.clientX - startX; startX = null;
+      if (Math.abs(dx) > 48) goPhoto(dx < 0 ? curPhoto + 1 : curPhoto - 1);
+    });
+    pcTrack.addEventListener('touchstart', function (e) { startX = e.touches[0].clientX; }, { passive: true });
+    pcTrack.addEventListener('touchend',   function (e) {
+      if (startX === null) return;
+      var dx = e.changedTouches[0].clientX - startX; startX = null;
+      if (Math.abs(dx) > 48) goPhoto(dx < 0 ? curPhoto + 1 : curPhoto - 1);
+    }, { passive: true });
+  })();
+
+  /* ── Additional photos bar ───────────── */
+  function buildExtraPhotos(extras) {
+    extraGrid.innerHTML = '';
+    if (!extras || !extras.length) { extraBar.style.display = 'none'; return; }
+    extraBar.style.display = '';
+    extraBar.classList.remove('open');
+    extraCount.textContent = '(' + extras.length + ')';
+    extras.forEach(function (src) {
+      var item = document.createElement('div');
+      item.className = 'pc-extra-item';
+      var img = document.createElement('img');
+      img.src = src; img.alt = '';
+      item.appendChild(img);
+      item.addEventListener('click', function () { showLightbox(src); });
+      extraGrid.appendChild(item);
+    });
+  }
+
+  extraToggle.addEventListener('click', function () { extraBar.classList.toggle('open'); });
+
+  function showLightbox(src) {
+    var lb = document.createElement('div');
+    lb.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;cursor:none;animation:fadeIn .18s ease';
+    var img = document.createElement('img');
+    img.src = src;
+    img.style.cssText = 'max-width:92vw;max-height:92vh;border-radius:4px;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,.5)';
+    lb.appendChild(img);
+    lb.addEventListener('click', function () { document.body.removeChild(lb); });
+    document.body.appendChild(lb);
+  }
+
+  /* ── Open / close overlay ────────────── */
+  function openOv() {
+    ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    selectProject(curProj);
+  }
+  function closeOv() {
+    ov.classList.remove('open'); ov.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('cta-open').addEventListener('click', function (e) { e.preventDefault(); openOv(); });
+  document.getElementById('pov-close').addEventListener('click', closeOv);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeOv(); closeAdm(); }
+  });
+
+  /* ══════════ ADMIN ══════════ */
+  var adm      = document.getElementById('adm');
+  var pwPrompt = document.getElementById('pw-prompt');
+  var pwInput  = document.getElementById('pw-input');
+  var pwError  = document.getElementById('pw-error');
+  var editingId = null;
+
+  function openAdm()  { renderAdmList(); adm.classList.add('open'); adm.setAttribute('aria-hidden','false'); }
+  function closeAdm() { adm.classList.remove('open'); adm.setAttribute('aria-hidden','true'); clearForm(); }
+  function openPw()   {
+    pwInput.value = ''; pwError.textContent = '';
+    pwPrompt.classList.add('open'); pwPrompt.setAttribute('aria-hidden','false');
+    setTimeout(function () { pwInput.focus(); }, 120);
+  }
+  function closePw()  {
+    pwPrompt.classList.remove('open'); pwPrompt.setAttribute('aria-hidden','true');
+    pwInput.value = ''; pwError.textContent = '';
+  }
+  function checkPassword() {
+    var pw = pwInput.value;
+    if (!pw) { pwError.textContent = 'Enter a password'; pwInput.focus(); return; }
+    pwError.textContent = 'Checking…';
+    fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw }),
+    }).then(function (r) {
+      if (r.ok) {
+        setAdminPw(pw);
+        closePw();
+        openAdm();
+      } else {
+        pwError.textContent = 'Incorrect password';
+        pwInput.value = ''; pwInput.focus();
+      }
+    }).catch(function () {
+      pwError.textContent = 'Network error — is the backend deployed?';
+      pwInput.focus();
+    });
+  }
+
+  document.getElementById('pw-cancel').addEventListener('click', closePw);
+  document.getElementById('pw-enter').addEventListener('click', checkPassword);
+  pwInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') checkPassword();
+    if (e.key === 'Escape') closePw();
+  });
+  pwPrompt.addEventListener('click', function (e) { if (e.target === pwPrompt) closePw(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); openPw(); }
+  });
+  document.getElementById('adm-close').addEventListener('click', closeAdm);
+  document.getElementById('adm-cancel').addEventListener('click', closeAdm);
+  adm.addEventListener('click', function (e) { if (e.target === adm) closeAdm(); });
+
+  /* ── Projects list ───────────────────── */
+  function renderAdmList() {
+    var list = document.getElementById('adm-proj-list');
+    list.innerHTML = '';
+    var custom = loadCustomProjects();
+    if (!custom.length) {
+      list.innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(0,0,0,.25);letter-spacing:.12em;padding:6px 0">No projects yet</div>';
+      return;
+    }
+    custom.forEach(function (p) {
+      var row = document.createElement('div');
+      row.className = 'adm-proj-row' + (editingId === p.id ? ' editing' : '');
+      row.innerHTML =
+        '<span class="adm-proj-row-name">' + p.title + '</span>' +
+        '<span class="adm-proj-row-tags">' + p.tags + '</span>' +
+        '<button class="adm-edit-btn" data-id="' + p.id + '">Edit</button>' +
+        '<button class="adm-del-btn"  data-id="' + p.id + '">Delete</button>';
+      list.appendChild(row);
+    });
+    list.querySelectorAll('.adm-edit-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { openEditProject(btn.getAttribute('data-id')); });
+    });
+    list.querySelectorAll('.adm-del-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-id');
+        if (editingId === id) clearForm();
+        saveCustomProjects(loadCustomProjects().filter(function (p) { return p.id !== id; }));
+        PROJECTS = buildProjectList();
+        if (curProj >= PROJECTS.length) curProj = Math.max(0, PROJECTS.length - 1);
+        buildNav();
+        renderAdmList();
+        if (ov.classList.contains('open') && PROJECTS.length) selectProject(curProj);
+      });
+    });
+  }
+
+  /* ── Edit existing project ───────────── */
+  function openEditProject(id) {
+    var p = loadCustomProjects().find(function (x) { return x.id === id; });
+    if (!p) return;
+    editingId = id;
+    document.getElementById('af-title').value = p.title    || '';
+    document.getElementById('af-desc').value  = p.desc     || '';
+    document.getElementById('af-tags').value  = p.tags     || '';
+    document.getElementById('af-figma').value = p.figmaUrl || '';
+    pendingMainPhotos.length  = 0;
+    pendingExtraPhotos.length = 0;
+    Array.prototype.push.apply(pendingMainPhotos,  p.photos      || []);
+    Array.prototype.push.apply(pendingExtraPhotos, p.extraPhotos || []);
+    renderMainThumbs(); renderExtraThumbs();
+    document.getElementById('adm-form-title').textContent      = 'Edit Project';
+    document.getElementById('adm-edit-banner').style.display   = '';
+    document.getElementById('adm-edit-banner-text').textContent = 'Editing: ' + p.title;
+    document.getElementById('adm-save').textContent            = 'Update Project';
+    renderAdmList();
+    document.getElementById('adm-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* ── Photo upload zones ──────────────── */
+  var pendingMainPhotos  = [];
+  var pendingExtraPhotos = [];
+  var activeZone = 'main';
+
+  function setupZone(zoneId, inputId, arr, renderFn) {
+    var zone  = document.getElementById(zoneId);
+    var input = document.getElementById(inputId);
+    zone.addEventListener('mouseenter', function () { activeZone = zoneId; });
+    zone.addEventListener('click', function (e) {
+      if (e.target.classList.contains('photo-thumb-rm')) return;
+      activeZone = zoneId; input.click();
+    });
+    input.addEventListener('change', function () {
+      readFilesInto(arr, Array.from(input.files), renderFn);
+      input.value = '';
+    });
+    zone.addEventListener('dragover',  function (e) { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', function ()  { zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', function (e) {
+      e.preventDefault(); zone.classList.remove('drag-over'); activeZone = zoneId;
+      readFilesInto(arr, Array.from(e.dataTransfer.files).filter(function (f) {
+        return f.type.startsWith('image/');
+      }), renderFn);
+    });
+  }
+
+  setupZone('photo-zone-main',  'af-photos-main',  pendingMainPhotos,  renderMainThumbs);
+  setupZone('photo-zone-extra', 'af-photos-extra', pendingExtraPhotos, renderExtraThumbs);
+
+  function compressImage(dataURL, callback) {
+    var MAX = 1800;        // max dimension on longest side
+    var QUALITY = 0.9;
+    var img = new Image();
+    img.onload = function () {
+      var w = img.width, h = img.height;
+      var scale = Math.min(1, MAX / Math.max(w, h));
+      w = Math.max(1, Math.round(w * scale));
+      h = Math.max(1, Math.round(h * scale));
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, w, h);      // preserve alpha
+      ctx.drawImage(img, 0, 0, w, h);
+      try {
+        // WebP supports alpha and compresses well — fall back to PNG if unsupported.
+        var out = canvas.toDataURL('image/webp', QUALITY);
+        if (!out || out.indexOf('data:image/webp') !== 0) {
+          out = canvas.toDataURL('image/png');
+        }
+        callback(out);
+      } catch (e) { callback(dataURL); }
+    };
+    img.onerror = function () { callback(dataURL); };
+    img.src = dataURL;
+  }
+
+  /* ── Upload state (disables Save while compressing) ── */
+  var pendingUploads = 0;
+  function setUploadingState() {
+    var btn = document.getElementById('adm-save');
+    if (!btn) return;
+    if (pendingUploads > 0) {
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.pointerEvents = 'none';
+      btn.textContent = 'Processing ' + pendingUploads + ' image' + (pendingUploads > 1 ? 's' : '') + '...';
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.style.pointerEvents = '';
+      btn.textContent = editingId ? 'Update Project' : 'Add Project';
+    }
+  }
+
+  function readFilesInto(arr, files, renderFn) {
+    files.forEach(function (file) {
+      var reader = new FileReader();
+      pendingUploads++;
+      setUploadingState();
+      reader.onload = function (ev) {
+        compressImage(ev.target.result, function (compressed) {
+          uploadImage(compressed).then(function (url) {
+            arr.push(url);
+            renderFn();
+          }).catch(function (e) {
+            console.warn('Upload failed:', e);
+            alert('Image upload failed: ' + (e && e.message || e));
+          }).then(function () {
+            pendingUploads--;
+            setUploadingState();
+          });
+        });
+      };
+      reader.onerror = function () { pendingUploads--; setUploadingState(); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderMainThumbs()  { renderThumbs('photo-thumbs-main',  pendingMainPhotos,  renderMainThumbs);  }
+  function renderExtraThumbs() { renderThumbs('photo-thumbs-extra', pendingExtraPhotos, renderExtraThumbs); }
+
+  function renderThumbs(containerId, arr, refreshFn) {
+    var el = document.getElementById(containerId);
+    el.innerHTML = '';
+    arr.forEach(function (src, idx) {
+      var wrap = document.createElement('div'); wrap.className = 'photo-thumb';
+      var img  = document.createElement('img');  img.src = src;
+      var rm   = document.createElement('button'); rm.className = 'photo-thumb-rm'; rm.textContent = '✕';
+      rm.addEventListener('click', function (e) {
+        e.stopPropagation(); arr.splice(idx, 1); refreshFn();
+      });
+      wrap.appendChild(img); wrap.appendChild(rm); el.appendChild(wrap);
+    });
+  }
+
+  /* ── Paste images ────────────────────── */
+  document.addEventListener('paste', function (e) {
+    if (!adm.classList.contains('open')) return;
+    var items = Array.from((e.clipboardData || e.originalEvent.clipboardData).items);
+    var imgFiles = items.filter(function (i) { return i.type.startsWith('image/'); })
+                        .map(function (i) { return i.getAsFile(); });
+    if (!imgFiles.length) return;
+    var isMain = activeZone === 'photo-zone-main';
+    readFilesInto(
+      isMain ? pendingMainPhotos : pendingExtraPhotos,
+      imgFiles,
+      isMain ? renderMainThumbs : renderExtraThumbs
+    );
+  });
+
+  /* ── Save / Update ───────────────────── */
+  document.getElementById('adm-save').addEventListener('click', function () {
+    if (pendingUploads > 0) return;
+
+    var title = document.getElementById('af-title').value.trim();
+    var desc  = document.getElementById('af-desc').value.trim();
+    var tags  = document.getElementById('af-tags').value.trim();
+    var figma = document.getElementById('af-figma').value.trim();
+    if (!title) { document.getElementById('af-title').focus(); return; }
+
+    var custom = loadCustomProjects();
+    if (editingId) {
+      var idx = custom.findIndex(function (p) { return p.id === editingId; });
+      if (idx >= 0) Object.assign(custom[idx], {
+        title: title, desc: desc || title, tags: tags || 'Design',
+        figmaUrl: figma,
+        photos: pendingMainPhotos.slice(), extraPhotos: pendingExtraPhotos.slice()
+      });
+    } else {
+      custom.push({
+        id: 'custom_' + Date.now(),
+        title: title, desc: desc || title, tags: tags || 'Design',
+        figmaUrl: figma,
+        photos: pendingMainPhotos.slice(), extraPhotos: pendingExtraPhotos.slice()
+      });
+    }
+
+    var btn = document.getElementById('adm-save');
+    var prevText = btn.textContent;
+    btn.disabled = true; btn.style.opacity = '0.6';
+    btn.textContent = 'Saving…';
+
+    saveCustomProjects(custom).then(function (ok) {
+      btn.disabled = false; btn.style.opacity = '';
+      btn.textContent = prevText;
+      if (!ok) return;
+      PROJECTS = buildProjectList();
+      buildNav(); renderAdmList();
+      var goTo = editingId ? curProj : PROJECTS.length - 1;
+      clearForm();
+      if (ov.classList.contains('open')) selectProject(goTo);
+    });
+  });
+
+  function clearForm() {
+    editingId = null;
+    ['af-title','af-desc','af-tags','af-figma'].forEach(function (id) {
+      document.getElementById(id).value = '';
+    });
+    pendingMainPhotos.length = 0; pendingExtraPhotos.length = 0;
+    renderMainThumbs(); renderExtraThumbs();
+    document.getElementById('adm-form-title').textContent    = 'Add New Project';
+    document.getElementById('adm-edit-banner').style.display = 'none';
+    document.getElementById('adm-save').textContent          = 'Add Project';
+  }
+
+  document.getElementById('adm-edit-discard').addEventListener('click', clearForm);
+
+  /* ── Backup: Export projects.json (Import removed — server is source of truth) ── */
+  var stExport = document.getElementById('st-export');
+  if (stExport) stExport.addEventListener('click', function () {
+    var data = loadCustomProjects();
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'projects.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  });
+
+  /* ── Startup: pull projects from backend ── */
+  fetchProjects().then(function () {
+    PROJECTS = buildProjectList();
+    buildNav();
+    renderAdmList();
+    if (ov.classList.contains('open') && PROJECTS.length) {
+      if (curProj >= PROJECTS.length) curProj = 0;
+      selectProject(curProj);
+    }
+  });
+
+})();
+</script>
+</body>
+</html>

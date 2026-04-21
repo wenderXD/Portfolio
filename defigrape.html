@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375, initial-scale=1.0">
+<title>DefiGrape</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --p:#7c3aed;--p10:rgba(124,58,237,.1);--p20:rgba(124,58,237,.2);
+  --g:#10b981;--g10:rgba(16,185,129,.1);--r:#ef4444;
+  --dk:#1f2937;--mu:#6b7280;--bd:#e5e7eb;--bg:#fafafa;
+  --cs:0 2px 8px rgba(0,0,0,.05);
+}
+html,body{width:375px;height:812px;overflow:hidden;background:var(--bg);font-family:'Outfit',sans-serif;color:var(--dk);position:relative}
+
+/* ── Screen system ── */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg)}
+.screen.on{display:flex}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+.scroll::-webkit-scrollbar{display:none}
+.scroll-pad{padding-bottom:90px}
+
+/* ── Bottom Nav ── */
+.bnav{position:absolute;bottom:0;left:0;right:0;height:75px;background:#fff;
+  border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-around;
+  padding:0 6px 8px;z-index:50;box-shadow:0 -2px 10px rgba(0,0,0,.05)}
+.ni{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:10px}
+.ni svg{opacity:.4;transition:.2s}
+.ni span{font-size:10px;color:var(--mu);font-weight:500;transition:.2s}
+.ni.sel svg{opacity:1}.ni.sel svg path,.ni.sel svg circle{stroke:var(--p)}
+.ni.sel span{color:var(--p);font-weight:700}
+
+/* ── Cards ── */
+.card{background:#fff;border-radius:18px;box-shadow:var(--cs)}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600}
+.chip.g{background:var(--g10);color:var(--g)}
+.chip.p{background:var(--p10);color:var(--p)}
+.chip.gray{background:rgba(0,0,0,.05);color:var(--mu)}
+
+/* ── SIGN IN ── */
+#s-in{background:linear-gradient(160deg,#ede9fe 0%,#faf5ff 45%,#ddd6fe 100%)}
+.in-bg{position:absolute;inset:0;background:radial-gradient(ellipse 120% 100% at 50% -10%,rgba(167,139,250,.5),transparent 60%);pointer-events:none}
+.in-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:60px 28px 0}
+.in-logo{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.in-logo img{width:44px;height:44px;object-fit:contain}
+.in-logo span{font-size:26px;font-weight:700;color:var(--dk)}
+.in-tabs{display:flex;gap:0;background:rgba(255,255,255,.5);border-radius:20px;padding:3px;margin-bottom:28px}
+.in-tab{flex:1;text-align:center;padding:8px 20px;font-size:13px;font-weight:600;color:var(--mu);border-radius:17px;cursor:pointer;transition:.2s}
+.in-tab.sel{background:#fff;color:var(--dk);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.in-field{width:100%;background:rgba(255,255,255,.75);border:none;border-radius:14px;padding:16px 18px;font-size:14px;font-family:'Outfit',sans-serif;color:var(--dk);outline:none;margin-bottom:12px}
+.in-field::placeholder{color:var(--mu)}
+.in-or{text-align:center;font-size:12px;color:var(--mu);margin:4px 0 12px}
+.in-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,.85);border:none;border-radius:14px;padding:14px;font-size:14px;font-family:'Outfit',sans-serif;font-weight:500;color:var(--dk);cursor:pointer;margin-bottom:16px}
+.in-google img{width:18px;height:18px}
+.in-btn{width:100%;background:var(--dk);color:#fff;border:none;border-radius:14px;padding:16px;font-size:15px;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;transition:.15s}
+.in-btn:hover{background:#111827}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:center;justify-content:space-between;padding:44px 22px 14px}
+.ph-logo{display:flex;align-items:center;gap:8px}
+.ph-logo img{width:48px;height:34px;object-fit:contain}
+.ph-logo .ph-t{font-size:18px;font-weight:700;color:var(--dk)}
+.ph-btn{width:36px;height:36px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+.ph-btn img{width:18px;height:18px}
+
+/* ── HOME ── */
+.search-bar{margin:0 16px 14px;background:#fff;border:1px solid var(--bd);border-radius:22px;padding:11px 16px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.ask-ai-pill{background:var(--p);border-radius:10px;padding:4px 10px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap}
+.search-bar span{font-size:12px;color:var(--mu)}
+.chains{display:flex;gap:8px;padding:0 16px;overflow-x:auto;margin-bottom:16px}
+.chains::-webkit-scrollbar{display:none}
+.ch{flex-shrink:0;background:#fff;border:1.5px solid var(--bd);border-radius:20px;padding:7px 16px;font-size:12px;font-weight:500;color:var(--mu);cursor:pointer;transition:.2s;white-space:nowrap}
+.ch.sel{background:var(--p);border-color:var(--p);color:#fff;font-weight:600}
+.tvl-card{margin:0 16px 14px;padding:18px 20px 10px}
+.tvl-lbl{font-size:11px;color:var(--mu);font-weight:500;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.tvl-val{font-size:26px;font-weight:700;margin-bottom:10px}
+.tvl-time{display:flex;justify-content:space-between;padding:4px 4px 0;font-size:9px;color:var(--mu)}
+.stats-row{display:flex;gap:8px;padding:0 16px;overflow-x:auto;margin-bottom:14px}
+.stats-row::-webkit-scrollbar{display:none}
+.sc{flex-shrink:0;min-width:152px;padding:14px 16px}
+.sc-lbl{font-size:10px;color:var(--mu);font-weight:500;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
+.sc-val{font-size:16px;font-weight:700;margin-bottom:2px}
+.sc-sub{font-size:10px;font-weight:600}
+.up{color:var(--g)}.dn{color:var(--r)}
+.mini-row{display:flex;gap:8px;padding:0 16px;margin-bottom:14px}
+.mc{flex:1;padding:14px}
+.mc-lbl{font-size:9px;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
+.mc-val{font-size:13px;font-weight:700;margin-bottom:8px}
+.bars{display:flex;align-items:flex-end;gap:3px;height:28px}
+.bar{flex:1;border-radius:2px;background:var(--p10);min-height:4px;transition:.3s}
+.bar.hl{background:var(--p)}
+
+/* ── PORTFOLIO ── */
+.port-hero{text-align:center;padding:40px 22px 20px}
+.port-hero .lbl{font-size:10px;color:var(--mu);font-weight:500;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.port-hero .val{font-size:34px;font-weight:700;margin-bottom:14px}
+.port-chips{display:flex;gap:10px;justify-content:center}
+.port-chip{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(0,0,0,.03)}
+.port-chip .pci{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.port-chip .pci img{width:18px;height:18px;object-fit:contain}
+.port-chip-v{font-size:14px;font-weight:700}
+.port-chip-l{font-size:10px;color:var(--mu)}
+.alloc-card{margin:0 16px 14px;padding:18px}
+.alloc-inner{display:flex;align-items:center;gap:18px}
+.donut-wrap{position:relative;width:126px;height:126px;flex-shrink:0}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.donut-center .dn{font-size:18px;font-weight:700;color:var(--dk)}
+.donut-center .dl{font-size:10px;color:var(--mu)}
+.legend{display:flex;flex-direction:column;gap:9px}
+.lr{display:flex;align-items:center;gap:8px}
+.ld{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.ln{font-size:12px;color:var(--dk);font-weight:500;flex:1}
+.lp{font-size:12px;color:var(--mu);font-weight:600}
+.sec-hd{display:flex;justify-content:space-between;align-items:center;padding:0 22px 10px}
+.sec-t{font-size:15px;font-weight:700}
+.sec-a{font-size:12px;font-weight:600;color:var(--p);cursor:pointer}
+.hr{display:flex;align-items:center;gap:12px;padding:12px 22px;cursor:pointer;transition:.15s}
+.hr:hover{background:rgba(0,0,0,.02)}
+.hi{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.hi img{width:100%;height:100%;object-fit:cover}
+.hi-n{font-size:14px;font-weight:600}
+.hi-a{font-size:11px;color:var(--mu);margin-top:2px}
+.hr-r{text-align:right;margin-left:auto}
+.hr-v{font-size:14px;font-weight:600}
+.hr-c{font-size:11px;margin-top:2px}
+
+/* ── STAKING ── */
+.stk-hero{text-align:center;padding:38px 22px 18px}
+.stk-lbl{font-size:10px;color:var(--mu);font-weight:500;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.stk-val{font-size:30px;font-weight:700;display:inline-flex;align-items:center;gap:10px}
+.add-btn{width:24px;height:24px;background:#fff;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;font-weight:700;color:var(--dk);border:none;font-family:'Outfit',sans-serif}
+.stk-chips{display:flex;gap:10px;justify-content:center;margin-top:14px}
+.stk-chip{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px}
+.stk-chip.g{background:var(--g10)}.stk-chip.gray{background:rgba(0,0,0,.04)}
+.chip-icon{width:34px;height:34px;border-radius:10px;overflow:hidden;flex-shrink:0}
+.chip-icon img{width:100%;height:100%;object-fit:cover}
+.chip-v{font-size:14px;font-weight:700;color:var(--g)}
+.chip-v.dk{color:var(--dk)}
+.chip-l{font-size:10px;color:var(--mu);font-weight:500}
+.pop-card{margin:0 16px 10px;padding:16px 18px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:.15s}
+.pop-card:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.pop-card img{width:68px;height:68px;flex-shrink:0;border-radius:10px}
+.pop-n{font-size:14px;font-weight:600;margin-bottom:2px}
+.pop-apy{font-size:11px;font-weight:600;color:var(--g);margin-bottom:2px}
+.pop-p{font-size:13px;font-weight:600}
+.pop-note{font-size:10px;color:var(--mu)}
+.stk-row{display:flex;align-items:center;gap:12px;padding:13px 16px;margin:0 16px 10px;cursor:pointer;transition:.15s}
+.stk-row:hover{background:rgba(124,58,237,.03)}
+.stk-icon{width:42px;height:42px;border-radius:50%;flex-shrink:0;overflow:hidden}
+.stk-icon img{width:100%;height:100%;object-fit:cover}
+.stk-icon.eth{background:#627eea;display:flex;align-items:center;justify-content:center}
+.stk-icon.eth img{width:28px;height:28px}
+.stk-n{font-size:14px;font-weight:600}
+.stk-a{font-size:11px;color:var(--mu);margin-top:2px}
+.stk-r{text-align:right;margin-left:auto}
+.stk-v{font-size:14px;font-weight:600}
+.stk-apy{font-size:11px;font-weight:600;color:var(--g);margin-top:2px}
+
+/* ── POOL DETAIL BOTTOM SHEET ── */
+.bso{position:absolute;inset:0;background:rgba(0,0,0,.25);z-index:60;display:none;align-items:flex-end;backdrop-filter:blur(2px)}
+.bso.on{display:flex}
+.bs{background:var(--bg);border-radius:28px 28px 0 0;width:100%;max-height:90%;overflow-y:auto;padding-bottom:24px;animation:sup .3s cubic-bezier(.4,0,.2,1)}
+.bs::-webkit-scrollbar{display:none}
+@keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.bs-handle{display:flex;justify-content:center;padding:12px 0 6px}
+.bs-handle div{width:36px;height:4px;background:var(--bd);border-radius:2px}
+.bs-hd{display:flex;align-items:center;justify-content:space-between;padding:6px 22px 16px}
+.bs-pi{display:flex;align-items:center;gap:14px}
+.pool-icons{width:58px;height:40px;position:relative;flex-shrink:0}
+.pool-ic{width:40px;height:40px;border-radius:50%;position:absolute;border:3px solid var(--bg);overflow:hidden}
+.pool-ic img{width:100%;height:100%;object-fit:cover}
+.pool-ic:first-child{left:0;z-index:2}.pool-ic:last-child{left:18px;z-index:1}
+.pool-ic.usdc{background:#2775ca;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+.bs-close{width:36px;height:36px;background:#f3f4f6;border:none;border-radius:50%;cursor:pointer;font-size:16px;color:var(--mu);display:flex;align-items:center;justify-content:center}
+.met-row{display:flex;gap:10px;padding:0 22px;margin-bottom:14px}
+.met{flex:1;background:#fff;border-radius:16px;padding:12px;text-align:center;box-shadow:var(--cs)}
+.met.pur{background:linear-gradient(135deg,rgba(124,58,237,.09),rgba(124,58,237,.03));border:1px solid rgba(124,58,237,.15)}
+.met-l{font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.3px}
+.met-v{font-size:18px;font-weight:700;margin-top:4px}
+.met-v.p{color:var(--p)}
+.pos-sec{padding:0 22px 14px}
+.pos-card{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:var(--cs)}
+.pos-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0}
+.pos-row+.pos-row{border-top:1px solid #f3f4f6}
+.pos-l{font-size:13px;color:var(--mu);font-weight:500}
+.pos-rv{font-size:14px;font-weight:700}
+.pos-sub{font-size:11px;color:var(--mu)}
+.claim{background:var(--g10);border:none;border-radius:8px;padding:5px 13px;font-size:12px;font-weight:700;color:var(--g);cursor:pointer;font-family:'Outfit',sans-serif}
+.apy-hist{padding:0 22px 14px}
+.apy-chart-img{width:100%;height:110px;object-fit:cover;border-radius:12px;display:block}
+.risk-row{display:flex;gap:8px;padding:0 22px;margin-bottom:12px;flex-wrap:wrap}
+.fee-row{display:flex;gap:8px;padding:0 22px;margin-bottom:14px}
+.fee-c{flex:1;background:#fff;border-radius:12px;padding:10px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.fee-l{font-size:9px;font-weight:600;color:var(--mu);text-transform:uppercase}
+.fee-v{font-size:14px;font-weight:700;margin-top:3px}
+.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;font-size:12px;font-weight:500;color:#92400e;margin:0 22px 14px}
+.stk-toggle{display:flex;background:#f3f4f6;border-radius:14px;padding:4px;margin:0 22px 12px}
+.stk-tab{flex:1;text-align:center;padding:9px;font-size:14px;font-weight:600;border-radius:11px;cursor:pointer;color:var(--mu);transition:.2s}
+.stk-tab.on{background:#fff;color:var(--p);box-shadow:0 2px 5px rgba(0,0,0,.06)}
+.stk-inp-wrap{margin:0 22px 8px;background:#fff;border:2px solid var(--bd);border-radius:16px;padding:8px 8px 8px 18px;display:flex;align-items:center;gap:8px}
+.stk-inp{flex:1;font-size:20px;font-weight:700;color:var(--dk);border:none;outline:none;font-family:'Outfit',sans-serif;background:none}
+.max-b{background:var(--p10);border:none;border-radius:12px;padding:9px 16px;font-size:12px;font-weight:700;color:var(--p);cursor:pointer;font-family:'Outfit',sans-serif}
+.est{padding:0 26px 14px;font-size:12px;font-weight:500;color:var(--mu)}
+.bs-actions{display:flex;gap:10px;padding:14px 22px 0;border-top:1px solid #f3f4f6}
+.bc{flex:1;background:#f3f4f6;border:none;border-radius:16px;padding:15px;font-size:15px;font-weight:700;color:var(--mu);cursor:pointer;font-family:'Outfit',sans-serif}
+.bcs{flex:1;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;border-radius:16px;padding:15px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 8px 20px rgba(124,58,237,.3);font-family:'Outfit',sans-serif;transition:.15s}
+.bcs:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(124,58,237,.35)}
+
+/* ── SUCCESS ── */
+#s-ok{align-items:center;justify-content:center;text-align:center;padding:40px 32px}
+.ok-anim{width:130px;height:130px;border-radius:50%;background:rgba(16,185,129,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 28px}
+.ok-anim svg{animation:pop .5s .2s cubic-bezier(.17,.67,.34,1.5) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.ok-eth{font-size:28px;font-weight:800;margin-bottom:6px}
+.ok-t{font-size:20px;font-weight:700;margin-bottom:6px}
+.ok-s{font-size:13px;color:var(--mu);margin-bottom:32px}
+.ok-btn{background:var(--g);color:#fff;border:none;border-radius:40px;padding:14px 40px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;box-shadow:0 6px 16px rgba(16,185,129,.3)}
+</style>
+</head>
+<body>
+
+<!-- ══ SIGN IN ══ -->
+<div id="s-in" class="screen on">
+  <div class="in-bg"></div>
+  <div class="in-wrap">
+    <div class="in-logo">
+      <img src="https://www.figma.com/api/mcp/asset/c502fcfa-0435-4f60-8074-5ea8fed7e8d7" alt="">
+      <span>Sign In</span>
+    </div>
+    <div class="in-tabs">
+      <div class="in-tab sel">Sign In</div>
+      <div class="in-tab" onclick="this.classList.add('sel');this.previousElementSibling.classList.remove('sel')">Register</div>
+    </div>
+    <input class="in-field" type="text" placeholder="E-mail / Phone Number">
+    <input class="in-field" type="password" placeholder="Password">
+    <div class="in-or">Or</div>
+    <button class="in-google" onclick="go('home')">
+      <img src="https://www.figma.com/api/mcp/asset/ff06dd34-e431-4616-b839-2a3b091daee4" alt="">
+      Sign in with Google
+    </button>
+    <button class="in-btn" onclick="go('home')">Sign In</button>
+  </div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div id="s-home" class="screen">
+  <div class="scroll scroll-pad">
+    <div class="ph">
+      <div class="ph-logo">
+        <img src="https://www.figma.com/api/mcp/asset/0978b88d-6286-45f5-b315-242f7a292036" alt="">
+        <span class="ph-t">DefiGrape</span>
+      </div>
+      <button class="ph-btn"><img src="https://www.figma.com/api/mcp/asset/968bece1-7439-407e-9ec5-221fa8a53dbd" alt=""></button>
+    </div>
+    <div class="search-bar">
+      <span class="ask-ai-pill">⚡ Ask AI</span>
+      <span>Click to Browse &amp; Search</span>
+    </div>
+    <div class="chains" id="chains">
+      <div class="ch sel" onclick="selChain(this)">All</div>
+      <div class="ch" onclick="selChain(this)">Ethereum</div>
+      <div class="ch" onclick="selChain(this)">Solana</div>
+      <div class="ch" onclick="selChain(this)">Bitcoin</div>
+      <div class="ch" onclick="selChain(this)">BSC</div>
+      <div class="ch" onclick="selChain(this)">Base</div>
+      <div class="ch" onclick="selChain(this)">Tron</div>
+    </div>
+    <div class="card tvl-card">
+      <div class="tvl-lbl">Total Value Locked</div>
+      <div class="tvl-val">$123.604b</div>
+      <svg width="100%" height="88" viewBox="0 0 310 88" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7c3aed" stop-opacity=".25"/>
+            <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <polygon points="0,88 0,62 28,58 55,54 78,57 100,42 128,36 155,43 178,31 205,28 230,21 260,16 310,13 310,88" fill="url(#g1)"/>
+        <polyline points="0,62 28,58 55,54 78,57 100,42 128,36 155,43 178,31 205,28 230,21 260,16 310,13" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      <div class="tvl-time"><span>2018</span><span>2020</span><span>2022</span><span>2024</span><span>2026</span></div>
+    </div>
+    <div class="stats-row">
+      <div class="card sc">
+        <div class="sc-lbl">Total Value Locked</div>
+        <div class="sc-val">$123.604b</div>
+        <div class="sc-sub up">+0.58% 24h</div>
+      </div>
+      <div class="card sc">
+        <div class="sc-lbl">StableCoins Mcap</div>
+        <div class="sc-val">$307.184b</div>
+        <div class="sc-sub dn">-0.20% 7d</div>
+      </div>
+      <div class="card sc">
+        <div class="sc-lbl">DEXs Volume (24h)</div>
+        <div class="sc-val">$6.832b</div>
+        <div class="sc-sub up">+17.61% 7d</div>
+      </div>
+    </div>
+    <div class="mini-row">
+      <div class="card mc">
+        <div class="mc-lbl">Upcoming Unlocks</div>
+        <div class="mc-val">2.6b / 14 days</div>
+        <div class="bars">
+          <div class="bar" style="height:48%"></div>
+          <div class="bar hl" style="height:70%"></div>
+          <div class="bar" style="height:38%"></div>
+          <div class="bar hl" style="height:82%"></div>
+          <div class="bar" style="height:52%"></div>
+          <div class="bar" style="height:64%"></div>
+          <div class="bar hl" style="height:44%"></div>
+          <div class="bar hl" style="height:90%"></div>
+        </div>
+      </div>
+      <div class="card mc">
+        <div class="mc-lbl">DEXs Volume</div>
+        <div class="mc-val">$6.832b (24h)</div>
+        <div class="bars">
+          <div class="bar" style="height:58%"></div>
+          <div class="bar hl" style="height:44%"></div>
+          <div class="bar" style="height:76%"></div>
+          <div class="bar" style="height:36%"></div>
+          <div class="bar hl" style="height:88%"></div>
+          <div class="bar" style="height:54%"></div>
+          <div class="bar" style="height:68%"></div>
+          <div class="bar hl" style="height:95%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="bnav" id="bnav-home"></nav>
+</div>
+
+<!-- ══ PORTFOLIO ══ -->
+<div id="s-port" class="screen">
+  <div class="scroll scroll-pad">
+    <div class="ph">
+      <div class="ph-logo">
+        <img src="https://www.figma.com/api/mcp/asset/0978b88d-6286-45f5-b315-242f7a292036" alt="">
+        <span class="ph-t">Portfolio</span>
+      </div>
+      <button class="ph-btn"><img src="https://www.figma.com/api/mcp/asset/968bece1-7439-407e-9ec5-221fa8a53dbd" alt=""></button>
+    </div>
+    <div class="port-hero">
+      <div class="lbl">Total Net Worth</div>
+      <div class="val">$24,562.40</div>
+      <div class="port-chips">
+        <div class="port-chip" style="background:rgba(16,185,129,.07)">
+          <div class="pci" style="background:rgba(16,185,129,.15)"><img src="https://www.figma.com/api/mcp/asset/3de0f983-4b9f-4f2c-abc5-79ba3ed13e2d" alt="" style="width:18px;height:18px"></div>
+          <div><div class="port-chip-v up">+$1,042.18</div><div class="port-chip-l">P&amp;L (24h)</div></div>
+        </div>
+        <div class="port-chip" style="background:rgba(0,0,0,.04)">
+          <div><div class="port-chip-v">$14,042.18</div><div class="port-chip-l">Total Value Staked ›</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card alloc-card">
+      <div style="font-size:15px;font-weight:700;margin-bottom:14px">Asset Allocation</div>
+      <div class="alloc-inner">
+        <div class="donut-wrap">
+          <svg width="126" height="126" viewBox="0 0 126 126">
+            <circle cx="63" cy="63" r="48" fill="none" stroke="#f3f4f6" stroke-width="18"/>
+            <circle cx="63" cy="63" r="48" fill="none" stroke="#f7931a" stroke-width="18"
+              stroke-dasharray="127 174" stroke-dashoffset="0" transform="rotate(-90 63 63)"/>
+            <circle cx="63" cy="63" r="48" fill="none" stroke="#627eea" stroke-width="18"
+              stroke-dasharray="85 216" stroke-dashoffset="-127" transform="rotate(-90 63 63)"/>
+            <circle cx="63" cy="63" r="48" fill="none" stroke="#9945ff" stroke-width="18"
+              stroke-dasharray="45 256" stroke-dashoffset="-212" transform="rotate(-90 63 63)"/>
+            <circle cx="63" cy="63" r="48" fill="none" stroke="#26a17b" stroke-width="18"
+              stroke-dasharray="15 286" stroke-dashoffset="-257" transform="rotate(-90 63 63)"/>
+          </svg>
+          <div class="donut-center"><div class="dn">5</div><div class="dl">Assets</div></div>
+        </div>
+        <div class="legend">
+          <div class="lr"><div class="ld" style="background:#f7931a"></div><span class="ln">BTC</span><span class="lp">42%</span></div>
+          <div class="lr"><div class="ld" style="background:#627eea"></div><span class="ln">ETH</span><span class="lp">28%</span></div>
+          <div class="lr"><div class="ld" style="background:#9945ff"></div><span class="ln">SOL</span><span class="lp">15%</span></div>
+          <div class="lr"><div class="ld" style="background:#e84142"></div><span class="ln">AVAX</span><span class="lp">10%</span></div>
+          <div class="lr"><div class="ld" style="background:#375bd2"></div><span class="ln">LINK</span><span class="lp">5%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec-hd"><span class="sec-t">Holdings</span><span class="sec-a">Sort</span></div>
+    <div class="hr">
+      <div class="hi" style="background:#f7931a">₿</div>
+      <div><div class="hi-n">Bitcoin</div><div class="hi-a">0.2385 BTC</div></div>
+      <div class="hr-r"><div class="hr-v">$10,315.13</div><div class="hr-c up">+$248.50</div></div>
+    </div>
+    <div class="hr">
+      <div class="hi" style="background:#627eea"><img src="https://www.figma.com/api/mcp/asset/6d2668f6-429f-4798-80a4-551adb1ed4a7" alt=""></div>
+      <div><div class="hi-n">Ethereum</div><div class="hi-a">2.38 ETH</div></div>
+      <div class="hr-r"><div class="hr-v">$6,879.39</div><div class="hr-c dn">-$55.12</div></div>
+    </div>
+    <div class="hr">
+      <div class="hi" style="background:#9945ff">◎</div>
+      <div><div class="hi-n">Solana</div><div class="hi-a">35.40 SOL</div></div>
+      <div class="hr-r"><div class="hr-v">$3,688.68</div><div class="hr-c up">+$188.30</div></div>
+    </div>
+    <div class="hr">
+      <div class="hi" style="background:#e84142">A</div>
+      <div><div class="hi-n">Avalanche</div><div class="hi-a">68.5 AVAX</div></div>
+      <div class="hr-r"><div class="hr-v">$2,456.32</div><div class="hr-c up">+$62.80</div></div>
+    </div>
+    <div class="hr">
+      <div class="hi" style="background:#375bd2">⬡</div>
+      <div><div class="hi-n">Chainlink</div><div class="hi-a">82.0 LINK</div></div>
+      <div class="hr-r"><div class="hr-v">$1,222.88</div><div class="hr-c dn">-$18.40</div></div>
+    </div>
+  </div>
+  <nav class="bnav" id="bnav-port"></nav>
+</div>
+
+<!-- ══ STAKING ══ -->
+<div id="s-stk" class="screen">
+  <div class="scroll scroll-pad">
+    <div class="ph">
+      <div class="ph-logo">
+        <img src="https://www.figma.com/api/mcp/asset/6d85b1dd-eeb4-4179-a9af-216adf1bd205" alt="">
+        <span class="ph-t">Staking</span>
+      </div>
+      <button class="ph-btn"><img src="https://www.figma.com/api/mcp/asset/d27dad8c-7c1c-4819-9c97-f90f89a2b02e" alt=""></button>
+    </div>
+    <div class="stk-hero">
+      <div class="stk-lbl">Total Value Staked</div>
+      <div class="stk-val">$14,042.18 <button class="add-btn">+</button></div>
+      <div class="stk-chips">
+        <div class="stk-chip g">
+          <div class="chip-icon"><img src="https://www.figma.com/api/mcp/asset/c263ea57-73b6-44e1-aa31-9fef357d6dd0" alt=""></div>
+          <div><div class="chip-v">+$18.4</div><div class="chip-l">Daily Income</div></div>
+        </div>
+        <div class="stk-chip gray">
+          <div class="chip-icon" style="background:rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center"><img src="https://www.figma.com/api/mcp/asset/ffad5647-4aba-455c-b309-2b38f3e7392d" alt="" style="width:18px;height:18px"></div>
+          <div><div class="chip-v dk">5.34%</div><div class="chip-l">Average APY%</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec-hd"><span class="sec-t">Popular Staking Options</span><span class="sec-a">More</span></div>
+    <div class="card pop-card" onclick="openPool()">
+      <img src="https://www.figma.com/api/mcp/asset/a6b526fe-a702-4a07-be37-9ffb013a04f6" alt="TRX">
+      <div class="pop-info">
+        <div class="pop-n">Tron (TRX)</div>
+        <div class="pop-apy">16.5% APY</div>
+        <div class="pop-p">Cryptomus, Binance</div>
+        <div class="pop-note">Stable but centralized</div>
+      </div>
+    </div>
+    <div class="sec-hd" style="margin-top:6px">
+      <span class="sec-t">Staked Assets</span>
+      <span class="sec-a">+ Stake</span>
+    </div>
+    <div class="card stk-row" onclick="openPool()">
+      <div class="stk-icon"><img src="https://www.figma.com/api/mcp/asset/041d3816-5e7b-4e2e-b587-db1eb5c8ee39" alt="SOL"></div>
+      <div><div class="stk-n">Solana</div><div class="stk-a">88.74 SOL</div></div>
+      <div class="stk-r"><div class="stk-v">$7,163.23</div><div class="stk-apy">6.8% APY</div></div>
+    </div>
+    <div class="card stk-row" onclick="openPool()">
+      <div class="stk-icon eth"><img src="https://www.figma.com/api/mcp/asset/83d13106-1dc7-4477-914f-dfd22870f9d9" alt="ETH"></div>
+      <div><div class="stk-n">Ethereum</div><div class="stk-a">2.38 ETH</div></div>
+      <div class="stk-r"><div class="stk-v">$6,879.39</div><div class="stk-apy">4.8% APY</div></div>
+    </div>
+  </div>
+  <nav class="bnav" id="bnav-stk"></nav>
+
+  <!-- Pool Detail Bottom Sheet -->
+  <div class="bso" id="pool-sheet" onclick="sheetBg(event)">
+    <div class="bs">
+      <div class="bs-handle"><div></div></div>
+      <div class="bs-hd">
+        <div class="bs-pi">
+          <div class="pool-icons">
+            <div class="pool-ic"><img src="https://www.figma.com/api/mcp/asset/a4cabdcf-7c82-450d-9e6a-5a1ca306ea53" alt="ETH"></div>
+            <div class="pool-ic usdc">$</div>
+          </div>
+          <div>
+            <div style="font-size:16px;font-weight:700">ETH / USDC Pool</div>
+            <div style="font-size:11px;color:var(--mu)">Stable pair · Low risk · 0.3% fee tier</div>
+          </div>
+        </div>
+        <button class="bs-close" onclick="closePool()">✕</button>
+      </div>
+      <div class="met-row">
+        <div class="met pur">
+          <div class="met-l">APY</div>
+          <div class="met-v p">4.8%</div>
+        </div>
+        <div class="met">
+          <div class="met-l">TVL</div>
+          <div class="met-v">$142.5M</div>
+        </div>
+        <div class="met">
+          <div class="met-l">Lock-up</div>
+          <div class="met-v" style="font-size:14px">Flexible</div>
+        </div>
+      </div>
+      <div class="pos-sec">
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px">Your Position</div>
+        <div class="pos-card">
+          <div class="pos-row">
+            <span class="pos-l">Staked Amount</span>
+            <div style="text-align:right"><div class="pos-rv">2.0 ETH</div><div class="pos-sub">≈ $5,781.00</div></div>
+          </div>
+          <div class="pos-row">
+            <span class="pos-l">Unclaimed Rewards</span>
+            <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+              <div class="pos-rv up">+$124.50</div>
+              <button class="claim">Claim</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="apy-hist">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:14px;font-weight:700">APY History</span>
+          <div style="display:flex;background:#f3f4f6;border-radius:10px;padding:3px;gap:2px">
+            <div id="tab7d" style="padding:5px 10px;font-size:10px;font-weight:600;border-radius:8px;cursor:pointer;background:#fff;color:var(--p);box-shadow:0 1px 3px rgba(0,0,0,.08)" onclick="setHistTab('7d')">7D</div>
+            <div id="tab30d" style="padding:5px 10px;font-size:10px;font-weight:600;border-radius:8px;cursor:pointer;color:var(--mu)" onclick="setHistTab('30d')">30D</div>
+          </div>
+        </div>
+        <img src="https://www.figma.com/api/mcp/asset/04297d90-e55b-4833-bf90-a0bd86aa1aae" alt="APY History" class="apy-chart-img">
+      </div>
+      <div style="padding:0 22px;font-size:14px;font-weight:700;margin-bottom:10px">Risk &amp; Conditions</div>
+      <div class="risk-row">
+        <div class="chip g"><img src="https://www.figma.com/api/mcp/asset/6022ee74-42b1-40a4-b562-bf0bbee34948" alt="" style="width:12px;height:12px"> Audited</div>
+        <div class="chip" style="background:rgba(16,185,129,.07);color:#059669">IL: Low</div>
+      </div>
+      <div class="fee-row">
+        <div class="fee-c"><div class="fee-l">Entry Fee</div><div class="fee-v">0%</div></div>
+        <div class="fee-c"><div class="fee-l">Exit Fee</div><div class="fee-v">0.1%</div></div>
+        <div class="fee-c"><div class="fee-l">Perf. Fee</div><div class="fee-v">10%</div></div>
+      </div>
+      <div class="warn">
+        <img src="https://www.figma.com/api/mcp/asset/bad90f3d-aca7-4714-ad9f-c60cd51e5eb8" alt="" style="width:18px;height:18px;flex-shrink:0;margin-top:1px">
+        High volatility pool — APY may change quickly
+      </div>
+      <div class="stk-toggle">
+        <div class="stk-tab on" id="tab-stake" onclick="setStakeTab('stake')">Stake</div>
+        <div class="stk-tab" id="tab-unstake" onclick="setStakeTab('unstake')">Unstake</div>
+      </div>
+      <div class="stk-inp-wrap">
+        <input class="stk-inp" type="number" value="1.50" id="stk-amount">
+        <button class="max-b">MAX</button>
+      </div>
+      <div class="est">Est. rewards / 30d: <strong style="color:var(--g)">12.5 USDC</strong></div>
+      <div class="bs-actions">
+        <button class="bc" onclick="closePool()">Cancel</button>
+        <button class="bcs" onclick="confirmStake()">Confirm Stake</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUCCESS ══ -->
+<div id="s-ok" class="screen">
+  <div class="ok-anim">
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="28" stroke="#10b981" stroke-width="3" fill="rgba(16,185,129,.1)"/>
+      <polyline points="20,32 28,40 44,24" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </div>
+  <div class="ok-eth">10 ETH</div>
+  <div class="ok-t">Staked Successfully</div>
+  <div class="ok-s">$12,400 Has Been Staked</div>
+  <button class="ok-btn" onclick="go('stk')">Go Back</button>
+</div>
+
+<script>
+var SCREENS = ['home','port','stk'];
+var CUR = 'home';
+
+var NAV_ITEMS = [
+  {id:'home', label:'Home', svg:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 9.5L10 3l7 6.5V17a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" stroke="#6b7280" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 18v-5h4v5" stroke="#6b7280" stroke-width="1.6" stroke-linecap="round"/></svg>'},
+  {id:'chains', label:'Chains', svg:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#6b7280" stroke-width="1.6"/><path d="M10 3c0 0 3 3 3 7s-3 7-3 7M10 3c0 0-3 3-3 7s3 7 3 7M3 10h14" stroke="#6b7280" stroke-width="1.4" stroke-linecap="round"/></svg>'},
+  {id:'port', label:'Portfolio', svg:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="7" width="14" height="10" rx="2" stroke="#6b7280" stroke-width="1.6"/><path d="M7 7V5a3 3 0 016 0v2" stroke="#6b7280" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="12" r="1.5" fill="#6b7280"/></svg>'},
+  {id:'metrics', label:'Metrics', svg:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 14l4-5 4 3 4-6 2 2" stroke="#6b7280" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'},
+  {id:'stk', label:'More', svg:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="5" cy="10" r="1.5" fill="#6b7280"/><circle cx="10" cy="10" r="1.5" fill="#6b7280"/><circle cx="15" cy="10" r="1.5" fill="#6b7280"/></svg>'}
+];
+
+function buildNav(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var scr = id.replace('bnav-','');
+  el.innerHTML = NAV_ITEMS.map(function(n) {
+    var sel = (n.id === scr) ? ' sel' : '';
+    return '<div class="ni'+sel+'" onclick="go(\''+n.id+'\')">' + n.svg + '<span>' + n.label + '</span></div>';
+  }).join('');
+}
+
+buildNav('bnav-home');
+buildNav('bnav-port');
+buildNav('bnav-stk');
+
+function go(id) {
+  if (id === 'chains' || id === 'metrics') id = 'home';
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('on'); });
+  var target = document.getElementById('s-' + id);
+  if (target) { target.classList.add('on'); CUR = id; }
+}
+
+function selChain(el) {
+  document.querySelectorAll('.ch').forEach(function(c){ c.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+function openPool() {
+  document.getElementById('pool-sheet').classList.add('on');
+}
+function closePool() {
+  document.getElementById('pool-sheet').classList.remove('on');
+}
+function sheetBg(e) {
+  if (e.target === document.getElementById('pool-sheet')) closePool();
+}
+function confirmStake() {
+  closePool();
+  go('ok');
+}
+function setHistTab(t) {
+  document.getElementById('tab7d').style.background = t==='7d'?'#fff':'';
+  document.getElementById('tab7d').style.color = t==='7d'?'var(--p)':'var(--mu)';
+  document.getElementById('tab7d').style.boxShadow = t==='7d'?'0 1px 3px rgba(0,0,0,.08)':'';
+  document.getElementById('tab30d').style.background = t==='30d'?'#fff':'';
+  document.getElementById('tab30d').style.color = t==='30d'?'var(--p)':'var(--mu)';
+  document.getElementById('tab30d').style.boxShadow = t==='30d'?'0 1px 3px rgba(0,0,0,.08)':'';
+}
+function setStakeTab(t) {
+  document.getElementById('tab-stake').className = 'stk-tab' + (t==='stake'?' on':'');
+  document.getElementById('tab-unstake').className = 'stk-tab' + (t==='unstake'?' on':'');
+}
+</script>
+</body>
+</html>

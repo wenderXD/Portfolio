@@ -1,0 +1,2987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DefiGrape</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #e8e8e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* ============================================================
+       PHONE SHELL
+       ============================================================ */
+    .phone {
+      position: relative;
+      width: 375px;
+      height: 812px;
+      background: #fafafa;
+      border-radius: 40px;
+      box-shadow: 0px 50px 100px 0px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .notch {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 150px; height: 30px;
+      background: #000;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      z-index: 100;
+    }
+
+    /* ============================================================
+       SCREENS  — directional slide + fade
+       ============================================================ */
+    .screen {
+      position: absolute;
+      inset: 0;
+      width: 375px;
+      height: 812px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(24px);
+      transition: opacity 0.26s cubic-bezier(.4,0,.2,1),
+                  transform 0.26s cubic-bezier(.4,0,.2,1);
+      will-change: opacity, transform;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+    /* going backward — slide in from left */
+    .screen.slide-back {
+      transform: translateX(-24px);
+    }
+    .screen.slide-back.active {
+      transform: translateX(0);
+    }
+    /* sub-screens slide up from bottom */
+    .screen.slide-up {
+      transform: translateY(32px);
+    }
+    .screen.slide-up.active {
+      transform: translateY(0);
+    }
+
+    /* ============================================================
+       SIGN IN SCREEN
+       ============================================================ */
+
+    /* Background gradient — flipped vertically */
+    .signin-bg {
+      position: absolute;
+      width: 1257px; height: 889px;
+      top: -24px; left: -366px;
+      pointer-events: none;
+    }
+    .signin-bg img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.23;
+      transform: scaleY(-1);
+    }
+
+    /* Content column */
+    .signin-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 31px;
+      padding: 224px 22px;
+      overflow: hidden;
+    }
+
+    /* Logo row */
+    .signin-logo {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      width: 185px;
+      flex-shrink: 0;
+    }
+    .signin-logo img {
+      width: 72px; height: 48px;
+      flex-shrink: 0; display: block;
+    }
+    .signin-logo-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1f2937;
+      line-height: normal;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      height: 56px;
+    }
+
+    /* Tabs */
+    .signin-tabs {
+      display: flex;
+      gap: 19px;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+    .signin-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1px;
+      cursor: pointer;
+    }
+    .signin-tab-label {
+      font-size: 16px;
+      color: #3c3c3c;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      line-height: normal;
+    }
+    .signin-tab.active .signin-tab-label { color: #6801e8; }
+    .signin-tab-line {
+      display: none;
+      height: 2px;
+      width: 100%;
+      background: #7c3aed;
+      border-radius: 13px;
+    }
+    .signin-tab.active .signin-tab-line { display: block; }
+
+    /* Inputs */
+    .signin-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      width: 323px;
+      flex-shrink: 0;
+    }
+    .signin-field {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px 14px;
+      display: flex;
+      align-items: center;
+    }
+    .signin-field input {
+      border: none; outline: none;
+      background: transparent;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1f2937;
+      width: 100%;
+    }
+    .signin-field input::placeholder { color: #9ca3af; }
+
+    .signin-divider {
+      font-size: 14px;
+      color: #9ca3af;
+      text-align: center;
+      width: 100%;
+    }
+
+    .btn-google {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-google:hover { background: #f6f4ff; }
+    .btn-google img {
+      width: 16px; height: 16px;
+      flex-shrink: 0; display: block;
+    }
+    .btn-google span {
+      font-size: 14px;
+      color: #000;
+      white-space: nowrap;
+    }
+
+    /* ============================================================
+       DASHBOARD SCREEN
+       ============================================================ */
+
+    /* Logo dots */
+    .dash-dot {
+      position: absolute;
+      width: 17px; height: 17px;
+      display: block;
+    }
+    .dash-dot-1 { left: 38px; top: 75px; }
+    .dash-dot-2 { left: 55px; top: 56px; }
+    .dash-dot-3 { left: 72px; top: 75px; }
+
+    /* App title */
+    .dash-title {
+      position: absolute;
+      left: 103px; top: 65px;
+      font-size: 21.65px;
+      font-weight: 700;
+      color: #1f2937;
+      line-height: normal;
+      white-space: nowrap;
+    }
+
+    /* Search icon button */
+    .dash-search-btn {
+      position: absolute;
+      left: 323px; top: 55px;
+      width: 36px; height: 36px;
+      border-radius: 18px;
+      box-shadow: 0px 3.6px 5.4px -0.9px rgba(0,0,0,0.08);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .dash-search-btn img {
+      width: 18px; height: 18px;
+      display: block;
+    }
+
+    /* Ask AI bar */
+    .ask-ai-bar {
+      position: absolute;
+      top: 108px; left: 16px; right: 16px;
+      height: 48px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .ask-ai-pill {
+      flex-shrink: 0;
+      margin-left: 12px;
+      height: 26px;
+      min-width: 73.67px;
+      background: #7c3aed;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 10px 0 8px;
+    }
+    .ask-ai-pill img { width: 13px; height: 13px; display: block; }
+    .ask-ai-pill span {
+      font-size: 11.6px; font-weight: 700;
+      color: #fff; white-space: nowrap;
+    }
+    .ask-ai-placeholder {
+      margin-left: 12px;
+      font-size: 14px; color: #9ca3af;
+      white-space: nowrap; pointer-events: none;
+    }
+
+    /* Filter pills */
+    .filter-strip {
+      position: absolute;
+      top: 168px; left: 0; right: 0;
+      height: 45px;
+      overflow-x: auto; overflow-y: hidden;
+      scrollbar-width: none;
+    }
+    .filter-strip::-webkit-scrollbar { display: none; }
+    .filter-strip-inner {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 0 16px;
+      height: 45px;
+    }
+    .fpill {
+      flex-shrink: 0;
+      height: 33px;
+      border-radius: 20px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 13px;
+      color: #4b5563;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .fpill.active {
+      background: #7c3aed;
+      border-color: #7c3aed;
+      color: #fff;
+    }
+
+    /* TVL main card */
+    .tvl-card {
+      position: absolute;
+      top: 213px; left: 16px; right: 16px;
+      height: 239px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.05);
+    }
+    .tvl-card-label {
+      position: absolute;
+      top: 16px; left: 16px;
+      font-size: 14px; color: #6b7280;
+    }
+    .tvl-card-value {
+      position: absolute;
+      top: 36px; left: 16px;
+      font-size: 27.2px; font-weight: 700;
+      color: #1f2937; line-height: normal;
+    }
+    .tvl-chart-bg {
+      position: absolute;
+      top: 84px; left: 16px; right: 16px;
+      height: 120px;
+      background: linear-gradient(to bottom, rgba(124,58,237,0.1), rgba(124,58,237,0.02));
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .tvl-chart-img {
+      position: absolute;
+      left: -7px; top: 45px;
+      width: 322px; height: 78px;
+      display: block;
+    }
+    .tvl-year {
+      position: absolute;
+      bottom: 8px;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+
+    /* Stats scroll */
+    .stats-row {
+      position: absolute;
+      top: 468px; left: 0; right: 0;
+      height: 124.3px;
+      overflow-x: auto; overflow-y: hidden;
+      scrollbar-width: none;
+      display: flex;
+      gap: 12px;
+      padding: 0 16px;
+      align-items: flex-start;
+    }
+    .stats-row::-webkit-scrollbar { display: none; }
+    .stat-card {
+      flex-shrink: 0;
+      width: 160px;
+      height: 108.3px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.05);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+    }
+    .stat-title { font-size: 11px; color: #6b7280; line-height: 14.3px; }
+    .stat-val   { font-size: 17.4px; font-weight: 700; color: #1f2937; }
+    .stat-up    { font-size: 12px; color: #10b981; }
+    .stat-down  { font-size: 12px; color: #ef4444; }
+    .stat-note  { font-size: 10px; color: #9ca3af; }
+
+    /* Mini bar chart cards */
+    .mini-card {
+      position: absolute;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.05);
+    }
+    .mini-card-label {
+      position: absolute;
+      top: 12px; left: 12px;
+      font-size: 11px; color: #6b7280;
+    }
+    .mini-card-val {
+      position: absolute;
+      top: 28px; left: 12px;
+      font-size: 13px; font-weight: 700;
+      color: #1f2937;
+    }
+    /* Bar elements inside mini cards */
+    .bar {
+      position: absolute;
+      width: 15.5px;
+      background: #7c3aed;
+      border-radius: 2px;
+      bottom: 12px;
+    }
+
+    /* Row 1 */
+    .mini-r1l { top: 592.3px; left: 16px;     width: 165.5px; height: 107px; }
+    .mini-r1r { top: 592.3px; right: 16px;    width: 165.5px; height: 107px; }
+    /* Row 2 */
+    .mini-r2l { top: 711.3px; left: 16px;     width: 165.5px; height: 94.4px; }
+    .mini-r2r { top: 711.3px; right: 16px;    width: 165.5px; height: 94.4px; }
+
+    /* ============================================================
+       BOTTOM NAV  — flex, icons centered above labels
+       ============================================================ */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 75px;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      box-shadow: 0px -2px 10px 0px rgba(0,0,0,0.05);
+      overflow: hidden;
+      z-index: 10;
+    }
+    .nav-bg {
+      position: absolute;
+      left: -207px; top: -1px;
+      width: 1348px; height: 954px;
+      object-fit: cover;
+      opacity: 0.10;
+      pointer-events: none;
+    }
+    .nav-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      height: 100%;
+      padding: 0 6px;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 8px 2px;
+      min-width: 50px;
+    }
+    .nav-item img {
+      width: auto;
+      height: 18px;
+      max-width: 24px;
+      display: block;
+    }
+    .nav-item-label {
+      font-size: 11px;
+      color: #565656;
+      line-height: 1;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .nav-item.active .nav-item-label {
+      color: #7c3aed;
+      font-weight: 700;
+    }
+    .nav-item.active img {
+      filter: brightness(0) saturate(100%) invert(31%) sepia(79%) saturate(1400%) hue-rotate(248deg) brightness(97%) contrast(98%);
+    }
+    .nav-item img,
+    .nav-item .nav-hamburger {
+      transition: transform 0.15s ease, filter 0.18s ease;
+    }
+    .nav-item:active img,
+    .nav-item:active .nav-hamburger {
+      transform: scale(0.82);
+    }
+    .nav-item { transition: opacity 0.1s ease; }
+    .nav-item:active { opacity: 0.6; }
+
+    .nav-hamburger {
+      font-size: 18px;
+      color: rgba(0,0,0,0.5);
+      line-height: 1;
+      display: block;
+      width: 20px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ============================================================
+       PORTFOLIO SCREEN
+       ============================================================ */
+    .screen-portfolio .port-scroll {
+      position: absolute;
+      inset: 0 0 75px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      background: #fafafa;
+    }
+    .screen-portfolio .port-scroll::-webkit-scrollbar { display: none; }
+
+    .port-inner {
+      padding: 44px 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    /* Header */
+    .port-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .port-header-left {
+      display: flex;
+      align-items: center;
+      gap: 19px;
+    }
+    .port-header-left img {
+      width: 51px; height: 36px;
+      object-fit: cover; display: block;
+    }
+    .port-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 21.65px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .port-search-btn {
+      width: 36px; height: 36px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0px 3.6px 5.4px -0.9px rgba(0,0,0,0.05);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .port-search-btn img { width: 18px; height: 18px; display: block; }
+
+    /* Net Worth */
+    .port-net-worth {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .port-net-worth-labels {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4.5px;
+      padding-top: 3px;
+    }
+    .port-net-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.73px;
+      font-weight: 500;
+      color: #6b7280;
+      letter-spacing: 0.45px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .port-net-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32.48px;
+      font-weight: 700;
+      color: #1f2937;
+      text-align: center;
+    }
+    .port-stats-row {
+      display: flex;
+      gap: 11px;
+      width: 100%;
+    }
+    .port-stat-pl {
+      flex: 1;
+      background: rgba(16,185,129,0.08);
+      border-radius: 18px;
+      padding: 14.4px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .port-stat-pl-icon {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background: rgba(16,185,129,0.15);
+      border-radius: 12.6px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .port-stat-pl-icon img { width: 16px; height: 16px; display: block; }
+    .port-stat-pl-texts { display: flex; flex-direction: column; }
+    .port-stat-pl-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 700;
+      color: #10b981;
+    }
+    .port-stat-pl-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9.9px; font-weight: 500;
+      color: #6b7280;
+    }
+    .port-stat-staked {
+      flex: 1;
+      background: #fff;
+      border-radius: 18px;
+      padding: 14.4px;
+      box-shadow: 0px 0px 4.1px 0px rgba(0,0,0,0.13);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .port-stat-staked-texts { display: flex; flex-direction: column; }
+    .port-stat-staked-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 700;
+      color: #1f2937;
+    }
+    .port-stat-staked-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9.9px; font-weight: 500;
+      color: #6b7280;
+    }
+    .port-stat-staked-arrow img { width: 7px; height: 12px; display: block; }
+
+    /* Section headings */
+    .port-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .port-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16.24px; font-weight: 700;
+      color: #1f2937;
+    }
+    .port-sort-btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12.6px; font-weight: 600;
+      color: #7c3aed;
+      background: none; border: none;
+      cursor: pointer; padding: 0;
+    }
+
+    /* Asset Allocation */
+    .port-allocation {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .port-alloc-card {
+      background: #fff;
+      border-radius: 21.65px;
+      padding: 21.65px;
+      display: flex;
+      align-items: center;
+      gap: 21.65px;
+      box-shadow: 0px 9px 22.5px -4.5px rgba(0,0,0,0.05), 0px 7.2px 9px -5.4px rgba(0,0,0,0.01);
+    }
+    .port-donut-wrap {
+      position: relative;
+      width: 126px; height: 126px;
+      flex-shrink: 0;
+    }
+    .port-donut-wrap img {
+      width: 126px; height: 126px;
+      display: block;
+    }
+    .port-donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .port-donut-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 21.65px; font-weight: 700;
+      color: #1f2937; line-height: 1;
+    }
+    .port-donut-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9.9px; font-weight: 500;
+      color: #6b7280;
+    }
+    .port-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .port-legend-row {
+      display: flex;
+      align-items: center;
+      gap: 7.2px;
+    }
+    .port-legend-dot {
+      width: 9px; height: 9px;
+      border-radius: 4.5px;
+      flex-shrink: 0;
+    }
+    .port-legend-name {
+      flex: 1;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12.6px; font-weight: 500;
+      color: #1f2937;
+    }
+    .port-legend-pct {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12.6px; font-weight: 600;
+      color: #6b7280;
+    }
+
+    /* Holdings */
+    .port-holdings { display: flex; flex-direction: column; gap: 14.4px; }
+    .port-holding-card {
+      background: #fff;
+      border-radius: 21.65px;
+      padding: 14.4px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0px 1.8px 4.5px 0px rgba(0,0,0,0.02);
+    }
+    .port-holding-icon {
+      width: 43px; height: 43px;
+      border-radius: 21.65px;
+      flex-shrink: 0;
+      margin-right: 14.4px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .port-holding-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .port-holding-icon.eth-icon { background: #627eea; }
+    .port-holding-icon.eth-icon img { width: 31px; height: 31px; object-fit: contain; }
+    .port-holding-icon.sol-icon {
+      background: linear-gradient(135deg, #00ffa3 0%, #dc1fff 100%);
+    }
+    .port-holding-icon.avax-icon { background: #e84142; }
+    .port-holding-icon.link-icon { background: #2a5ada; }
+    .port-holding-name-wrap { flex: 1; min-width: 0; }
+    .port-holding-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 600;
+      color: #1f2937;
+    }
+    .port-holding-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.73px; font-weight: 400;
+      color: #6b7280;
+    }
+    .port-holding-vals { text-align: right; }
+    .port-holding-usd {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 600;
+      color: #1f2937;
+    }
+    .port-holding-change {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.73px; font-weight: 500;
+    }
+    .port-holding-change.up   { color: #10b981; }
+    .port-holding-change.down { color: #ef4444; }
+
+    /* ============================================================
+       STAKING SCREEN
+       ============================================================ */
+    .screen-staking .stake-scroll {
+      position: absolute;
+      inset: 0 0 75px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      background: #fafafa;
+    }
+    .screen-staking .stake-scroll::-webkit-scrollbar { display: none; }
+
+    .stake-inner {
+      padding: 44px 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    /* Header */
+    .stake-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stake-header-left {
+      display: flex;
+      align-items: center;
+      gap: 19px;
+    }
+    .stake-header-left img {
+      width: 51px; height: 36px;
+      object-fit: cover; display: block;
+    }
+    .stake-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 21.65px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .stake-search-btn {
+      width: 36px; height: 36px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0px 3.6px 5.4px -0.9px rgba(0,0,0,0.05);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .stake-search-btn img { width: 18px; height: 18px; display: block; }
+
+    /* Total Value Staked summary */
+    .stake-summary {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .stake-summary-labels {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4.5px;
+      padding-top: 3px;
+    }
+    .stake-summary-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.73px; font-weight: 500;
+      color: #6b7280;
+      letter-spacing: 0.45px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .stake-summary-value-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .stake-summary-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32.48px; font-weight: 700;
+      color: #1f2937;
+      text-align: center;
+    }
+    .stake-add-btn {
+      width: 24px; height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0px 2px 3.3px 0px rgba(0,0,0,0.08);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      font-size: 16px; color: #1f2937; line-height: 1;
+      overflow: hidden;
+    }
+    .stake-add-btn img { width: 34px; height: 34px; margin: -5px; display: block; }
+
+    /* Stats row */
+    .stake-stats-row {
+      display: flex;
+      gap: 11px;
+      width: 100%;
+    }
+    .stake-stat-income {
+      flex: 1;
+      background: rgba(16,185,129,0.10);
+      border-radius: 18px;
+      padding: 14.4px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .stake-stat-income-icon {
+      width: 36px; height: 36px; flex-shrink: 0;
+      border-radius: 12.6px;
+      overflow: hidden;
+    }
+    .stake-stat-income-icon img { width: 100%; height: 100%; display: block; }
+    .stake-stat-income-texts { display: flex; flex-direction: column; }
+    .stake-stat-income-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 700;
+      color: #10b981;
+    }
+    .stake-stat-income-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9.9px; font-weight: 500;
+      color: #6b7280;
+    }
+    .stake-stat-apy {
+      flex: 1;
+      background: rgba(0,0,0,0.04);
+      border-radius: 18px;
+      padding: 14.4px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .stake-stat-apy-icon {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background: rgba(0,0,0,0.15);
+      border-radius: 12.6px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .stake-stat-apy-icon img { width: 16px; height: 16px; display: block; }
+    .stake-stat-apy-texts { display: flex; flex-direction: column; }
+    .stake-stat-apy-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 700;
+      color: #1f2937;
+    }
+    .stake-stat-apy-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9.9px; font-weight: 500;
+      color: #6b7280;
+    }
+
+    /* Section headings */
+    .stake-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .stake-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16.24px; font-weight: 700;
+      color: #1f2937;
+    }
+    .stake-section-more {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12.6px; font-weight: 600;
+      color: #7c3aed;
+      background: none; border: none;
+      cursor: pointer; padding: 0;
+    }
+
+    /* Popular staking option card */
+    .stake-popular-card {
+      background: #fff;
+      border-radius: 21.65px;
+      padding: 21.65px;
+      display: flex;
+      align-items: center;
+      gap: 21.65px;
+      min-height: 99px;
+    }
+    .stake-popular-icon {
+      width: 84px; height: 84px;
+      flex-shrink: 0;
+      border-radius: 42px;
+      overflow: hidden;
+    }
+    .stake-popular-icon img { width: 100%; height: 100%; display: block; }
+    .stake-popular-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .stake-popular-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 600;
+      color: #000;
+    }
+    .stake-popular-apy {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.73px; font-weight: 500;
+      color: #10b981;
+    }
+    .stake-popular-exchange {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 600;
+      color: #000;
+    }
+    .stake-popular-note {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.73px; font-weight: 500;
+      color: #6b7280;
+    }
+
+    /* Staked assets */
+    .stake-assets { display: flex; flex-direction: column; gap: 14.4px; }
+    .stake-asset-card {
+      background: #fff;
+      border-radius: 21.65px;
+      padding: 14.4px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0px 1.8px 4.5px 0px rgba(0,0,0,0.02);
+    }
+    .stake-asset-icon {
+      width: 43px; height: 43px;
+      border-radius: 21.65px;
+      flex-shrink: 0;
+      margin-right: 14.4px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .stake-asset-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .stake-asset-icon.sol-icon {
+      background: linear-gradient(135deg, #00ffa3 0%, #dc1fff 100%);
+    }
+    .stake-asset-icon.sol-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .stake-asset-icon.eth-icon { background: #627eea; }
+    .stake-asset-icon.eth-icon img { width: 31px; height: 31px; object-fit: contain; }
+    .stake-asset-name-wrap { flex: 1; min-width: 0; }
+    .stake-asset-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 600;
+      color: #1f2937;
+    }
+    .stake-asset-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.73px; font-weight: 400;
+      color: #6b7280;
+    }
+    .stake-asset-vals { text-align: right; }
+    .stake-asset-usd {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.4px; font-weight: 600;
+      color: #1f2937;
+    }
+    .stake-asset-apy {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11.73px; font-weight: 500;
+      color: #10b981;
+    }
+    .stake-asset-card { cursor: pointer; transition: box-shadow 0.15s; }
+    .stake-asset-card:hover { box-shadow: 0px 4px 12px 0px rgba(0,0,0,0.07); }
+
+    /* ============================================================
+       POOL DETAIL BOTTOM SHEET
+       ============================================================ */
+    .pool-sheet-backdrop {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      background: rgba(0,0,0,0.12);
+    }
+    .pool-sheet-backdrop.visible { display: block; }
+
+    .screen-staking.sheet-open .stake-scroll {
+      filter: blur(2px);
+      pointer-events: none;
+    }
+    .screen-staking.sheet-open .bottom-nav {
+      filter: blur(2px);
+      pointer-events: none;
+    }
+
+    .pool-sheet {
+      position: absolute;
+      top: 122px;
+      left: 0; right: 0; bottom: 0;
+      background: #fafafa;
+      border-radius: 28px;
+      box-shadow: 0px 25px 60px 0px rgba(0,0,0,0.18);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      z-index: 21;
+      transform: translateY(110%);
+      transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+    }
+    .pool-sheet::-webkit-scrollbar { display: none; }
+    .pool-sheet.visible { transform: translateY(0); }
+
+    /* Handle */
+    .pool-sheet-handle {
+      display: flex;
+      justify-content: center;
+      padding: 12px 0 4px;
+    }
+    .pool-sheet-handle-bar {
+      width: 36px; height: 4px;
+      background: #d1d5db;
+      border-radius: 2px;
+    }
+
+    /* Pool content padding */
+    .pool-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 8px 24px 24px;
+    }
+
+    /* Pool header */
+    .pool-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pool-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .pool-token-icons {
+      position: relative;
+      width: 56px; height: 40px;
+      flex-shrink: 0;
+    }
+    .pool-token-icon-eth {
+      position: absolute;
+      left: 0; top: 0;
+      width: 40px; height: 40px;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .pool-token-icon-eth img { width: 100%; height: 100%; display: block; }
+    .pool-token-icon-usdc {
+      position: absolute;
+      right: 0; top: 0;
+      width: 40px; height: 40px;
+      background: #2775ca;
+      border: 3px solid #fafafa;
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pool-token-icon-usdc span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px; font-weight: 700;
+      color: #fff;
+    }
+    .pool-header-info { display: flex; flex-direction: column; gap: 1px; }
+    .pool-header-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px; font-weight: 700;
+      color: #1f2937; line-height: 1.2;
+    }
+    .pool-header-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 500;
+      color: #6b7280;
+    }
+    .pool-close-btn {
+      width: 36px; height: 36px;
+      background: #f3f4f6;
+      border: none;
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .pool-close-btn img { width: 20px; height: 20px; display: block; }
+
+    /* Key metrics */
+    .pool-metrics {
+      display: flex;
+      gap: 10px;
+    }
+    .pool-metric {
+      flex: 1;
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0px 2px 6px 0px rgba(0,0,0,0.03);
+    }
+    .pool-metric.highlight {
+      background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(124,58,237,0.03) 100%);
+      border: 1px solid rgba(124,58,237,0.15);
+    }
+    .pool-metric-label-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .pool-metric-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px; font-weight: 600;
+      color: #6b7280;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .pool-metric-hint {
+      width: 16px; height: 16px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px; font-weight: 700;
+      color: #6b7280;
+      flex-shrink: 0;
+    }
+    .pool-metric-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px; font-weight: 700;
+      color: #1f2937; text-align: center;
+    }
+    .pool-metric.highlight .pool-metric-val { color: #7c3aed; }
+
+    /* Section heading */
+    .pool-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+
+    /* Your Position */
+    .pool-position-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0px 2px 6px 0px rgba(0,0,0,0.03);
+    }
+    .pool-position-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pool-position-key {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: #6b7280;
+    }
+    .pool-position-val-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .pool-position-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: #1f2937;
+    }
+    .pool-position-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 400;
+      color: #6b7280;
+    }
+    .pool-position-divider { height: 1px; background: #f3f4f6; }
+    .pool-rewards-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: #10b981;
+    }
+    .pool-claim-btn {
+      background: rgba(16,185,129,0.10);
+      border: none;
+      border-radius: 8px;
+      padding: 4px 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 700;
+      color: #10b981;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    /* APY History */
+    .pool-apy-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .pool-period-toggle {
+      background: #f3f4f6;
+      border-radius: 10px;
+      padding: 2.5px;
+      display: flex;
+      gap: 3px;
+    }
+    .pool-period-btn {
+      background: none;
+      border: none;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px; font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+    }
+    .pool-period-btn.active {
+      background: #fff;
+      color: #7c3aed;
+      box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.08);
+    }
+    .pool-chart-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      box-shadow: 0px 2px 6px 0px rgba(0,0,0,0.03);
+    }
+    .pool-chart-card img { width: 100%; height: 100%; object-fit: fill; display: block; }
+
+    /* Risk & Conditions */
+    .pool-risk-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .pool-badge-green {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(16,185,129,0.10);
+      border-radius: 10px;
+      padding: 6px 12px;
+      height: 28px;
+    }
+    .pool-badge-green img { width: 14px; height: 14px; display: block; }
+    .pool-badge-green span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 600;
+      color: #10b981;
+    }
+    .pool-badge-il {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(16,185,129,0.08);
+      border-radius: 10px;
+      padding: 6px 12px;
+      height: 28px;
+    }
+    .pool-badge-il span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 600;
+      color: #059669;
+    }
+    .pool-fees-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .pool-fee-card {
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.02);
+    }
+    .pool-fee-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px; font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .pool-fee-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: #1f2937; text-align: center;
+    }
+
+    /* Warning banner */
+    .pool-warning {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.20);
+      border-radius: 14px;
+      padding: 13px 17px;
+    }
+    .pool-warning img { width: 18px; height: 18px; display: block; flex-shrink: 0; margin-top: 1px; }
+    .pool-warning span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: #92400e;
+      line-height: 1.4;
+    }
+
+    /* Stake/Unstake toggle */
+    .pool-action-toggle {
+      background: #f3f4f6;
+      border-radius: 14px;
+      padding: 4px;
+      display: flex;
+      position: relative;
+    }
+    .pool-action-indicator {
+      position: absolute;
+      top: 4px; bottom: 4px;
+      width: calc(50% - 4px);
+      left: 4px;
+      background: #fff;
+      border-radius: 11px;
+      box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.06);
+      transition: transform 0.2s ease;
+    }
+    .pool-action-toggle.unstake-active .pool-action-indicator {
+      transform: translateX(calc(100% + 8px));
+    }
+    .pool-action-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      transition: color 0.2s;
+    }
+    .pool-action-btn.active { color: #7c3aed; }
+
+    /* Amount input */
+    .pool-input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pool-input-box {
+      background: #fff;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 6px 6px 6px 18px;
+      display: flex;
+      align-items: center;
+    }
+    .pool-input-box input {
+      flex: 1;
+      border: none; outline: none;
+      background: transparent;
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px; font-weight: 700;
+      color: #1f2937;
+      min-width: 0;
+    }
+    .pool-max-btn {
+      background: rgba(124,58,237,0.10);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 700;
+      color: #7c3aed;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .pool-est-rewards {
+      padding-left: 4px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 500;
+      color: #6b7280;
+    }
+    .pool-est-rewards strong {
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    /* Bottom action buttons */
+    .pool-bottom-actions {
+      background: #fafafa;
+      border-top: 1px solid #f3f4f6;
+      display: flex;
+      gap: 10px;
+      padding: 17px 24px 28px;
+    }
+    .pool-cancel-btn {
+      flex: 1;
+      background: #f3f4f6;
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: #6b7280;
+      cursor: pointer;
+    }
+    .pool-confirm-btn {
+      flex: 1;
+      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0px 8px 20px 0px rgba(124,58,237,0.30);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .pool-confirm-btn:active { transform: scale(0.97); box-shadow: 0 4px 12px rgba(124,58,237,0.2); }
+    .pool-cancel-btn { transition: background 0.12s ease; }
+    .pool-cancel-btn:hover { background: #e9eaec; }
+    .pool-cancel-btn:active { background: #dfe0e2; }
+    .pool-claim-btn { transition: background 0.12s ease; }
+    .pool-claim-btn:active { background: rgba(16,185,129,0.18); }
+
+    /* card press states */
+    .port-holding-card, .stake-asset-card, .port-alloc-card {
+      transition: box-shadow 0.15s ease, transform 0.12s ease;
+      cursor: pointer;
+    }
+    .port-holding-card:active, .stake-asset-card:active {
+      transform: scale(0.985);
+    }
+    .port-stat-staked {
+      transition: box-shadow 0.15s ease, transform 0.12s ease;
+    }
+    .port-stat-staked:active { transform: scale(0.97); }
+    .fpill { transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease; }
+    .btn-google { transition: background 0.15s ease, transform 0.1s ease; }
+    .btn-google:active { transform: scale(0.98); }
+    .signin-field { transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+    .signin-field:focus-within {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+    }
+
+    /* ============================================================
+       CHAINS SCREEN
+       ============================================================ */
+    .chains-scroll {
+      position: absolute;
+      inset: 0 0 75px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      background: #fafafa;
+    }
+    .chains-scroll::-webkit-scrollbar { display: none; }
+    .chains-inner {
+      padding: 44px 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .chains-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chains-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 21.65px; font-weight: 700;
+      color: #1f2937;
+    }
+    .chains-search-btn {
+      width: 36px; height: 36px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 3.6px 5.4px -0.9px rgba(0,0,0,0.05);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .chains-search-btn img { width: 18px; height: 18px; display: block; }
+    .chains-total-card {
+      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+      border-radius: 20px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .chains-total-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .chains-total-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 30px; font-weight: 700;
+      color: #fff;
+    }
+    .chains-total-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 500;
+      color: rgba(255,255,255,0.65);
+      margin-top: 2px;
+    }
+    .chains-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px; font-weight: 700;
+      color: #1f2937;
+    }
+    .chains-list { display: flex; flex-direction: column; gap: 10px; }
+    .chain-row {
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 1.8px 5px rgba(0,0,0,0.03);
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .chain-row:active { transform: scale(0.985); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .chain-icon {
+      width: 40px; height: 40px;
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .chain-info { flex: 1; min-width: 0; }
+    .chain-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 600;
+      color: #1f2937;
+    }
+    .chain-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px; font-weight: 400;
+      color: #6b7280;
+    }
+    .chain-vals { text-align: right; }
+    .chain-tvl {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 600;
+      color: #1f2937;
+    }
+    .chain-change {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px; font-weight: 500;
+    }
+    .chain-change.up { color: #10b981; }
+    .chain-change.dn { color: #ef4444; }
+
+    /* ============================================================
+       METRICS SCREEN
+       ============================================================ */
+    .metrics-scroll {
+      position: absolute;
+      inset: 0 0 75px 0;
+      overflow-y: auto; overflow-x: hidden;
+      scrollbar-width: none; background: #fafafa;
+    }
+    .metrics-scroll::-webkit-scrollbar { display: none; }
+    .metrics-inner {
+      padding: 44px 22px 24px;
+      display: flex; flex-direction: column; gap: 22px;
+    }
+    .metrics-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .metrics-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 21.65px; font-weight: 700; color: #1f2937;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .metric-card-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px; font-weight: 500;
+      color: #6b7280;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .metric-card-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px; font-weight: 700; color: #1f2937;
+    }
+    .metric-card-change {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 500;
+    }
+    .metric-card-change.up { color: #10b981; }
+    .metric-card-change.dn { color: #ef4444; }
+    .metrics-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px; font-weight: 700; color: #1f2937;
+      margin-bottom: 2px;
+    }
+    .metrics-bar-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .metrics-bar-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .metrics-bar-row:last-child { margin-bottom: 0; }
+    .metrics-bar-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 500; color: #6b7280;
+      width: 48px; flex-shrink: 0;
+    }
+    .metrics-bar-track {
+      flex: 1; height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden;
+    }
+    .metrics-bar-fill {
+      height: 100%; border-radius: 4px;
+      background: linear-gradient(90deg, #7c3aed, #a78bfa);
+    }
+    .metrics-bar-pct {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 600; color: #1f2937;
+      width: 36px; text-align: right; flex-shrink: 0;
+    }
+
+    /* ============================================================
+       MORE SCREEN
+       ============================================================ */
+    .more-scroll {
+      position: absolute;
+      inset: 0 0 75px 0;
+      overflow-y: auto; overflow-x: hidden;
+      scrollbar-width: none; background: #fafafa;
+    }
+    .more-scroll::-webkit-scrollbar { display: none; }
+    .more-inner {
+      padding: 44px 22px 24px;
+      display: flex; flex-direction: column; gap: 22px;
+    }
+    .more-profile {
+      background: #fff;
+      border-radius: 20px;
+      padding: 20px;
+      display: flex; align-items: center; gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .more-avatar {
+      width: 52px; height: 52px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .more-profile-info { flex: 1; min-width: 0; }
+    .more-profile-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px; font-weight: 700; color: #1f2937;
+    }
+    .more-profile-email {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 400; color: #6b7280;
+    }
+    .more-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; font-weight: 600;
+      color: #9ca3af; text-transform: uppercase;
+      letter-spacing: 0.8px; padding: 0 4px;
+    }
+    .more-list { display: flex; flex-direction: column; gap: 2px; }
+    .more-item {
+      background: #fff;
+      border-radius: 14px;
+      padding: 15px 16px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.1s ease;
+    }
+    .more-item:active { background: #f3f4f6; transform: scale(0.99); }
+    .more-item-icon {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .more-item-label {
+      flex: 1;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 500; color: #1f2937;
+    }
+    .more-item-arrow {
+      font-size: 14px; color: #d1d5db;
+    }
+    .more-version {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px; color: #9ca3af;
+      text-align: center; padding: 8px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"></div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 1 — SIGN IN
+       ══════════════════════════════════════ -->
+  <div class="screen active" id="screen-signin">
+
+    <!-- Purple gradient bg -->
+    <div class="signin-bg">
+      <img src="assets/background-gradient.png" alt="" />
+    </div>
+
+    <div class="signin-content">
+
+      <!-- Logo + title -->
+      <div class="signin-logo">
+        <img src="assets/logo.svg" alt="DefiGrape" />
+        <span class="signin-logo-title">Sign In</span>
+      </div>
+
+      <!-- Tabs -->
+      <div class="signin-tabs" id="signin-tabs">
+        <div class="signin-tab active" data-tab="signin">
+          <span class="signin-tab-label">Sign In</span>
+          <div class="signin-tab-line"></div>
+        </div>
+        <div class="signin-tab" data-tab="register">
+          <span class="signin-tab-label">Register</span>
+          <div class="signin-tab-line"></div>
+        </div>
+      </div>
+
+      <!-- Inputs -->
+      <div class="signin-inputs">
+        <div class="signin-field">
+          <input type="text" placeholder="E-mail / Phone Number" />
+        </div>
+        <div class="signin-field">
+          <input type="password" placeholder="Password" id="password-input" />
+        </div>
+
+        <div class="signin-divider">Or</div>
+
+        <button class="btn-google" id="btn-google">
+          <img src="assets/google-icon.svg" alt="Google" />
+          <span>Sign in with Google</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 2 — DASHBOARD
+       ══════════════════════════════════════ -->
+  <div class="screen" id="screen-dashboard">
+
+    <!-- Logo dots -->
+    <img class="dash-dot dash-dot-1" src="assets/ellipse.svg" alt="" />
+    <img class="dash-dot dash-dot-2" src="assets/ellipse.svg" alt="" />
+    <img class="dash-dot dash-dot-3" src="assets/ellipse.svg" alt="" />
+
+    <!-- App title -->
+    <div class="dash-title">DefiGrape</div>
+
+    <!-- Search button -->
+    <div class="dash-search-btn">
+      <img src="assets/icon-search.svg" alt="Search" />
+    </div>
+
+    <!-- Ask AI bar -->
+    <div class="ask-ai-bar">
+      <div class="ask-ai-pill">
+        <img src="assets/icon-ai.svg" alt="" />
+        <span>Ask AI</span>
+      </div>
+      <span class="ask-ai-placeholder">Click to Browse &amp; Search</span>
+    </div>
+
+    <!-- Filter pills -->
+    <div class="filter-strip">
+      <div class="filter-strip-inner">
+        <div class="fpill active">All</div>
+        <div class="fpill">Ethereum</div>
+        <div class="fpill">Solana</div>
+        <div class="fpill">Bitcoin</div>
+        <div class="fpill">BSC</div>
+        <div class="fpill">Base</div>
+        <div class="fpill">Tron</div>
+      </div>
+    </div>
+
+    <!-- TVL main card -->
+    <div class="tvl-card">
+      <span class="tvl-card-label">Total Value Locked</span>
+      <span class="tvl-card-value">$123.604b</span>
+      <div class="tvl-chart-bg">
+        <img class="tvl-chart-img" src="assets/chart-area.svg" alt="" />
+      </div>
+      <span class="tvl-year" style="left:20px">2018</span>
+      <span class="tvl-year" style="left:90px">2020</span>
+      <span class="tvl-year" style="left:160px">2022</span>
+      <span class="tvl-year" style="left:231px">2024</span>
+      <span class="tvl-year" style="left:301px">2026</span>
+    </div>
+
+    <!-- Stats horizontal scroll -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-title">Total Value Locked in DeFi</div>
+        <div class="stat-val">$123.604b</div>
+        <div class="stat-up">+0.58% 24h</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">StableCoins Mcap</div>
+        <div class="stat-val">$307.184b</div>
+        <div class="stat-down">-0.20% 7d</div>
+        <div class="stat-note">USDT Dominance: 60.53%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">DEXs Volume (24h)</div>
+        <div class="stat-val">$6.832b</div>
+        <div class="stat-up">+17.61% 7d</div>
+        <div class="stat-note">DEX vs CEX: 25.67%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Perps Volume (24h)</div>
+        <div class="stat-val">$14.157b</div>
+        <div class="stat-up">+17.61% 7d</div>
+      </div>
+    </div>
+
+    <!-- Mini charts row 1: Upcoming Unlocks + DEXs Volume -->
+    <div class="mini-card mini-r1l">
+      <span class="mini-card-label">Upcoming Unlocks</span>
+      <span class="mini-card-val">2.6b over 14 days</span>
+      <div class="bar" style="left:12px;    height:24px"></div>
+      <div class="bar" style="left:30.06px; height:32px"></div>
+      <div class="bar" style="left:48.13px; height:18px"></div>
+      <div class="bar" style="left:66.19px; height:36px"></div>
+      <div class="bar" style="left:84.25px; height:28px"></div>
+      <div class="bar" style="left:102.31px;height:22px"></div>
+      <div class="bar" style="left:120.38px;height:34px"></div>
+      <div class="bar" style="left:138.44px;height:26px"></div>
+    </div>
+
+    <div class="mini-card mini-r1r">
+      <span class="mini-card-label">DEXs Volume</span>
+      <span class="mini-card-val">$6.832b (24h)</span>
+      <div class="bar" style="left:12px;    height:20px"></div>
+      <div class="bar" style="left:30.06px; height:28px"></div>
+      <div class="bar" style="left:48.13px; height:16px"></div>
+      <div class="bar" style="left:66.19px; height:34px"></div>
+      <div class="bar" style="left:84.25px; height:24px"></div>
+      <div class="bar" style="left:102.31px;height:30px"></div>
+      <div class="bar" style="left:120.38px;height:22px"></div>
+      <div class="bar" style="left:138.44px;height:36px"></div>
+    </div>
+
+    <!-- Mini charts row 2: DAT Inflows + Stablecoins Market Cap -->
+    <div class="mini-card mini-r2l">
+      <span class="mini-card-label">DAT Inflows</span>
+      <span class="mini-card-val">$6.832b (30d)</span>
+      <div class="bar" style="left:12px;    height:26px"></div>
+      <div class="bar" style="left:30.06px; height:18px"></div>
+      <div class="bar" style="left:48.13px; height:30px"></div>
+      <div class="bar" style="left:66.19px; height:16px"></div>
+      <div class="bar" style="left:84.25px; height:33px"></div>
+      <div class="bar" style="left:102.31px;height:22px"></div>
+      <div class="bar" style="left:120.38px;height:28px"></div>
+      <div class="bar" style="left:138.44px;height:20px"></div>
+    </div>
+
+    <div class="mini-card mini-r2r">
+      <span class="mini-card-label">Stablecoins Market Cap</span>
+      <span class="mini-card-val">$302.1b</span>
+      <div class="bar" style="left:12px;    height:24px"></div>
+      <div class="bar" style="left:30.06px; height:28px"></div>
+      <div class="bar" style="left:48.13px; height:20px"></div>
+      <div class="bar" style="left:66.19px; height:32px"></div>
+      <div class="bar" style="left:84.25px; height:26px"></div>
+      <div class="bar" style="left:102.31px;height:30px"></div>
+      <div class="bar" style="left:120.38px;height:22px"></div>
+      <div class="bar" style="left:138.44px;height:36px"></div>
+    </div>
+
+    <!-- Bottom navigation -->
+    <div class="bottom-nav">
+      <img class="nav-bg" src="assets/nav-bg.png" alt="" />
+      <div class="nav-row">
+        <button class="nav-item" data-target="screen-dashboard" data-nav="home">
+          <img src="assets/icon-home.svg" alt="" />
+          <span class="nav-item-label">Home</span>
+        </button>
+        <button class="nav-item" data-target="screen-chains" data-nav="chains">
+          <img src="assets/icon-chains.svg" alt="" />
+          <span class="nav-item-label">Chains</span>
+        </button>
+        <button class="nav-item" data-target="screen-portfolio" data-nav="portfolio">
+          <img src="assets/icon-portfolio.svg" alt="" />
+          <span class="nav-item-label">Portfolio</span>
+        </button>
+        <button class="nav-item" data-target="screen-metrics" data-nav="metrics">
+          <img src="assets/icon-metrics.svg" alt="" />
+          <span class="nav-item-label">Metrics</span>
+        </button>
+        <button class="nav-item" data-target="screen-more" data-nav="more">
+          <img src="assets/icon-more.svg" alt="" />
+          <span class="nav-item-label">More</span>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /screen-dashboard -->
+
+  <!-- ══════════════════════════════════════
+       SCREEN 3 — PORTFOLIO
+       ══════════════════════════════════════ -->
+  <div class="screen screen-portfolio" id="screen-portfolio">
+
+    <!-- Scrollable content -->
+    <div class="port-scroll">
+      <div class="port-inner">
+
+        <!-- Header -->
+        <div class="port-header">
+          <div class="port-header-left">
+            <img src="assets/portfolio-header.png" alt="" />
+            <span class="port-title">Portfolio</span>
+          </div>
+          <div class="port-search-btn">
+            <img src="assets/portfolio-search.svg" alt="Search" />
+          </div>
+        </div>
+
+        <!-- Net Worth -->
+        <div class="port-net-worth">
+          <div class="port-net-worth-labels">
+            <span class="port-net-label">Total Net Worth</span>
+            <span class="port-net-value">$24,562.40</span>
+          </div>
+          <div class="port-stats-row">
+            <!-- P&L -->
+            <div class="port-stat-pl">
+              <div class="port-stat-pl-icon">
+                <img src="assets/icon-pl-arrow.svg" alt="" />
+              </div>
+              <div class="port-stat-pl-texts">
+                <span class="port-stat-pl-val">+$1,042.18</span>
+                <span class="port-stat-pl-sub">P&amp;L (24h)</span>
+              </div>
+            </div>
+            <!-- Staked -->
+            <div class="port-stat-staked" onclick="showScreen('screen-staking')" style="cursor:pointer">
+              <div class="port-stat-staked-texts">
+                <span class="port-stat-staked-val">$14,042.18</span>
+                <span class="port-stat-staked-sub">Total Value Staked</span>
+              </div>
+              <div class="port-stat-staked-arrow">
+                <img src="assets/icon-chevron.svg" alt="" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset Allocation -->
+        <div class="port-allocation">
+          <div class="port-section-head">
+            <span class="port-section-title">Asset Allocation</span>
+          </div>
+          <div class="port-alloc-card">
+            <div class="port-donut-wrap">
+              <img src="assets/donut-chart.png" alt="Asset allocation chart" />
+              <div class="port-donut-center">
+                <span class="port-donut-num">5</span>
+                <span class="port-donut-sub">Assets</span>
+              </div>
+            </div>
+            <div class="port-legend">
+              <div class="port-legend-row">
+                <div class="port-legend-dot" style="background:#f7931a"></div>
+                <span class="port-legend-name">BTC</span>
+                <span class="port-legend-pct">42%</span>
+              </div>
+              <div class="port-legend-row">
+                <div class="port-legend-dot" style="background:#627eea"></div>
+                <span class="port-legend-name">ETH</span>
+                <span class="port-legend-pct">28%</span>
+              </div>
+              <div class="port-legend-row">
+                <div class="port-legend-dot" style="background:#7c3aed"></div>
+                <span class="port-legend-name">SOL</span>
+                <span class="port-legend-pct">15%</span>
+              </div>
+              <div class="port-legend-row">
+                <div class="port-legend-dot" style="background:#22d3ee"></div>
+                <span class="port-legend-name">AVAX</span>
+                <span class="port-legend-pct">10%</span>
+              </div>
+              <div class="port-legend-row">
+                <div class="port-legend-dot" style="background:#f59e0b"></div>
+                <span class="port-legend-name">LINK</span>
+                <span class="port-legend-pct">5%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Holdings -->
+        <div>
+          <div class="port-section-head">
+            <span class="port-section-title">Holdings</span>
+            <button class="port-sort-btn">Sort</button>
+          </div>
+          <div class="port-holdings">
+
+            <!-- Bitcoin -->
+            <div class="port-holding-card">
+              <div class="port-holding-icon">
+                <img src="assets/btc-icon.svg" alt="BTC" />
+              </div>
+              <div class="port-holding-name-wrap">
+                <div class="port-holding-name">Bitcoin</div>
+                <div class="port-holding-amount">0.2385 BTC</div>
+              </div>
+              <div class="port-holding-vals">
+                <div class="port-holding-usd">$10,315.13</div>
+                <div class="port-holding-change up">+$248.50</div>
+              </div>
+            </div>
+
+            <!-- Ethereum -->
+            <div class="port-holding-card">
+              <div class="port-holding-icon eth-icon">
+                <img src="assets/eth-icon.svg" alt="ETH" />
+              </div>
+              <div class="port-holding-name-wrap">
+                <div class="port-holding-name">Ethereum</div>
+                <div class="port-holding-amount">2.38 ETH</div>
+              </div>
+              <div class="port-holding-vals">
+                <div class="port-holding-usd">$6,879.39</div>
+                <div class="port-holding-change down">-$55.12</div>
+              </div>
+            </div>
+
+            <!-- Solana -->
+            <div class="port-holding-card">
+              <div class="port-holding-icon sol-icon">
+                <span style="font-size:18px;font-weight:700;color:#fff;font-family:'Outfit',sans-serif;">◎</span>
+              </div>
+              <div class="port-holding-name-wrap">
+                <div class="port-holding-name">Solana</div>
+                <div class="port-holding-amount">35.40 SOL</div>
+              </div>
+              <div class="port-holding-vals">
+                <div class="port-holding-usd">$3,688.68</div>
+                <div class="port-holding-change up">+$188.30</div>
+              </div>
+            </div>
+
+            <!-- Avalanche -->
+            <div class="port-holding-card">
+              <div class="port-holding-icon avax-icon">
+                <span style="font-size:18px;font-weight:700;color:#fff;font-family:'Outfit',sans-serif;">A</span>
+              </div>
+              <div class="port-holding-name-wrap">
+                <div class="port-holding-name">Avalanche</div>
+                <div class="port-holding-amount">68.5 AVAX</div>
+              </div>
+              <div class="port-holding-vals">
+                <div class="port-holding-usd">$2,456.32</div>
+                <div class="port-holding-change up">+$62.80</div>
+              </div>
+            </div>
+
+            <!-- Chainlink -->
+            <div class="port-holding-card">
+              <div class="port-holding-icon link-icon">
+                <span style="font-size:18px;font-weight:700;color:#fff;font-family:'Outfit',sans-serif;">⬡</span>
+              </div>
+              <div class="port-holding-name-wrap">
+                <div class="port-holding-name">Chainlink</div>
+                <div class="port-holding-amount">82.0 LINK</div>
+              </div>
+              <div class="port-holding-vals">
+                <div class="port-holding-usd">$1,222.88</div>
+                <div class="port-holding-change down">-$18.40</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /port-inner -->
+    </div><!-- /port-scroll -->
+
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <img class="nav-bg" src="assets/nav-bg.png" alt="" />
+      <div class="nav-row">
+        <button class="nav-item" data-target="screen-dashboard" data-nav="home">
+          <img src="assets/icon-home.svg" alt="" />
+          <span class="nav-item-label">Home</span>
+        </button>
+        <button class="nav-item" data-target="screen-chains" data-nav="chains">
+          <img src="assets/icon-chains.svg" alt="" />
+          <span class="nav-item-label">Chains</span>
+        </button>
+        <button class="nav-item" data-target="screen-portfolio" data-nav="portfolio">
+          <img src="assets/icon-portfolio.svg" alt="" />
+          <span class="nav-item-label">Portfolio</span>
+        </button>
+        <button class="nav-item" data-target="screen-metrics" data-nav="metrics">
+          <img src="assets/icon-metrics.svg" alt="" />
+          <span class="nav-item-label">Metrics</span>
+        </button>
+        <button class="nav-item" data-target="screen-more" data-nav="more">
+          <img src="assets/icon-more.svg" alt="" />
+          <span class="nav-item-label">More</span>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /screen-portfolio -->
+
+  <!-- ══════════════════════════════════════
+       SCREEN 4 — STAKING
+       ══════════════════════════════════════ -->
+  <div class="screen screen-staking" id="screen-staking">
+
+    <div class="stake-scroll">
+      <div class="stake-inner">
+
+        <!-- Header -->
+        <div class="stake-header">
+          <div class="stake-header-left">
+            <img src="assets/portfolio-header.png" alt="" />
+            <span class="stake-title">Staking</span>
+          </div>
+          <div class="stake-search-btn">
+            <img src="assets/portfolio-search.svg" alt="Search" />
+          </div>
+        </div>
+
+        <!-- Total Value Staked summary -->
+        <div class="stake-summary">
+          <div class="stake-summary-labels">
+            <span class="stake-summary-label">Total Value Staked</span>
+            <div class="stake-summary-value-row">
+              <span class="stake-summary-value">$14,042.18</span>
+              <div class="stake-add-btn">
+                <img src="https://www.figma.com/api/mcp/asset/82838de4-58d0-483e-b9cf-f111d060547c" alt="+" />
+              </div>
+            </div>
+          </div>
+          <div class="stake-stats-row">
+            <!-- Daily Income -->
+            <div class="stake-stat-income">
+              <div class="stake-stat-income-icon">
+                <img src="https://www.figma.com/api/mcp/asset/787033cf-64f0-4250-8d56-d5e63524dc8f" alt="" />
+              </div>
+              <div class="stake-stat-income-texts">
+                <span class="stake-stat-income-val">+$18.4</span>
+                <span class="stake-stat-income-sub">Daily Income</span>
+              </div>
+            </div>
+            <!-- Average APY -->
+            <div class="stake-stat-apy">
+              <div class="stake-stat-apy-icon">
+                <img src="https://www.figma.com/api/mcp/asset/5bb846fe-5826-4cee-801b-6ec7476e1454" alt="" />
+              </div>
+              <div class="stake-stat-apy-texts">
+                <span class="stake-stat-apy-val">5.34%</span>
+                <span class="stake-stat-apy-sub">Average APY%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Popular Staking Options -->
+        <div>
+          <div class="stake-section-head">
+            <span class="stake-section-title">Popular Staking Options</span>
+            <button class="stake-section-more">More</button>
+          </div>
+          <div class="stake-popular-card">
+            <div class="stake-popular-icon">
+              <img src="https://www.figma.com/api/mcp/asset/436794a3-7937-41d7-8a85-75e10663abca" alt="TRX" />
+            </div>
+            <div class="stake-popular-info">
+              <span class="stake-popular-name">Tron (TRX)</span>
+              <span class="stake-popular-apy">16.5% APY</span>
+              <span class="stake-popular-exchange">Cryptomus, Binance</span>
+              <span class="stake-popular-note">Stable but centralized</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staked Assets -->
+        <div>
+          <div class="stake-section-head">
+            <span class="stake-section-title">Staked Assets</span>
+            <button class="stake-section-more">+ Stake</button>
+          </div>
+          <div class="stake-assets">
+
+            <!-- Solana -->
+            <div class="stake-asset-card">
+              <div class="stake-asset-icon sol-icon">
+                <img src="https://www.figma.com/api/mcp/asset/f33c4690-d074-41cb-8c9e-7ac894c391a3" alt="SOL" />
+              </div>
+              <div class="stake-asset-name-wrap">
+                <div class="stake-asset-name">Solana</div>
+                <div class="stake-asset-amount">88.74 SOL</div>
+              </div>
+              <div class="stake-asset-vals">
+                <div class="stake-asset-usd">$7,163.23</div>
+                <div class="stake-asset-apy">6.8% APY</div>
+              </div>
+            </div>
+
+            <!-- Ethereum -->
+            <div class="stake-asset-card" onclick="openPoolSheet()">
+              <div class="stake-asset-icon eth-icon">
+                <img src="assets/eth-icon.svg" alt="ETH" />
+              </div>
+              <div class="stake-asset-name-wrap">
+                <div class="stake-asset-name">Ethereum</div>
+                <div class="stake-asset-amount">2.38 ETH</div>
+              </div>
+              <div class="stake-asset-vals">
+                <div class="stake-asset-usd">$6,879.39</div>
+                <div class="stake-asset-apy">4.8% APY</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /stake-inner -->
+    </div><!-- /stake-scroll -->
+
+    <!-- Bottom nav -->
+    <div class="bottom-nav">
+      <img class="nav-bg" src="assets/nav-bg.png" alt="" />
+      <div class="nav-row">
+        <button class="nav-item" data-target="screen-dashboard" data-nav="home">
+          <img src="assets/icon-home.svg" alt="" />
+          <span class="nav-item-label">Home</span>
+        </button>
+        <button class="nav-item" data-target="screen-chains" data-nav="chains">
+          <img src="assets/icon-chains.svg" alt="" />
+          <span class="nav-item-label">Chains</span>
+        </button>
+        <button class="nav-item" data-target="screen-portfolio" data-nav="portfolio">
+          <img src="assets/icon-portfolio.svg" alt="" />
+          <span class="nav-item-label">Portfolio</span>
+        </button>
+        <button class="nav-item" data-target="screen-metrics" data-nav="metrics">
+          <img src="assets/icon-metrics.svg" alt="" />
+          <span class="nav-item-label">Metrics</span>
+        </button>
+        <button class="nav-item" data-target="screen-more" data-nav="more">
+          <img src="assets/icon-more.svg" alt="" />
+          <span class="nav-item-label">More</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pool detail bottom sheet -->
+    <div class="pool-sheet-backdrop" id="pool-sheet-backdrop" onclick="closePoolSheet()"></div>
+    <div class="pool-sheet" id="pool-sheet">
+
+      <!-- Handle -->
+      <div class="pool-sheet-handle">
+        <div class="pool-sheet-handle-bar"></div>
+      </div>
+
+      <!-- Content -->
+      <div class="pool-content">
+
+        <!-- Pool header -->
+        <div class="pool-header">
+          <div class="pool-header-left">
+            <div class="pool-token-icons">
+              <div class="pool-token-icon-eth">
+                <img src="https://www.figma.com/api/mcp/asset/c4f100fa-bca4-4f72-afad-810c3e7bf5c1" alt="ETH" />
+              </div>
+              <div class="pool-token-icon-usdc">
+                <span>$</span>
+              </div>
+            </div>
+            <div class="pool-header-info">
+              <span class="pool-header-name">ETH / USDC Pool</span>
+              <span class="pool-header-sub">Stable pair &middot; Low risk &middot; 0.3% fee tier</span>
+            </div>
+          </div>
+          <button class="pool-close-btn" onclick="closePoolSheet()">
+            <img src="https://www.figma.com/api/mcp/asset/f254bb9e-e7e6-4bd2-8887-bad28e31dec1" alt="Close" />
+          </button>
+        </div>
+
+        <!-- Key metrics -->
+        <div class="pool-metrics">
+          <div class="pool-metric highlight">
+            <div class="pool-metric-label-row">
+              <span class="pool-metric-label">APY</span>
+              <div class="pool-metric-hint">?</div>
+            </div>
+            <span class="pool-metric-val">4.8%</span>
+          </div>
+          <div class="pool-metric">
+            <div class="pool-metric-label-row">
+              <span class="pool-metric-label">TVL</span>
+              <div class="pool-metric-hint">?</div>
+            </div>
+            <span class="pool-metric-val">$142.5M</span>
+          </div>
+          <div class="pool-metric">
+            <div class="pool-metric-label-row">
+              <span class="pool-metric-label">Lock-up</span>
+            </div>
+            <span class="pool-metric-val">Flexible</span>
+          </div>
+        </div>
+
+        <!-- Your Position -->
+        <div>
+          <div class="pool-section-title">Your Position</div>
+          <div class="pool-position-card">
+            <div class="pool-position-row">
+              <span class="pool-position-key">Staked Amount</span>
+              <div class="pool-position-val-wrap">
+                <span class="pool-position-val">2.0 ETH</span>
+                <span class="pool-position-sub">≈ $5,781.00</span>
+              </div>
+            </div>
+            <div class="pool-position-divider"></div>
+            <div class="pool-position-row">
+              <span class="pool-position-key">Unclaimed Rewards</span>
+              <div class="pool-position-val-wrap">
+                <span class="pool-rewards-val">+$124.50</span>
+                <button class="pool-claim-btn">Claim</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- APY History -->
+        <div>
+          <div class="pool-apy-header">
+            <div class="pool-section-title" style="margin-bottom:0">APY History</div>
+            <div class="pool-period-toggle" id="pool-period-toggle">
+              <button class="pool-period-btn active" onclick="setPeriod(this)">7D</button>
+              <button class="pool-period-btn" onclick="setPeriod(this)">30D</button>
+            </div>
+          </div>
+          <div class="pool-chart-card">
+            <img src="https://www.figma.com/api/mcp/asset/d7340aa4-c5f1-455e-a91c-2746be0e0fb8" alt="APY chart" />
+          </div>
+        </div>
+
+        <!-- Risk & Conditions -->
+        <div>
+          <div class="pool-section-title">Risk &amp; Conditions</div>
+          <div class="pool-risk-badges">
+            <div class="pool-badge-green">
+              <img src="https://www.figma.com/api/mcp/asset/82e692ee-f99b-4388-be19-15f918f91223" alt="" />
+              <span>Audited</span>
+            </div>
+            <div class="pool-badge-il">
+              <div class="pool-metric-hint">?</div>
+              <span>IL: Low</span>
+            </div>
+          </div>
+          <div class="pool-fees-row">
+            <div class="pool-fee-card">
+              <span class="pool-fee-label">Entry Fee</span>
+              <span class="pool-fee-val">0%</span>
+            </div>
+            <div class="pool-fee-card">
+              <span class="pool-fee-label">Exit Fee</span>
+              <span class="pool-fee-val">0.1%</span>
+            </div>
+            <div class="pool-fee-card">
+              <span class="pool-fee-label">Perf. Fee</span>
+              <span class="pool-fee-val">10%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warning -->
+        <div class="pool-warning">
+          <img src="https://www.figma.com/api/mcp/asset/c1cec61a-474f-4609-974a-3e93c0cce3b6" alt="" />
+          <span>High volatility pool &mdash; APY may change quickly</span>
+        </div>
+
+        <!-- Stake / Unstake toggle + input -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="pool-action-toggle" id="pool-action-toggle">
+            <div class="pool-action-indicator"></div>
+            <button class="pool-action-btn active" onclick="setAction(this,'stake')">Stake</button>
+            <button class="pool-action-btn" onclick="setAction(this,'unstake')">Unstake</button>
+          </div>
+          <div class="pool-input-wrap">
+            <div class="pool-input-box">
+              <input type="number" value="1.50" step="0.01" min="0" />
+              <button class="pool-max-btn">MAX</button>
+            </div>
+            <span class="pool-est-rewards">Est. rewards / 30d: <strong>12.5 USDC</strong></span>
+          </div>
+        </div>
+
+      </div><!-- /pool-content -->
+
+      <!-- Bottom actions (sticky) -->
+      <div class="pool-bottom-actions">
+        <button class="pool-cancel-btn" onclick="closePoolSheet()">Cancel</button>
+        <button class="pool-confirm-btn">Confirm Stake</button>
+      </div>
+
+    </div><!-- /pool-sheet -->
+
+  </div><!-- /screen-staking -->
+
+  <!-- ══════════════════════════════════════
+       SCREEN 5 — CHAINS
+       ══════════════════════════════════════ -->
+  <div class="screen" id="screen-chains">
+    <div class="chains-scroll">
+      <div class="chains-inner">
+
+        <div class="chains-header">
+          <span class="chains-title">Chains</span>
+          <div class="chains-search-btn">
+            <img src="assets/portfolio-search.svg" alt="Search" />
+          </div>
+        </div>
+
+        <div class="chains-total-card">
+          <span class="chains-total-label">Total Value Locked</span>
+          <span class="chains-total-value">$123.604b</span>
+          <span class="chains-total-sub">Across 7 supported networks</span>
+        </div>
+
+        <div>
+          <div class="chains-section-title" style="margin-bottom:12px">Top Networks</div>
+          <div class="chains-list">
+            <div class="chain-row">
+              <div class="chain-icon" style="background:#627eea">Ξ</div>
+              <div class="chain-info">
+                <div class="chain-name">Ethereum</div>
+                <div class="chain-sub">Mainnet · EVM</div>
+              </div>
+              <div class="chain-vals">
+                <div class="chain-tvl">$58.3b</div>
+                <div class="chain-change up">+1.2%</div>
+              </div>
+            </div>
+            <div class="chain-row">
+              <div class="chain-icon" style="background:linear-gradient(135deg,#00ffa3,#dc1fff)">◎</div>
+              <div class="chain-info">
+                <div class="chain-name">Solana</div>
+                <div class="chain-sub">Mainnet · SVM</div>
+              </div>
+              <div class="chain-vals">
+                <div class="chain-tvl">$9.8b</div>
+                <div class="chain-change up">+3.5%</div>
+              </div>
+            </div>
+            <div class="chain-row">
+              <div class="chain-icon" style="background:#f0b90b;color:#1f2937">B</div>
+              <div class="chain-info">
+                <div class="chain-name">BNB Chain</div>
+                <div class="chain-sub">Mainnet · EVM</div>
+              </div>
+              <div class="chain-vals">
+                <div class="chain-tvl">$6.1b</div>
+                <div class="chain-change dn">-0.4%</div>
+              </div>
+            </div>
+            <div class="chain-row">
+              <div class="chain-icon" style="background:#e84142">A</div>
+              <div class="chain-info">
+                <div class="chain-name">Avalanche</div>
+                <div class="chain-sub">C-Chain · EVM</div>
+              </div>
+              <div class="chain-vals">
+                <div class="chain-tvl">$1.4b</div>
+                <div class="chain-change up">+0.8%</div>
+              </div>
+            </div>
+            <div class="chain-row">
+              <div class="chain-icon" style="background:#8247e5">P</div>
+              <div class="chain-info">
+                <div class="chain-name">Polygon</div>
+                <div class="chain-sub">PoS · EVM</div>
+              </div>
+              <div class="chain-vals">
+                <div class="chain-tvl">$0.9b</div>
+                <div class="chain-change dn">-1.1%</div>
+              </div>
+            </div>
+            <div class="chain-row">
+              <div class="chain-icon" style="background:#1da1f2">A</div>
+              <div class="chain-info">
+                <div class="chain-name">Arbitrum</div>
+                <div class="chain-sub">L2 · EVM</div>
+              </div>
+              <div class="chain-vals">
+                <div class="chain-tvl">$2.7b</div>
+                <div class="chain-change up">+2.1%</div>
+              </div>
+            </div>
+            <div class="chain-row">
+              <div class="chain-icon" style="background:#ff0420">O</div>
+              <div class="chain-info">
+                <div class="chain-name">Optimism</div>
+                <div class="chain-sub">L2 · EVM</div>
+              </div>
+              <div class="chain-vals">
+                <div class="chain-tvl">$0.8b</div>
+                <div class="chain-change up">+0.3%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <img class="nav-bg" src="assets/nav-bg.png" alt="" />
+      <div class="nav-row">
+        <button class="nav-item" data-target="screen-dashboard" data-nav="home"><img src="assets/icon-home.svg" alt="" /><span class="nav-item-label">Home</span></button>
+        <button class="nav-item" data-target="screen-chains" data-nav="chains"><img src="assets/icon-chains.svg" alt="" /><span class="nav-item-label">Chains</span></button>
+        <button class="nav-item" data-target="screen-portfolio" data-nav="portfolio"><img src="assets/icon-portfolio.svg" alt="" /><span class="nav-item-label">Portfolio</span></button>
+        <button class="nav-item" data-target="screen-metrics" data-nav="metrics"><img src="assets/icon-metrics.svg" alt="" /><span class="nav-item-label">Metrics</span></button>
+        <button class="nav-item" data-target="screen-more" data-nav="more"><img src="assets/icon-more.svg" alt="" /><span class="nav-item-label">More</span></button>
+      </div>
+    </div>
+  </div><!-- /screen-chains -->
+
+  <!-- ══════════════════════════════════════
+       SCREEN 6 — METRICS
+       ══════════════════════════════════════ -->
+  <div class="screen" id="screen-metrics">
+    <div class="metrics-scroll">
+      <div class="metrics-inner">
+
+        <div class="metrics-header">
+          <span class="metrics-title">Metrics</span>
+          <div class="chains-search-btn">
+            <img src="assets/portfolio-search.svg" alt="Search" />
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-card-label">DeFi TVL</span>
+            <span class="metric-card-val">$123.6b</span>
+            <span class="metric-card-change up">+0.58% 24h</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card-label">Stablecoin Mcap</span>
+            <span class="metric-card-val">$307.2b</span>
+            <span class="metric-card-change dn">-0.20% 7d</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card-label">DEX Volume 24h</span>
+            <span class="metric-card-val">$6.83b</span>
+            <span class="metric-card-change up">+17.6% 7d</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card-label">Perps Volume 24h</span>
+            <span class="metric-card-val">$14.2b</span>
+            <span class="metric-card-change up">+8.3% 7d</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card-label">Active Protocols</span>
+            <span class="metric-card-val">1,284</span>
+            <span class="metric-card-change up">+12 this week</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-card-label">Upcoming Unlocks</span>
+            <span class="metric-card-val">$2.6b</span>
+            <span class="metric-card-change" style="color:#f59e0b">over 14 days</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="metrics-section-title">DEX Market Share</div>
+          <div class="metrics-bar-card">
+            <div class="metrics-bar-row">
+              <span class="metrics-bar-name">Uniswap</span>
+              <div class="metrics-bar-track"><div class="metrics-bar-fill" style="width:42%"></div></div>
+              <span class="metrics-bar-pct">42%</span>
+            </div>
+            <div class="metrics-bar-row">
+              <span class="metrics-bar-name">Curve</span>
+              <div class="metrics-bar-track"><div class="metrics-bar-fill" style="width:19%"></div></div>
+              <span class="metrics-bar-pct">19%</span>
+            </div>
+            <div class="metrics-bar-row">
+              <span class="metrics-bar-name">AAVE</span>
+              <div class="metrics-bar-track"><div class="metrics-bar-fill" style="width:14%"></div></div>
+              <span class="metrics-bar-pct">14%</span>
+            </div>
+            <div class="metrics-bar-row">
+              <span class="metrics-bar-name">dYdX</span>
+              <div class="metrics-bar-track"><div class="metrics-bar-fill" style="width:11%"></div></div>
+              <span class="metrics-bar-pct">11%</span>
+            </div>
+            <div class="metrics-bar-row">
+              <span class="metrics-bar-name">Other</span>
+              <div class="metrics-bar-track"><div class="metrics-bar-fill" style="width:14%;background:linear-gradient(90deg,#9ca3af,#d1d5db)"></div></div>
+              <span class="metrics-bar-pct">14%</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <img class="nav-bg" src="assets/nav-bg.png" alt="" />
+      <div class="nav-row">
+        <button class="nav-item" data-target="screen-dashboard" data-nav="home"><img src="assets/icon-home.svg" alt="" /><span class="nav-item-label">Home</span></button>
+        <button class="nav-item" data-target="screen-chains" data-nav="chains"><img src="assets/icon-chains.svg" alt="" /><span class="nav-item-label">Chains</span></button>
+        <button class="nav-item" data-target="screen-portfolio" data-nav="portfolio"><img src="assets/icon-portfolio.svg" alt="" /><span class="nav-item-label">Portfolio</span></button>
+        <button class="nav-item" data-target="screen-metrics" data-nav="metrics"><img src="assets/icon-metrics.svg" alt="" /><span class="nav-item-label">Metrics</span></button>
+        <button class="nav-item" data-target="screen-more" data-nav="more"><img src="assets/icon-more.svg" alt="" /><span class="nav-item-label">More</span></button>
+      </div>
+    </div>
+  </div><!-- /screen-metrics -->
+
+  <!-- ══════════════════════════════════════
+       SCREEN 7 — MORE
+       ══════════════════════════════════════ -->
+  <div class="screen" id="screen-more">
+    <div class="more-scroll">
+      <div class="more-inner">
+
+        <div class="more-profile">
+          <div class="more-avatar">W</div>
+          <div class="more-profile-info">
+            <div class="more-profile-name">Wrender</div>
+            <div class="more-profile-email">wrender34@gmail.com</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="more-section-title" style="margin-bottom:8px">Account</div>
+          <div class="more-list">
+            <div class="more-item">
+              <div class="more-item-icon" style="background:#ede9fe">🔑</div>
+              <span class="more-item-label">Security & Privacy</span>
+              <span class="more-item-arrow">›</span>
+            </div>
+            <div class="more-item">
+              <div class="more-item-icon" style="background:#ecfdf5">🔔</div>
+              <span class="more-item-label">Notifications</span>
+              <span class="more-item-arrow">›</span>
+            </div>
+            <div class="more-item">
+              <div class="more-item-icon" style="background:#eff6ff">💳</div>
+              <span class="more-item-label">Connected Wallets</span>
+              <span class="more-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="more-section-title" style="margin-bottom:8px">Preferences</div>
+          <div class="more-list">
+            <div class="more-item">
+              <div class="more-item-icon" style="background:#fef3c7">🌐</div>
+              <span class="more-item-label">Currency & Language</span>
+              <span class="more-item-arrow">›</span>
+            </div>
+            <div class="more-item">
+              <div class="more-item-icon" style="background:#f3f4f6">🌙</div>
+              <span class="more-item-label">Dark Mode</span>
+              <span class="more-item-arrow">›</span>
+            </div>
+            <div class="more-item">
+              <div class="more-item-icon" style="background:#fce7f3">🤖</div>
+              <span class="more-item-label">AI Assistant Settings</span>
+              <span class="more-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="more-section-title" style="margin-bottom:8px">Support</div>
+          <div class="more-list">
+            <div class="more-item">
+              <div class="more-item-icon" style="background:#f0fdf4">📖</div>
+              <span class="more-item-label">Help Center</span>
+              <span class="more-item-arrow">›</span>
+            </div>
+            <div class="more-item">
+              <div class="more-item-icon" style="background:#fef2f2">🚪</div>
+              <span class="more-item-label" style="color:#ef4444">Sign Out</span>
+              <span class="more-item-arrow" style="color:#ef4444">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="more-version">DefiGrape v1.0.0</div>
+
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <img class="nav-bg" src="assets/nav-bg.png" alt="" />
+      <div class="nav-row">
+        <button class="nav-item" data-target="screen-dashboard" data-nav="home"><img src="assets/icon-home.svg" alt="" /><span class="nav-item-label">Home</span></button>
+        <button class="nav-item" data-target="screen-chains" data-nav="chains"><img src="assets/icon-chains.svg" alt="" /><span class="nav-item-label">Chains</span></button>
+        <button class="nav-item" data-target="screen-portfolio" data-nav="portfolio"><img src="assets/icon-portfolio.svg" alt="" /><span class="nav-item-label">Portfolio</span></button>
+        <button class="nav-item" data-target="screen-metrics" data-nav="metrics"><img src="assets/icon-metrics.svg" alt="" /><span class="nav-item-label">Metrics</span></button>
+        <button class="nav-item" data-target="screen-more" data-nav="more"><img src="assets/icon-more.svg" alt="" /><span class="nav-item-label">More</span></button>
+      </div>
+    </div>
+  </div><!-- /screen-more -->
+
+</div><!-- /phone -->
+
+<script>
+  // ── Navigation config ────────────────────────────
+  // nav-key each screen maps to (for highlighting the correct tab)
+  const NAV_MAP = {
+    'screen-dashboard': 'home',
+    'screen-chains':    'chains',
+    'screen-portfolio': 'portfolio',
+    'screen-staking':   'portfolio',   // staking is a sub-page of portfolio
+    'screen-metrics':   'metrics',
+    'screen-more':      'more'
+  };
+  // screen depth: higher = child screen, lower = parent
+  const DEPTH = {
+    'screen-signin':    0,
+    'screen-dashboard': 1,
+    'screen-chains':    1,
+    'screen-metrics':   1,
+    'screen-more':      1,
+    'screen-portfolio': 2,
+    'screen-staking':   3
+  };
+  // staking slides up; all others slide horizontally
+  const SLIDE_UP_SCREENS = new Set(['screen-staking']);
+
+  let currentId = 'screen-signin';
+
+  function showScreen(targetId) {
+    if (targetId === currentId) return;
+    const prev = document.getElementById(currentId);
+    const next = document.getElementById(targetId);
+    const goingDeeper = (DEPTH[targetId] ?? 1) >= (DEPTH[currentId] ?? 1);
+
+    // strip old directional class from next so transition is clean
+    next.classList.remove('slide-back', 'slide-up');
+
+    if (SLIDE_UP_SCREENS.has(targetId)) {
+      next.classList.add('slide-up');
+    } else if (!goingDeeper) {
+      next.classList.add('slide-back');
+    }
+    // next frame: swap active
+    requestAnimationFrame(() => {
+      prev.classList.remove('active');
+      next.classList.add('active');
+      // remove the enter-direction class after transition so it doesn't
+      // affect the slide-out of this screen later
+      setTimeout(() => {
+        next.classList.remove('slide-back', 'slide-up');
+      }, 280);
+    });
+
+    currentId = targetId;
+    syncNav(targetId);
+  }
+
+  function syncNav(screenId) {
+    const activeKey = NAV_MAP[screenId];
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      const isActive = btn.dataset.nav === activeKey;
+      btn.classList.toggle('active', isActive);
+    });
+  }
+
+  // ── Delegate all nav-item clicks ────────────────
+  document.querySelector('.phone').addEventListener('click', function(e) {
+    const btn = e.target.closest('.nav-item[data-target]');
+    if (!btn) return;
+    showScreen(btn.dataset.target);
+  });
+
+  // ── Sign-in ──────────────────────────────────────
+  document.getElementById('signin-tabs').addEventListener('click', function(e) {
+    const tab = e.target.closest('.signin-tab');
+    if (!tab) return;
+    document.querySelectorAll('.signin-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+
+  document.getElementById('btn-google').addEventListener('click', () => showScreen('screen-dashboard'));
+  document.getElementById('password-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') showScreen('screen-dashboard');
+  });
+
+  // ── Filter pills ─────────────────────────────────
+  document.querySelector('.filter-strip-inner').addEventListener('click', function(e) {
+    const pill = e.target.closest('.fpill');
+    if (!pill) return;
+    document.querySelectorAll('.fpill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+  });
+
+  // ── Pool bottom sheet ────────────────────────────
+  function openPoolSheet() {
+    document.getElementById('screen-staking').classList.add('sheet-open');
+    document.getElementById('pool-sheet-backdrop').classList.add('visible');
+    requestAnimationFrame(() => {
+      document.getElementById('pool-sheet').classList.add('visible');
+    });
+  }
+  function closePoolSheet() {
+    document.getElementById('pool-sheet').classList.remove('visible');
+    document.getElementById('pool-sheet-backdrop').classList.remove('visible');
+    setTimeout(() => {
+      document.getElementById('screen-staking').classList.remove('sheet-open');
+    }, 320);
+  }
+  function setPeriod(btn) {
+    document.querySelectorAll('#pool-period-toggle .pool-period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  function setAction(btn, action) {
+    const toggle = document.getElementById('pool-action-toggle');
+    document.querySelectorAll('#pool-action-toggle .pool-action-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    toggle.classList.toggle('unstake-active', action === 'unstake');
+    document.querySelector('.pool-confirm-btn').textContent =
+      action === 'unstake' ? 'Confirm Unstake' : 'Confirm Stake';
+  }
+
+  // ── Boot: set Home active on dashboard ──────────
+  syncNav('screen-signin');  // nothing active on signin
+</script>
+</body>
+</html>
