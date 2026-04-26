@@ -417,6 +417,101 @@
       background: #f0f2f8;
     }
 
+    /* View tabs (Gallery / About) */
+    .pov-tabs {
+      display: inline-flex;
+      border: 1px solid var(--accent);
+      border-radius: 3px; overflow: hidden;
+    }
+    .pov-tab {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .25em; text-transform: uppercase;
+      padding: 7px 13px;
+      background: none; border: none; cursor: none;
+      color: var(--accent);
+      transition: color .18s, background .18s;
+      border-right: 1px solid var(--accent);
+    }
+    .pov-tab:last-child { border-right: none; }
+    .pov-tab:hover { background: rgba(45,91,227,.08); }
+    .pov-tab.active { background: var(--accent); color: #fff; }
+    .pov-tab.active:hover { background: var(--accent); }
+    .pov-tab.hidden { display: none; }
+
+    /* About / Details panel */
+    .frame-d {
+      flex: 1; min-height: 0; width: 100%;
+      display: none; flex-direction: column;
+      overflow-y: auto;
+      padding: 28px 36px 32px;
+      background: #fff;
+    }
+    .frame-d.active { display: flex; }
+    .frame-d::-webkit-scrollbar { width: 6px; }
+    .frame-d::-webkit-scrollbar-thumb { background: rgba(0,0,0,.12); border-radius: 3px; }
+    .frame-p.active { display: flex; }
+    .frame-p:not(.active) { display: none; }
+
+    .pd-meta-row {
+      display: flex; flex-wrap: wrap; gap: 28px 40px;
+      padding-bottom: 22px; margin-bottom: 22px;
+      border-bottom: 1px solid rgba(0,0,0,.07);
+    }
+    .pd-meta-item { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .pd-meta-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px; letter-spacing: .3em; text-transform: uppercase;
+      color: rgba(0,0,0,.32);
+    }
+    .pd-meta-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px; color: var(--text); letter-spacing: .04em;
+    }
+    .pd-meta-val.accent { color: var(--accent); }
+
+    .pd-tools {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding-bottom: 22px; margin-bottom: 22px;
+      border-bottom: 1px solid rgba(0,0,0,.07);
+    }
+    .pd-tool-chip {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; letter-spacing: .12em;
+      padding: 5px 10px;
+      background: rgba(45,91,227,.06);
+      color: var(--accent);
+      border: 1px solid rgba(45,91,227,.18);
+      border-radius: 3px;
+    }
+
+    .pd-section { margin-bottom: 26px; }
+    .pd-section:last-child { margin-bottom: 0; }
+    .pd-section-hd {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .pd-section-hd::before {
+      content: ''; width: 4px; height: 4px; border-radius: 50%;
+      background: var(--accent);
+    }
+    .pd-section-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; letter-spacing: .35em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    .pd-section-body {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px; line-height: 1.75;
+      color: rgba(0,0,0,.72);
+      white-space: pre-wrap;
+    }
+    .pd-empty {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; letter-spacing: .25em; text-transform: uppercase;
+      color: rgba(0,0,0,.22);
+      text-align: center; padding: 60px 0;
+    }
+
     /* ─── Password prompt ────────────────────── */
     .pw-prompt {
       position: fixed; inset: 0; z-index: 400;
@@ -651,6 +746,10 @@
       padding: 8px 10px; outline: none; transition: border-color .15s;
     }
     .adm-input:focus { border-color: var(--accent); background: #fff; }
+    textarea.adm-input {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.6;
+      resize: vertical; min-height: 84px;
+    }
     .adm-hint {
       font-family: 'IBM Plex Mono', monospace; font-size: 8px;
       color: rgba(0,0,0,.28); letter-spacing: .05em;
@@ -900,6 +999,10 @@
         </div>
       </div>
       <div class="pov-topbar-right">
+        <div class="pov-tabs" id="pov-tabs">
+          <button class="pov-tab active" data-tab="gallery" id="tab-gallery">Gallery</button>
+          <button class="pov-tab" data-tab="about" id="tab-about">About</button>
+        </div>
         <a id="figma-link" class="figma-btn hidden" href="#" target="_blank" rel="noopener">
           <svg width="10" height="15" viewBox="0 0 10 15" fill="none" aria-hidden="true" style="flex-shrink:0;display:block">
             <path d="M0 12.5A2.5 2.5 0 0 0 2.5 15 2.5 2.5 0 0 0 5 12.5V10H2.5A2.5 2.5 0 0 0 0 12.5Z" fill="currentColor" opacity=".55"/>
@@ -915,7 +1018,7 @@
     </div>
 
     <div class="pov-preview" id="pov-preview">
-      <div class="frame-p" id="frame-p">
+      <div class="frame-p active" id="frame-p">
         <div class="pc-main-section">
           <div class="pc-wrap">
             <div class="pc-track" id="pc-track"></div>
@@ -936,6 +1039,24 @@
           </button>
           <div class="pc-extra-grid" id="pc-extra-grid"></div>
         </div>
+      </div>
+
+      <div class="frame-d" id="frame-d">
+        <div class="pd-meta-row" id="pd-meta-row"></div>
+        <div class="pd-tools" id="pd-tools"></div>
+        <div class="pd-section" id="pd-sec-goals">
+          <div class="pd-section-hd"><span class="pd-section-title">Goals</span></div>
+          <div class="pd-section-body" id="pd-goals"></div>
+        </div>
+        <div class="pd-section" id="pd-sec-workflow">
+          <div class="pd-section-hd"><span class="pd-section-title">Workflow</span></div>
+          <div class="pd-section-body" id="pd-workflow"></div>
+        </div>
+        <div class="pd-section" id="pd-sec-outcomes">
+          <div class="pd-section-hd"><span class="pd-section-title">Outcomes</span></div>
+          <div class="pd-section-body" id="pd-outcomes"></div>
+        </div>
+        <div class="pd-empty" id="pd-empty" style="display:none">No project details added yet</div>
       </div>
     </div>
   </div>
@@ -1019,6 +1140,40 @@
         <div class="adm-field full">
           <label class="adm-label" for="af-figma">Figma URL (optional)</label>
           <input class="adm-input" id="af-figma" type="url" placeholder="https://www.figma.com/design/...">
+        </div>
+
+        <div class="adm-divider" style="margin: 6px 0 4px"></div>
+        <div class="adm-section-title" style="margin-bottom: 0">Project Details <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· optional · shown in About tab</span></div>
+
+        <div class="adm-row">
+          <div class="adm-field">
+            <label class="adm-label" for="af-year">Year</label>
+            <input class="adm-input" id="af-year" type="text" placeholder="e.g. 2024">
+          </div>
+          <div class="adm-field">
+            <label class="adm-label" for="af-duration">Duration</label>
+            <input class="adm-input" id="af-duration" type="text" placeholder="e.g. 3 months">
+          </div>
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label" for="af-role">Role</label>
+          <input class="adm-input" id="af-role" type="text" placeholder="e.g. Lead UI/UX Designer">
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label" for="af-tools">Tools <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· comma or · separated</span></label>
+          <input class="adm-input" id="af-tools" type="text" placeholder="e.g. Figma, FigJam, Principle">
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label" for="af-goals">Goals</label>
+          <textarea class="adm-input" id="af-goals" rows="4" placeholder="What was this project trying to achieve?"></textarea>
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label" for="af-workflow">Workflow / Process</label>
+          <textarea class="adm-input" id="af-workflow" rows="4" placeholder="How did you approach it? Research, iterations, decisions..."></textarea>
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label" for="af-outcomes">Outcomes</label>
+          <textarea class="adm-input" id="af-outcomes" rows="4" placeholder="Results, learnings, or impact"></textarea>
         </div>
       </div>
     </div>
@@ -1583,9 +1738,23 @@
   var extraGrid   = document.getElementById('pc-extra-grid');
   var extraCount  = document.getElementById('pc-extra-count');
   var extraToggle = document.getElementById('pc-extra-toggle');
+  var framePEl    = document.getElementById('frame-p');
+  var frameDEl    = document.getElementById('frame-d');
+  var tabGallery  = document.getElementById('tab-gallery');
+  var tabAbout    = document.getElementById('tab-about');
+  var pdMetaRow   = document.getElementById('pd-meta-row');
+  var pdTools     = document.getElementById('pd-tools');
+  var pdGoals     = document.getElementById('pd-goals');
+  var pdWorkflow  = document.getElementById('pd-workflow');
+  var pdOutcomes  = document.getElementById('pd-outcomes');
+  var pdEmpty     = document.getElementById('pd-empty');
+  var pdSecGoals    = document.getElementById('pd-sec-goals');
+  var pdSecWorkflow = document.getElementById('pd-sec-workflow');
+  var pdSecOutcomes = document.getElementById('pd-sec-outcomes');
 
   var curProj  = 0;
   var curPhoto = 0;
+  var curView  = 'gallery';
 
   /* ── Sidebar nav ─────────────────────── */
   function buildNav() {
@@ -1621,7 +1790,74 @@
     else            { figmaLink.href = '#';         figmaLink.classList.add('hidden'); }
     buildCarousel(p.photos || []);
     buildExtraPhotos(p.extraPhotos || []);
+    buildDetails(p);
   }
+
+  /* ── About / Details panel ──────────── */
+  function buildDetails(p) {
+    var year     = (p.year || '').trim();
+    var duration = (p.duration || '').trim();
+    var role     = (p.role || '').trim();
+    var toolsRaw = (p.tools || '').trim();
+    var goals    = (p.goals || '').trim();
+    var workflow = (p.workflow || '').trim();
+    var outcomes = (p.outcomes || '').trim();
+
+    /* Meta row */
+    pdMetaRow.innerHTML = '';
+    var metas = [
+      { l: 'Year',     v: year },
+      { l: 'Duration', v: duration },
+      { l: 'Role',     v: role },
+    ].filter(function (m) { return m.v; });
+    metas.forEach(function (m) {
+      var item = document.createElement('div');
+      item.className = 'pd-meta-item';
+      var lbl = document.createElement('span'); lbl.className = 'pd-meta-label'; lbl.textContent = m.l;
+      var val = document.createElement('span'); val.className = 'pd-meta-val';   val.textContent = m.v;
+      item.appendChild(lbl); item.appendChild(val);
+      pdMetaRow.appendChild(item);
+    });
+    pdMetaRow.style.display = metas.length ? '' : 'none';
+
+    /* Tools chips */
+    pdTools.innerHTML = '';
+    var toolsArr = toolsRaw
+      ? toolsRaw.split(/[,·|]/).map(function (s) { return s.trim(); }).filter(Boolean)
+      : [];
+    toolsArr.forEach(function (t) {
+      var chip = document.createElement('span');
+      chip.className = 'pd-tool-chip'; chip.textContent = t;
+      pdTools.appendChild(chip);
+    });
+    pdTools.style.display = toolsArr.length ? '' : 'none';
+
+    /* Sections */
+    pdGoals.textContent    = goals;
+    pdWorkflow.textContent = workflow;
+    pdOutcomes.textContent = outcomes;
+    pdSecGoals.style.display    = goals    ? '' : 'none';
+    pdSecWorkflow.style.display = workflow ? '' : 'none';
+    pdSecOutcomes.style.display = outcomes ? '' : 'none';
+
+    var hasAny = metas.length || toolsArr.length || goals || workflow || outcomes;
+    pdEmpty.style.display = hasAny ? 'none' : '';
+
+    /* Hide About tab entirely if there's nothing to show */
+    tabAbout.classList.toggle('hidden', !hasAny);
+    if (!hasAny && curView === 'about') setView('gallery');
+  }
+
+  function setView(v) {
+    curView = v;
+    var gallery = v === 'gallery';
+    tabGallery.classList.toggle('active', gallery);
+    tabAbout.classList.toggle('active', !gallery);
+    framePEl.classList.toggle('active', gallery);
+    frameDEl.classList.toggle('active', !gallery);
+  }
+  tabGallery.addEventListener('click', function () { setView('gallery'); });
+  tabAbout.addEventListener('click',   function () { setView('about'); });
 
   /* ── Barrel carousel ────────────────── */
   function buildCarousel(photos) {
@@ -1921,10 +2157,17 @@
     var p = loadCustomProjects().find(function (x) { return x.id === id; });
     if (!p) return;
     editingId = id;
-    document.getElementById('af-title').value = p.title    || '';
-    document.getElementById('af-desc').value  = p.desc     || '';
-    document.getElementById('af-tags').value  = p.tags     || '';
-    document.getElementById('af-figma').value = p.figmaUrl || '';
+    document.getElementById('af-title').value    = p.title    || '';
+    document.getElementById('af-desc').value     = p.desc     || '';
+    document.getElementById('af-tags').value     = p.tags     || '';
+    document.getElementById('af-figma').value    = p.figmaUrl || '';
+    document.getElementById('af-year').value     = p.year     || '';
+    document.getElementById('af-duration').value = p.duration || '';
+    document.getElementById('af-role').value     = p.role     || '';
+    document.getElementById('af-tools').value    = p.tools    || '';
+    document.getElementById('af-goals').value    = p.goals    || '';
+    document.getElementById('af-workflow').value = p.workflow || '';
+    document.getElementById('af-outcomes').value = p.outcomes || '';
     pendingMainPhotos.length  = 0;
     pendingExtraPhotos.length = 0;
     Array.prototype.push.apply(pendingMainPhotos,  p.photos      || []);
@@ -2073,27 +2316,33 @@
   document.getElementById('adm-save').addEventListener('click', function () {
     if (pendingUploads > 0) return;
 
-    var title = document.getElementById('af-title').value.trim();
-    var desc  = document.getElementById('af-desc').value.trim();
-    var tags  = document.getElementById('af-tags').value.trim();
-    var figma = document.getElementById('af-figma').value.trim();
+    var title    = document.getElementById('af-title').value.trim();
+    var desc     = document.getElementById('af-desc').value.trim();
+    var tags     = document.getElementById('af-tags').value.trim();
+    var figma    = document.getElementById('af-figma').value.trim();
+    var year     = document.getElementById('af-year').value.trim();
+    var duration = document.getElementById('af-duration').value.trim();
+    var role     = document.getElementById('af-role').value.trim();
+    var tools    = document.getElementById('af-tools').value.trim();
+    var goals    = document.getElementById('af-goals').value.trim();
+    var workflow = document.getElementById('af-workflow').value.trim();
+    var outcomes = document.getElementById('af-outcomes').value.trim();
     if (!title) { document.getElementById('af-title').focus(); return; }
+
+    var fields = {
+      title: title, desc: desc || title, tags: tags || 'Design',
+      figmaUrl: figma,
+      year: year, duration: duration, role: role, tools: tools,
+      goals: goals, workflow: workflow, outcomes: outcomes,
+      photos: pendingMainPhotos.slice(), extraPhotos: pendingExtraPhotos.slice()
+    };
 
     var custom = loadCustomProjects();
     if (editingId) {
       var idx = custom.findIndex(function (p) { return p.id === editingId; });
-      if (idx >= 0) Object.assign(custom[idx], {
-        title: title, desc: desc || title, tags: tags || 'Design',
-        figmaUrl: figma,
-        photos: pendingMainPhotos.slice(), extraPhotos: pendingExtraPhotos.slice()
-      });
+      if (idx >= 0) Object.assign(custom[idx], fields);
     } else {
-      custom.push({
-        id: 'custom_' + Date.now(),
-        title: title, desc: desc || title, tags: tags || 'Design',
-        figmaUrl: figma,
-        photos: pendingMainPhotos.slice(), extraPhotos: pendingExtraPhotos.slice()
-      });
+      custom.push(Object.assign({ id: 'custom_' + Date.now() }, fields));
     }
 
     var btn = document.getElementById('adm-save');
@@ -2115,7 +2364,9 @@
 
   function clearForm() {
     editingId = null;
-    ['af-title','af-desc','af-tags','af-figma'].forEach(function (id) {
+    ['af-title','af-desc','af-tags','af-figma',
+     'af-year','af-duration','af-role','af-tools',
+     'af-goals','af-workflow','af-outcomes'].forEach(function (id) {
       document.getElementById(id).value = '';
     });
     pendingMainPhotos.length = 0; pendingExtraPhotos.length = 0;
