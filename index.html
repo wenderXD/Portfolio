@@ -1865,10 +1865,28 @@
     buildDetails(p);
     var protoUrl = p.protoUrl || '';
     if (protoUrl) {
-      protoIframe.src = protoUrl;
       protoIframe.classList.add('active');
       pcWrapEl.style.display = 'none';
+      fetch(protoUrl)
+        .then(function(r) { return r.text(); })
+        .then(function(html) {
+          /* Inject a base tag so relative URLs inside the prototype resolve correctly */
+          var base = protoUrl.replace(/\/[^/]*$/, '/');
+          var baseTag = '<base href="' + base + '">';
+          if (/<head[\s>]/i.test(html)) {
+            html = html.replace(/<head(\s[^>]*)?>/i, function(m) { return m + baseTag; });
+          } else {
+            html = baseTag + html;
+          }
+          protoIframe.srcdoc = html;
+        })
+        .catch(function() {
+          /* Fallback: attempt direct load */
+          protoIframe.removeAttribute('srcdoc');
+          protoIframe.src = protoUrl;
+        });
     } else {
+      protoIframe.removeAttribute('srcdoc');
       protoIframe.src = 'about:blank';
       protoIframe.classList.remove('active');
       pcWrapEl.style.display = '';
