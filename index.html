@@ -901,6 +901,43 @@
       font-family: 'IBM Plex Mono', monospace;
       font-size: 8px; letter-spacing: .2em; color: rgba(0,0,0,.3);
     }
+
+    /* ─── Prototype inline ───────────────── */
+    .proto-inline {
+      display: none; width: 100%; height: 100%; border: none;
+    }
+    .proto-inline.active { display: block; }
+
+    /* ─── Proto upload zone (admin) ─────── */
+    .proto-zone-wrap {
+      border: 1.5px dashed rgba(45,91,227,.25); border-radius: 5px;
+      background: rgba(45,91,227,.03);
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      cursor: pointer; transition: border-color .18s, background .18s;
+    }
+    .proto-zone-wrap:hover, .proto-zone-wrap.drag-over {
+      border-color: var(--accent); background: rgba(45,91,227,.07);
+    }
+    .proto-zone-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(0,0,0,.35); pointer-events: none;
+    }
+    .proto-zone-label span { color: var(--accent); }
+    .proto-file-chip {
+      display: none; align-items: center; gap: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; color: var(--accent);
+      background: rgba(45,91,227,.08); border: 1px solid rgba(45,91,227,.2);
+      border-radius: 3px; padding: 4px 10px; flex-shrink: 0;
+    }
+    .proto-file-rm {
+      background: none; border: none; color: rgba(0,0,0,.4);
+      font-size: 10px; line-height: 1; cursor: pointer; padding: 0;
+      transition: color .15s;
+    }
+    .proto-file-rm:hover { color: #c44; }
   </style>
 </head>
 <body>
@@ -1020,7 +1057,7 @@
     <div class="pov-preview" id="pov-preview">
       <div class="frame-p active" id="frame-p">
         <div class="pc-main-section">
-          <div class="pc-wrap">
+          <div class="pc-wrap" id="pc-wrap">
             <div class="pc-track" id="pc-track"></div>
             <button class="pc-btn pc-prev" id="pc-prev" aria-label="Previous photo">
               <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1031,6 +1068,9 @@
             <div class="pc-dots" id="pc-dots"></div>
             <div class="pc-counter" id="pc-counter"></div>
           </div>
+          <iframe id="proto-iframe" class="proto-inline"
+            sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals"
+            src="about:blank"></iframe>
         </div>
         <div class="pc-extra-bar" id="pc-extra-bar" style="display:none">
           <button class="pc-extra-toggle" id="pc-extra-toggle">
@@ -1058,6 +1098,7 @@
         </div>
         <div class="pd-empty" id="pd-empty" style="display:none">No project details added yet</div>
       </div>
+
     </div>
   </div>
 
@@ -1140,6 +1181,25 @@
         <div class="adm-field full">
           <label class="adm-label" for="af-figma">Figma URL (optional)</label>
           <input class="adm-input" id="af-figma" type="url" placeholder="https://www.figma.com/design/...">
+        </div>
+
+        <div class="adm-divider" style="margin: 6px 0 4px"></div>
+        <div class="adm-section-title" style="margin-bottom: 0">HTML Prototype <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· optional · interactive prototype shown in Prototype tab</span></div>
+
+        <div class="adm-field full">
+          <label class="adm-label">Upload .html File</label>
+          <div class="proto-zone-wrap" id="proto-zone">
+            <div class="proto-zone-label" id="proto-zone-label">Drop or <span>click to browse</span> — .html file</div>
+            <div class="proto-file-chip" id="proto-file-chip">
+              <span id="proto-file-name">prototype.html</span>
+              <button class="proto-file-rm" id="proto-file-rm" type="button">✕</button>
+            </div>
+          </div>
+          <input type="file" id="af-proto-file" accept=".html,text/html" style="display:none">
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label" for="af-proto-url">— or Prototype URL <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· direct link to a hosted .html prototype</span></label>
+          <input class="adm-input" id="af-proto-url" type="url" placeholder="https://...">
         </div>
 
         <div class="adm-divider" style="margin: 6px 0 4px"></div>
@@ -1742,6 +1802,8 @@
   var frameDEl    = document.getElementById('frame-d');
   var tabGallery  = document.getElementById('tab-gallery');
   var tabAbout    = document.getElementById('tab-about');
+  var protoIframe = document.getElementById('proto-iframe');
+  var pcWrapEl    = document.getElementById('pc-wrap');
   var pdMetaRow   = document.getElementById('pd-meta-row');
   var pdTools     = document.getElementById('pd-tools');
   var pdGoals     = document.getElementById('pd-goals');
@@ -1791,6 +1853,16 @@
     buildCarousel(p.photos || []);
     buildExtraPhotos(p.extraPhotos || []);
     buildDetails(p);
+    var protoUrl = p.protoUrl || '';
+    if (protoUrl) {
+      protoIframe.src = protoUrl;
+      protoIframe.classList.add('active');
+      pcWrapEl.style.display = 'none';
+    } else {
+      protoIframe.src = 'about:blank';
+      protoIframe.classList.remove('active');
+      pcWrapEl.style.display = '';
+    }
   }
 
   /* ── About / Details panel ──────────── */
@@ -1850,11 +1922,10 @@
 
   function setView(v) {
     curView = v;
-    var gallery = v === 'gallery';
-    tabGallery.classList.toggle('active', gallery);
-    tabAbout.classList.toggle('active', !gallery);
-    framePEl.classList.toggle('active', gallery);
-    frameDEl.classList.toggle('active', !gallery);
+    tabGallery.classList.toggle('active', v === 'gallery');
+    tabAbout.classList.toggle('active', v === 'about');
+    framePEl.classList.toggle('active', v === 'gallery');
+    frameDEl.classList.toggle('active', v === 'about');
   }
   tabGallery.addEventListener('click', function () { setView('gallery'); });
   tabAbout.addEventListener('click',   function () { setView('about'); });
@@ -2161,6 +2232,7 @@
     document.getElementById('af-desc').value     = p.desc     || '';
     document.getElementById('af-tags').value     = p.tags     || '';
     document.getElementById('af-figma').value    = p.figmaUrl || '';
+    document.getElementById('af-proto-url').value = p.protoUrl || '';
     document.getElementById('af-year').value     = p.year     || '';
     document.getElementById('af-duration').value = p.duration || '';
     document.getElementById('af-role').value     = p.role     || '';
@@ -2168,6 +2240,8 @@
     document.getElementById('af-goals').value    = p.goals    || '';
     document.getElementById('af-workflow').value = p.workflow || '';
     document.getElementById('af-outcomes').value = p.outcomes || '';
+    document.getElementById('proto-file-chip').style.display = 'none';
+    document.getElementById('proto-zone-label').style.display = '';
     pendingMainPhotos.length  = 0;
     pendingExtraPhotos.length = 0;
     Array.prototype.push.apply(pendingMainPhotos,  p.photos      || []);
@@ -2210,6 +2284,82 @@
 
   setupZone('photo-zone-main',  'af-photos-main',  pendingMainPhotos,  renderMainThumbs);
   setupZone('photo-zone-extra', 'af-photos-extra', pendingExtraPhotos, renderExtraThumbs);
+
+  /* ── HTML Prototype upload zone ──────── */
+  (function () {
+    var zone    = document.getElementById('proto-zone');
+    var input   = document.getElementById('af-proto-file');
+    var chip    = document.getElementById('proto-file-chip');
+    var nameEl  = document.getElementById('proto-file-name');
+    var rmBtn   = document.getElementById('proto-file-rm');
+    var label   = document.getElementById('proto-zone-label');
+    var urlInput = document.getElementById('af-proto-url');
+
+    function isHtml(f) { return f && (f.name.toLowerCase().endsWith('.html') || f.type === 'text/html'); }
+
+    function showChip(filename) {
+      nameEl.textContent = filename;
+      chip.style.display = 'inline-flex';
+      label.style.display = 'none';
+    }
+    function hideChip() {
+      chip.style.display = 'none';
+      label.style.display = '';
+    }
+
+    zone.addEventListener('click', function (e) {
+      if (e.target === rmBtn || rmBtn.contains(e.target)) return;
+      input.click();
+    });
+    zone.addEventListener('dragover', function (e) { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', function () { zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', function (e) {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      var file = Array.from(e.dataTransfer.files).find(isHtml);
+      if (file) uploadProtoFile(file);
+    });
+    input.addEventListener('change', function () {
+      if (input.files[0] && isHtml(input.files[0])) uploadProtoFile(input.files[0]);
+      input.value = '';
+    });
+    rmBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      hideChip();
+      urlInput.value = '';
+    });
+
+    function uploadProtoFile(file) {
+      var btn = document.getElementById('adm-save');
+      var prevText = btn.textContent;
+      btn.disabled = true; btn.style.opacity = '0.6'; btn.style.pointerEvents = 'none';
+      btn.textContent = 'Uploading HTML…';
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        var htmlBlob = new Blob([ev.target.result], { type: 'text/html' });
+        fetch('/api/upload?ext=html', {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/html', 'x-admin-password': getAdminPw() },
+          body: htmlBlob,
+        }).then(function (r) {
+          if (!r.ok) return r.text().then(function (t) { throw new Error('HTTP ' + r.status + ': ' + t); });
+          return r.json();
+        }).then(function (j) {
+          urlInput.value = j.url;
+          showChip(file.name);
+        }).catch(function (e) {
+          alert('HTML upload failed: ' + (e && e.message || e));
+        }).then(function () {
+          btn.disabled = false; btn.style.opacity = ''; btn.style.pointerEvents = '';
+          btn.textContent = prevText;
+        });
+      };
+      reader.onerror = function () {
+        btn.disabled = false; btn.style.opacity = ''; btn.style.pointerEvents = '';
+        btn.textContent = prevText;
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+  })();
 
   function compressImage(dataURL, callback) {
     var MAX = 1800;        // max dimension on longest side
@@ -2329,9 +2479,10 @@
     var outcomes = document.getElementById('af-outcomes').value.trim();
     if (!title) { document.getElementById('af-title').focus(); return; }
 
+    var protoUrl = document.getElementById('af-proto-url').value.trim();
     var fields = {
       title: title, desc: desc || title, tags: tags || 'Design',
-      figmaUrl: figma,
+      figmaUrl: figma, protoUrl: protoUrl,
       year: year, duration: duration, role: role, tools: tools,
       goals: goals, workflow: workflow, outcomes: outcomes,
       photos: pendingMainPhotos.slice(), extraPhotos: pendingExtraPhotos.slice()
@@ -2364,11 +2515,13 @@
 
   function clearForm() {
     editingId = null;
-    ['af-title','af-desc','af-tags','af-figma',
+    ['af-title','af-desc','af-tags','af-figma','af-proto-url',
      'af-year','af-duration','af-role','af-tools',
      'af-goals','af-workflow','af-outcomes'].forEach(function (id) {
       document.getElementById(id).value = '';
     });
+    document.getElementById('proto-file-chip').style.display = 'none';
+    document.getElementById('proto-zone-label').style.display = '';
     pendingMainPhotos.length = 0; pendingExtraPhotos.length = 0;
     renderMainThumbs(); renderExtraThumbs();
     document.getElementById('adm-form-title').textContent    = 'Add New Project';
