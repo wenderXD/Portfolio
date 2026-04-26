@@ -913,7 +913,8 @@
 
     /* ─── Prototype inline ───────────────── */
     .proto-inline {
-      display: none; position: absolute; inset: 0; border: none;
+      display: none; position: absolute; border: none;
+      transform-origin: top left;
     }
     .proto-inline.active { display: block; }
 
@@ -1867,21 +1868,18 @@
     if (protoUrl) {
       protoIframe.classList.add('active');
       pcWrapEl.style.display = 'none';
+      scaleProtoIframe();
       fetch(protoUrl)
         .then(function(r) { return r.text(); })
         .then(function(html) {
-          /* Inject a base tag so relative URLs inside the prototype resolve correctly */
           var base = protoUrl.replace(/\/[^/]*$/, '/');
           var baseTag = '<base href="' + base + '">';
-          if (/<head[\s>]/i.test(html)) {
-            html = html.replace(/<head(\s[^>]*)?>/i, function(m) { return m + baseTag; });
-          } else {
-            html = baseTag + html;
-          }
+          html = /<head[\s>]/i.test(html)
+            ? html.replace(/<head(\s[^>]*)?>/i, function(m) { return m + baseTag; })
+            : baseTag + html;
           protoIframe.srcdoc = html;
         })
         .catch(function() {
-          /* Fallback: attempt direct load */
           protoIframe.removeAttribute('srcdoc');
           protoIframe.src = protoUrl;
         });
@@ -2086,6 +2084,23 @@
     if (e.key === 'ArrowRight') goPhoto(curPhoto + 1);
   });
 
+  /* ── Scale prototype iframe to fill container ── */
+  var PROTO_W = 1440, PROTO_H = 900;
+  function scaleProtoIframe() {
+    if (!protoIframe.classList.contains('active')) return;
+    var section = protoIframe.parentElement;
+    var pad = 16;
+    var W = section.offsetWidth  - pad * 2;
+    var H = section.offsetHeight - pad * 2;
+    if (W <= 0 || H <= 0) return;
+    var scale = Math.min(W / PROTO_W, H / PROTO_H);
+    protoIframe.style.width  = PROTO_W + 'px';
+    protoIframe.style.height = PROTO_H + 'px';
+    protoIframe.style.transform = 'scale(' + scale + ')';
+    protoIframe.style.left = (pad + (W - PROTO_W * scale) / 2) + 'px';
+    protoIframe.style.top  = (pad + (H - PROTO_H * scale) / 2) + 'px';
+  }
+
   window.addEventListener('resize', function () {
     var slides = Array.from(pcTrack.querySelectorAll('.pc-slide'));
     slides.forEach(function (slide) {
@@ -2093,6 +2108,7 @@
       if (img && img.naturalWidth) fitSlide(slide, img);
     });
     updateBarrel();
+    scaleProtoIframe();
   });
 
   /* Drag / swipe to navigate */
