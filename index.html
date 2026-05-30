@@ -889,6 +889,8 @@
                   opacity .42s ease,
                   box-shadow .52s ease;
     }
+    /* Single-item carousel (no barrel neighbors) — let the slide fill the frame */
+    .pc-track.single .pc-slide { max-width: 94%; max-height: 92%; }
     .pc-track.no-anim .pc-slide { transition: none !important; }
     .pc-slide img {
       display: block; width: 100%; height: 100%;
@@ -2033,6 +2035,7 @@
     pcTrack.innerHTML = '';
     pcDots.innerHTML  = '';
     var multi = photos.length > 1;
+    pcTrack.classList.toggle('single', photos.length === 1);
     document.getElementById('pc-prev').style.display = multi ? '' : 'none';
     document.getElementById('pc-next').style.display = multi ? '' : 'none';
     pcDots.style.display = multi ? '' : 'none';
@@ -2081,8 +2084,9 @@
     var r = mw / mh;
     var trackW = pcTrack.offsetWidth  || slide.parentElement.offsetWidth  || 800;
     var trackH = pcTrack.offsetHeight || slide.parentElement.offsetHeight || 600;
-    var maxW = trackW * 0.58;
-    var maxH = trackH * 0.86;
+    var single = pcTrack.classList.contains('single');
+    var maxW = trackW * (single ? 0.94 : 0.58);
+    var maxH = trackH * (single ? 0.92 : 0.86);
     var w, h;
     if (r >= maxW / maxH) { w = maxW; h = maxW / r; }
     else                  { h = maxH; w = maxH * r; }
