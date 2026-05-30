@@ -728,7 +728,14 @@
       border: 1px solid rgba(0,0,0,.1);
       flex-shrink: 0;
     }
-    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-thumb img, .photo-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-thumb-vid {
+      position: absolute; left: 4px; bottom: 4px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(0,0,0,.55); color: #fff;
+      font-size: 7px; line-height: 16px; text-align: center;
+      pointer-events: none;
+    }
     .photo-thumb-rm {
       position: absolute; top: 3px; right: 3px;
       width: 16px; height: 16px; border-radius: 50%;
@@ -847,7 +854,19 @@
       transition: border-color .15s, transform .15s;
     }
     .pc-extra-item:hover { border-color: var(--accent); transform: scale(1.03); }
-    .pc-extra-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pc-extra-item img, .pc-extra-item video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pc-extra-item { position: relative; }
+    .pc-extra-play {
+      position: absolute; inset: 0; pointer-events: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pc-extra-play::before {
+      content: ''; width: 0; height: 0;
+      border-style: solid; border-width: 7px 0 7px 12px;
+      border-color: transparent transparent transparent #fff;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,.6));
+      margin-left: 2px;
+    }
     .pc-wrap {
       position: relative;
       width: 100%; height: 100%;
@@ -875,6 +894,12 @@
       display: block; width: 100%; height: 100%;
       user-select: none; -webkit-user-drag: none;
       pointer-events: none;
+    }
+    .pc-slide video {
+      display: block; width: 100%; height: 100%;
+      object-fit: cover; border-radius: 3px;
+      background: #000;
+      pointer-events: none; /* toggled to auto for the centered slide via JS */
     }
     .pc-empty {
       font-family: 'IBM Plex Mono', monospace;
@@ -1171,22 +1196,22 @@
           <input class="adm-input" id="af-desc" type="text" placeholder="Short project description">
         </div>
         <div class="adm-field full">
-          <label class="adm-label">Main Photos <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· shown in carousel · paste Ctrl+V</span></label>
+          <label class="adm-label">Main Photos & Videos <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· shown in carousel · paste Ctrl+V</span></label>
           <div class="photo-zone" id="photo-zone-main">
             <div class="photo-zone-label">Drop or <span>click to browse</span></div>
-            <div class="photo-zone-sub">PNG · JPG · WEBP · paste from clipboard</div>
+            <div class="photo-zone-sub">PNG · JPG · WEBP · MP4 · WEBM · paste from clipboard</div>
             <div class="photo-thumbs" id="photo-thumbs-main"></div>
           </div>
-          <input type="file" id="af-photos-main" accept="image/*" multiple style="display:none">
+          <input type="file" id="af-photos-main" accept="image/*,video/*" multiple style="display:none">
         </div>
         <div class="adm-field full">
-          <label class="adm-label">Additional Photos <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· expandable section · paste Ctrl+V</span></label>
+          <label class="adm-label">Additional Photos & Videos <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· expandable section · paste Ctrl+V</span></label>
           <div class="photo-zone" id="photo-zone-extra">
             <div class="photo-zone-label">Drop or <span>click to browse</span></div>
-            <div class="photo-zone-sub">PNG · JPG · WEBP · paste from clipboard</div>
+            <div class="photo-zone-sub">PNG · JPG · WEBP · MP4 · WEBM · paste from clipboard</div>
             <div class="photo-thumbs" id="photo-thumbs-extra"></div>
           </div>
-          <input type="file" id="af-photos-extra" accept="image/*" multiple style="display:none">
+          <input type="file" id="af-photos-extra" accept="image/*,video/*" multiple style="display:none">
         </div>
         <div class="adm-field full">
           <label class="adm-label" for="af-figma">Figma URL (optional)</label>
@@ -1792,6 +1817,31 @@
     }).then(function (j) { return j.url; });
   }
 
+  /* Upload an arbitrary file (e.g. video) straight to blob storage, no compression. */
+  function uploadFile(file) {
+    var ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 6) || 'bin';
+    return fetch('/api/upload?ext=' + encodeURIComponent(ext), {
+      method: 'POST',
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+        'x-admin-password': getAdminPw(),
+      },
+      body: file,
+    }).then(function (r) {
+      if (!r.ok) {
+        return r.text().then(function (t) { throw new Error('upload ' + r.status + ' ' + t); });
+      }
+      return r.json();
+    }).then(function (j) { return j.url; });
+  }
+
+  /* True if a stored media src points at a video (by extension or data-URL mime). */
+  function isVideoSrc(src) {
+    if (!src) return false;
+    if (/^data:video\//i.test(src)) return true;
+    return /\.(mp4|webm|mov|ogg)(\?|#|$)/i.test(src);
+  }
+
   var PROJECTS = buildProjectList();
 
   /* ── DOM ─────────────────────────────── */
@@ -1975,11 +2025,21 @@
     photos.forEach(function (src, idx) {
       var slide = document.createElement('div');
       slide.className = 'pc-slide';
-      var img = document.createElement('img');
-      img.src = src; img.alt = 'Photo ' + (idx + 1); img.draggable = false;
-      img.addEventListener('load', function () { fitSlide(slide, img); updateBarrel(); });
-      if (img.complete && img.naturalWidth) fitSlide(slide, img);
-      slide.appendChild(img); pcTrack.appendChild(slide);
+      var media;
+      if (isVideoSrc(src)) {
+        media = document.createElement('video');
+        media.src = src; media.loop = true; media.muted = true;
+        media.playsInline = true; media.setAttribute('playsinline', '');
+        media.controls = true; media.preload = 'metadata';
+        media.addEventListener('loadedmetadata', function () { fitSlide(slide, media); updateBarrel(); });
+        if (media.videoWidth) fitSlide(slide, media);
+      } else {
+        media = document.createElement('img');
+        media.src = src; media.alt = 'Photo ' + (idx + 1); media.draggable = false;
+        media.addEventListener('load', function () { fitSlide(slide, media); updateBarrel(); });
+        if (media.complete && media.naturalWidth) fitSlide(slide, media);
+      }
+      slide.appendChild(media); pcTrack.appendChild(slide);
       var dot = document.createElement('div');
       dot.className = 'pc-dot';
       dot.addEventListener('click', function () { goPhoto(idx); });
@@ -1994,8 +2054,11 @@
     });
   }
 
-  function fitSlide(slide, img) {
-    var r = img.naturalWidth / img.naturalHeight;
+  function fitSlide(slide, media) {
+    var mw = media.naturalWidth  || media.videoWidth;
+    var mh = media.naturalHeight || media.videoHeight;
+    if (!mw || !mh) return;
+    var r = mw / mh;
     var trackW = pcTrack.offsetWidth  || slide.parentElement.offsetWidth  || 800;
     var trackH = pcTrack.offsetHeight || slide.parentElement.offsetHeight || 600;
     var maxW = trackW * 0.58;
@@ -2013,8 +2076,8 @@
     var n      = slides.length;
     var step   = (pcTrack.offsetWidth || 800) * 0.26;
     slides.forEach(function (slide, idx) {
-      var img = slide.querySelector('img');
-      var ready = img && img.naturalWidth > 0;
+      var media = slide.querySelector('img, video');
+      var ready = media && (media.naturalWidth > 0 || media.videoWidth > 0);
       var raw = idx - curPhoto;
       if (raw > n / 2)  raw -= n;
       if (raw < -n / 2) raw += n;
@@ -2025,10 +2088,12 @@
       var scl    = 1 - abs * 0.15;
       slide.style.transform = 'translate(-50%,-50%) translateX(' + transX + 'px) scale(' + scl + ')';
 
+      var isVid = media && media.tagName === 'VIDEO';
       if (abs > 2 || !ready) {
         slide.style.visibility = 'hidden';
         slide.style.opacity    = '0';
         slide.style.zIndex     = '0';
+        if (isVid && !media.paused) media.pause();
         return;
       }
       slide.style.visibility = 'visible';
@@ -2036,6 +2101,11 @@
       slide.style.zIndex     = 30 - abs * 8;
       slide.style.cursor     = abs === 0 ? 'none' : 'pointer';
       slide.onclick          = abs > 0 ? (function (i) { return function () { goPhoto(i); }; })(idx) : null;
+      if (isVid) {
+        /* Only the centered video is interactive (controls); off-center videos pause. */
+        media.style.pointerEvents = abs === 0 ? 'auto' : 'none';
+        if (abs !== 0 && !media.paused) media.pause();
+      }
     });
     dots.forEach(function (dot, i) { dot.classList.toggle('active', i === curPhoto); });
   }
@@ -2104,8 +2174,8 @@
   window.addEventListener('resize', function () {
     var slides = Array.from(pcTrack.querySelectorAll('.pc-slide'));
     slides.forEach(function (slide) {
-      var img = slide.querySelector('img');
-      if (img && img.naturalWidth) fitSlide(slide, img);
+      var media = slide.querySelector('img, video');
+      if (media && (media.naturalWidth || media.videoWidth)) fitSlide(slide, media);
     });
     updateBarrel();
     scaleProtoIframe();
@@ -2139,9 +2209,19 @@
     extras.forEach(function (src) {
       var item = document.createElement('div');
       item.className = 'pc-extra-item';
-      var img = document.createElement('img');
-      img.src = src; img.alt = '';
-      item.appendChild(img);
+      if (isVideoSrc(src)) {
+        var vid = document.createElement('video');
+        vid.src = src; vid.muted = true; vid.preload = 'metadata';
+        vid.playsInline = true; vid.setAttribute('playsinline', '');
+        item.appendChild(vid);
+        var badge = document.createElement('span');
+        badge.className = 'pc-extra-play';
+        item.appendChild(badge);
+      } else {
+        var img = document.createElement('img');
+        img.src = src; img.alt = '';
+        item.appendChild(img);
+      }
       item.addEventListener('click', function () { showLightbox(src); });
       extraGrid.appendChild(item);
     });
@@ -2152,10 +2232,19 @@
   function showLightbox(src) {
     var lb = document.createElement('div');
     lb.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;cursor:none;animation:fadeIn .18s ease';
-    var img = document.createElement('img');
-    img.src = src;
-    img.style.cssText = 'max-width:92vw;max-height:92vh;border-radius:4px;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,.5)';
-    lb.appendChild(img);
+    var media;
+    if (isVideoSrc(src)) {
+      media = document.createElement('video');
+      media.src = src; media.controls = true; media.autoplay = true;
+      media.loop = true; media.playsInline = true; media.setAttribute('playsinline', '');
+    } else {
+      media = document.createElement('img');
+      media.src = src;
+    }
+    media.style.cssText = 'max-width:92vw;max-height:92vh;border-radius:4px;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,.5)';
+    /* clicking the video itself shouldn't close the lightbox (let controls work) */
+    media.addEventListener('click', function (e) { e.stopPropagation(); });
+    lb.appendChild(media);
     lb.addEventListener('click', function () { document.body.removeChild(lb); });
     document.body.appendChild(lb);
   }
@@ -2321,7 +2410,7 @@
     zone.addEventListener('drop', function (e) {
       e.preventDefault(); zone.classList.remove('drag-over'); activeZone = zoneId;
       readFilesInto(arr, Array.from(e.dataTransfer.files).filter(function (f) {
-        return f.type.startsWith('image/');
+        return f.type.startsWith('image/') || f.type.startsWith('video/');
       }), renderFn);
     });
   }
@@ -2452,6 +2541,22 @@
 
   function readFilesInto(arr, files, renderFn) {
     files.forEach(function (file) {
+      /* Videos: upload the raw file (no compression / canvas re-encode). */
+      if ((file.type && file.type.startsWith('video/')) || isVideoSrc(file.name)) {
+        pendingUploads++;
+        setUploadingState();
+        uploadFile(file).then(function (url) {
+          arr.push(url);
+          renderFn();
+        }).catch(function (e) {
+          console.warn('Upload failed:', e);
+          alert('Video upload failed: ' + (e && e.message || e));
+        }).then(function () {
+          pendingUploads--;
+          setUploadingState();
+        });
+        return;
+      }
       var reader = new FileReader();
       pendingUploads++;
       setUploadingState();
@@ -2482,12 +2587,22 @@
     el.innerHTML = '';
     arr.forEach(function (src, idx) {
       var wrap = document.createElement('div'); wrap.className = 'photo-thumb';
-      var img  = document.createElement('img');  img.src = src;
-      var rm   = document.createElement('button'); rm.className = 'photo-thumb-rm'; rm.textContent = '✕';
+      if (isVideoSrc(src)) {
+        var vid = document.createElement('video');
+        vid.src = src; vid.muted = true; vid.preload = 'metadata';
+        vid.playsInline = true; vid.setAttribute('playsinline', '');
+        wrap.appendChild(vid);
+        var badge = document.createElement('span'); badge.className = 'photo-thumb-vid'; badge.textContent = '▶';
+        wrap.appendChild(badge);
+      } else {
+        var img = document.createElement('img'); img.src = src;
+        wrap.appendChild(img);
+      }
+      var rm = document.createElement('button'); rm.className = 'photo-thumb-rm'; rm.textContent = '✕';
       rm.addEventListener('click', function (e) {
         e.stopPropagation(); arr.splice(idx, 1); refreshFn();
       });
-      wrap.appendChild(img); wrap.appendChild(rm); el.appendChild(wrap);
+      wrap.appendChild(rm); el.appendChild(wrap);
     });
   }
 
