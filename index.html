@@ -2337,8 +2337,15 @@
     if (e.key === 'Escape') closePw();
   });
   pwPrompt.addEventListener('click', function (e) { if (e.target === pwPrompt) closePw(); });
+  // Open admin by typing the secret word "admin" (avoids browser shortcut conflicts).
+  var admSeq = '';
   document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); openPw(); }
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if (e.key && e.key.length === 1) {
+      admSeq = (admSeq + e.key.toLowerCase()).slice(-5);
+      if (admSeq === 'admin') { admSeq = ''; openPw(); }
+    }
   });
   document.getElementById('adm-close').addEventListener('click', closeAdm);
   document.getElementById('adm-cancel').addEventListener('click', closeAdm);
