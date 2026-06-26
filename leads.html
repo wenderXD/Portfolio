@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Leads — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #FFFFFF; --accent: #2D5BE3; --text: #0A0A18; --muted: #8888A4;
+      --dim: rgba(45,91,227,0.07); --red: #D64040; --line: rgba(0,0,0,.09);
+    }
+    html, body {
+      width: 100%; min-height: 100%; background: var(--bg); color: var(--text);
+      font-family: 'IBM Plex Mono', monospace; -webkit-font-smoothing: antialiased;
+    }
+    body { padding: 0 0 60px; }
+    a { color: var(--accent); text-decoration: none; }
+
+    .grid-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(45,91,227,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45,91,227,.03) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 20%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 20%, transparent 75%);
+    }
+
+    /* ── Gate ─────────────────────────────── */
+    .gate {
+      position: fixed; inset: 0; z-index: 100; display: flex;
+      align-items: center; justify-content: center; background: var(--bg);
+    }
+    .gate.hidden { display: none; }
+    .gate-card {
+      width: 340px; max-width: 90vw; border: 1px solid var(--line); padding: 36px 34px;
+      background: rgba(255,255,255,.8); backdrop-filter: blur(6px);
+    }
+    .gate-eyebrow {
+      font-size: 9px; letter-spacing: .42em; text-transform: uppercase; color: var(--accent);
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+    .gate-eyebrow::before { content: ''; width: 18px; height: 1px; background: rgba(45,91,227,.5); }
+    .gate-title { font-family: 'Bebas Neue', sans-serif; font-size: 38px; letter-spacing: .03em; line-height: .95; }
+    .gate-sub { font-size: 10px; color: var(--muted); letter-spacing: .08em; margin: 10px 0 24px; line-height: 1.7; }
+    .gate-in {
+      width: 100%; border: 1px solid var(--line); background: #fff; outline: none;
+      font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: .1em;
+      color: var(--text); padding: 14px 16px;
+    }
+    .gate-in:focus { border-color: var(--accent); }
+    .gate-btn {
+      width: 100%; margin-top: 12px; border: none; background: var(--accent); color: #fff;
+      font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .26em;
+      text-transform: uppercase; padding: 15px; cursor: pointer; transition: background .2s;
+    }
+    .gate-btn:hover { background: #1f44c0; }
+    .gate-btn:disabled { opacity: .55; cursor: default; }
+    .gate-err { color: var(--red); font-size: 10px; letter-spacing: .08em; margin-top: 12px; min-height: 13px; }
+
+    /* ── Dashboard ────────────────────────── */
+    .dash { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 56px 32px 0; display: none; }
+    .dash.on { display: block; }
+
+    .top {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding-bottom: 22px; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 18px;
+    }
+    .top-l .eyebrow { font-size: 9px; letter-spacing: .42em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+    .top-l .eyebrow::before { content: ''; width: 18px; height: 1px; background: rgba(45,91,227,.5); }
+    .top-l h1 { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: .03em; line-height: .95; margin-top: 10px; }
+    .top-l h1 b { color: var(--accent); font-weight: 400; }
+    .top-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 9px; border: 1px solid var(--line);
+      background: #fff; color: var(--text); font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px; letter-spacing: .22em; text-transform: uppercase; padding: 11px 16px;
+      cursor: pointer; transition: border-color .2s, color .2s, background .2s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); background: var(--dim); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.primary:hover { background: #1f44c0; color: #fff; }
+    .btn svg { width: 13px; height: 13px; }
+
+    .meta-row { display: flex; align-items: center; gap: 18px; margin: 18px 0 22px; flex-wrap: wrap; }
+    .stat { display: flex; align-items: baseline; gap: 8px; }
+    .stat b { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: .04em; color: var(--accent); }
+    .stat span { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: var(--muted); }
+    .search {
+      flex: 1; min-width: 180px; max-width: 320px; border: 1px solid var(--line); background: #fff;
+      outline: none; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .06em;
+      color: var(--text); padding: 9px 14px;
+    }
+    .search:focus { border-color: var(--accent); }
+    .toast {
+      font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent);
+      opacity: 0; transition: opacity .25s;
+    }
+    .toast.on { opacity: 1; }
+
+    /* Table */
+    .tbl-wrap { border: 1px solid var(--line); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    thead th {
+      text-align: left; font-size: 8px; letter-spacing: .26em; text-transform: uppercase;
+      color: var(--muted); font-weight: 400; padding: 14px 18px;
+      border-bottom: 1px solid var(--line); background: rgba(45,91,227,.025); white-space: nowrap;
+    }
+    tbody td { font-size: 12px; letter-spacing: .03em; padding: 13px 18px; border-bottom: 1px solid rgba(0,0,0,.05); white-space: nowrap; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(45,91,227,.03); }
+    .c-idx { color: rgba(0,0,0,.3); font-size: 10px; width: 1%; }
+    .c-email { color: var(--text); }
+    .c-email a { border-bottom: 1px solid rgba(45,91,227,.25); }
+    .c-date { color: var(--muted); font-size: 11px; }
+    .c-src { color: var(--muted); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+    .c-src span { border: 1px solid var(--line); padding: 3px 8px; }
+
+    .empty, .loading, .errbox { padding: 48px 20px; text-align: center; font-size: 11px; letter-spacing: .1em; color: var(--muted); }
+    .errbox { color: var(--red); }
+    .foot { margin-top: 22px; font-size: 9px; letter-spacing: .14em; color: rgba(0,0,0,.3); text-transform: uppercase; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .foot a { color: rgba(0,0,0,.4); } .foot a:hover { color: var(--accent); }
+
+    @media (max-width: 560px) {
+      .dash { padding: 40px 18px 0; }
+      .top-l h1 { font-size: 40px; }
+      .c-src, thead th.h-src { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <!-- Gate -->
+  <div class="gate" id="gate">
+    <form class="gate-card" id="gate-form">
+      <p class="gate-eyebrow">Admin · Restricted</p>
+      <h1 class="gate-title">LEAD INBOX</h1>
+      <p class="gate-sub">Enter the admin password to view captured emails.</p>
+      <input class="gate-in" id="pw" type="password" placeholder="Password" autocomplete="current-password">
+      <button class="gate-btn" id="gate-btn" type="submit">Unlock</button>
+      <p class="gate-err" id="gate-err"></p>
+    </form>
+  </div>
+
+  <!-- Dashboard -->
+  <main class="dash" id="dash">
+    <div class="top">
+      <div class="top-l">
+        <p class="eyebrow">Onboarding Checklist · Captures</p>
+        <h1>LEAD <b>INBOX</b></h1>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="refresh">
+          <svg viewBox="0 0 14 14" fill="none"><path d="M12 7a5 5 0 1 1-1.5-3.6M12 1v3h-3" stroke="currentColor" stroke-width="1.2"/></svg>
+          Refresh
+        </button>
+        <button class="btn" id="copy">
+          <svg viewBox="0 0 14 14" fill="none"><rect x="3" y="3" width="8" height="9" stroke="currentColor" stroke-width="1.1"/><path d="M5 3V1.5h7V11h-1.5" stroke="currentColor" stroke-width="1.1"/></svg>
+          Copy emails
+        </button>
+        <button class="btn primary" id="export">
+          <svg viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 12h10" stroke="currentColor" stroke-width="1.2"/></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <div class="meta-row">
+      <div class="stat"><b id="count">0</b><span>Leads</span></div>
+      <input class="search" id="search" type="text" placeholder="Filter by email…">
+      <span class="toast" id="toast"></span>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Email</th>
+            <th>Date captured</th>
+            <th class="h-src">Source</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="loading" id="loading">Loading…</div>
+      <div class="empty" id="empty" style="display:none">No leads yet — captures will appear here.</div>
+      <div class="errbox" id="errbox" style="display:none"></div>
+    </div>
+
+    <div class="foot">
+      <span id="updated">—</span>
+      <span><a href="/lead.html">↗ View capture page</a> · <a href="#" id="lock">Lock</a></span>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    var KEY = 'leads_admin_pw';
+    var gate = document.getElementById('gate'),
+        gateForm = document.getElementById('gate-form'),
+        gateBtn = document.getElementById('gate-btn'),
+        pwEl = document.getElementById('pw'),
+        gateErr = document.getElementById('gate-err'),
+        dash = document.getElementById('dash');
+    var rowsEl = document.getElementById('rows'),
+        countEl = document.getElementById('count'),
+        loadingEl = document.getElementById('loading'),
+        emptyEl = document.getElementById('empty'),
+        errEl = document.getElementById('errbox'),
+        updatedEl = document.getElementById('updated'),
+        searchEl = document.getElementById('search'),
+        toastEl = document.getElementById('toast');
+    var pw = '', allLeads = [];
+
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+    function fmtDate(iso) {
+      var d = new Date(iso);
+      if (isNaN(d)) return esc(iso || '—');
+      function p(n) { return n < 10 ? '0' + n : '' + n; }
+      return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) +
+        '  ' + p(d.getHours()) + ':' + p(d.getMinutes());
+    }
+
+    function toast(msg) {
+      toastEl.textContent = msg; toastEl.classList.add('on');
+      clearTimeout(toast._t); toast._t = setTimeout(function () { toastEl.classList.remove('on'); }, 1800);
+    }
+
+    function render(list) {
+      rowsEl.innerHTML = '';
+      if (!list.length) { emptyEl.style.display = 'block'; return; }
+      emptyEl.style.display = 'none';
+      var html = '';
+      list.forEach(function (l, i) {
+        html += '<tr>' +
+          '<td class="c-idx">' + (i + 1) + '</td>' +
+          '<td class="c-email"><a href="mailto:' + esc(l.email) + '">' + esc(l.email) + '</a></td>' +
+          '<td class="c-date">' + fmtDate(l.ts) + '</td>' +
+          '<td class="c-src"><span>' + esc(l.source || '—') + '</span></td>' +
+          '</tr>';
+      });
+      rowsEl.innerHTML = html;
+    }
+
+    function applyFilter() {
+      var q = searchEl.value.trim().toLowerCase();
+      render(q ? allLeads.filter(function (l) { return (l.email || '').toLowerCase().indexOf(q) > -1; }) : allLeads);
+    }
+
+    function load() {
+      loadingEl.style.display = 'block'; errEl.style.display = 'none'; emptyEl.style.display = 'none';
+      rowsEl.innerHTML = '';
+      return fetch('/api/leads', { headers: { 'x-admin-password': pw } })
+        .then(function (r) {
+          if (r.status === 401) { var e = new Error('unauthorized'); e.auth = true; throw e; }
+          return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Failed to load.'); return j; });
+        })
+        .then(function (data) {
+          loadingEl.style.display = 'none';
+          // newest first
+          allLeads = (data.leads || []).slice().sort(function (a, b) {
+            return new Date(b.ts) - new Date(a.ts);
+          });
+          countEl.textContent = allLeads.length;
+          updatedEl.textContent = 'Updated ' + fmtDate(new Date().toISOString());
+          applyFilter();
+        })
+        .catch(function (err) {
+          loadingEl.style.display = 'none';
+          if (err.auth) throw err;
+          errEl.textContent = err.message || 'Network error.'; errEl.style.display = 'block';
+        });
+    }
+
+    function unlock(candidate) {
+      gateBtn.disabled = true; gateErr.textContent = '';
+      pw = candidate;
+      return load().then(function () {
+        sessionStorage.setItem(KEY, pw);
+        gate.classList.add('hidden'); dash.classList.add('on');
+      }).catch(function (err) {
+        gateBtn.disabled = false;
+        if (err && err.auth) { gateErr.textContent = 'Wrong password.'; pwEl.value = ''; pwEl.focus(); }
+        else { gateErr.textContent = 'Could not reach the server.'; }
+      });
+    }
+
+    gateForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = pwEl.value.trim();
+      if (!v) { gateErr.textContent = 'Enter a password.'; return; }
+      unlock(v);
+    });
+
+    document.getElementById('refresh').addEventListener('click', function () {
+      load().then(function () { toast('Refreshed'); });
+    });
+
+    document.getElementById('copy').addEventListener('click', function () {
+      if (!allLeads.length) { toast('Nothing to copy'); return; }
+      var text = allLeads.map(function (l) { return l.email; }).join(', ');
+      navigator.clipboard.writeText(text).then(function () {
+        toast(allLeads.length + ' emails copied');
+      }, function () { toast('Copy failed'); });
+    });
+
+    document.getElementById('export').addEventListener('click', function () {
+      if (!allLeads.length) { toast('Nothing to export'); return; }
+      var rows = [['email', 'date', 'source']].concat(allLeads.map(function (l) {
+        return [l.email || '', l.ts || '', l.source || ''];
+      }));
+      var csv = rows.map(function (r) {
+        return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+      }).join('\r\n');
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'leads-' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      toast('CSV exported');
+    });
+
+    document.getElementById('lock').addEventListener('click', function (e) {
+      e.preventDefault();
+      sessionStorage.removeItem(KEY); pw = ''; allLeads = [];
+      dash.classList.remove('on'); gate.classList.remove('hidden');
+      gateBtn.disabled = false; pwEl.value = ''; pwEl.focus();
+    });
+
+    searchEl.addEventListener('input', applyFilter);
+
+    // Resume an unlocked session (password kept only for this tab).
+    var saved = sessionStorage.getItem(KEY);
+    if (saved) { unlock(saved); } else { pwEl.focus(); }
+  })();
+  </script>
+</body>
+</html>
