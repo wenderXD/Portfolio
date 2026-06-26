@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onboarding UX Audit Checklist — Vladyslav Ivanko</title>
+  <meta name="description" content="A free checklist: the 18 trust-and-friction checks that decide whether a new user finishes signup. Score your flow before you ship. By Vladyslav Ivanko, UI/UX Designer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:     #FFFFFF;
+      --accent: #2D5BE3;
+      --text:   #0A0A18;
+      --muted:  #8888A4;
+      --dim:    rgba(45,91,227,0.07);
+      --green:  #2D5BE3;
+      --red:    #D64040;
+    }
+
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      cursor: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    body { overflow-x: hidden; }
+
+    /* Custom cursor */
+    #cur-dot {
+      position: fixed; z-index: 9999;
+      width: 7px; height: 7px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; transform: translate(-50%,-50%);
+    }
+    #cur-ring {
+      position: fixed; z-index: 9998;
+      width: 30px; height: 30px;
+      border: 1px solid rgba(45,91,227,0.4); border-radius: 50%;
+      pointer-events: none; transform: translate(-50%,-50%);
+      transition: width .2s, height .2s, border-color .2s;
+    }
+    body:has(a:hover) #cur-ring,
+    body:has(button:hover) #cur-ring { width: 44px; height: 44px; border-color: var(--accent); }
+
+    /* Touch devices: restore native cursor, hide the custom one */
+    @media (pointer: coarse) {
+      html, body, a, button, input, label { cursor: auto; }
+      #cur-dot, #cur-ring { display: none; }
+    }
+
+    /* Ambient layers */
+    .grid-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(45,91,227,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45,91,227,.035) 1px, transparent 1px);
+      background-size: 46px 46px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 42%, #000 30%, transparent 78%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 42%, #000 30%, transparent 78%);
+    }
+    .scanlines {
+      position: fixed; inset: 0; z-index: 3; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.012) 3px, rgba(0,0,0,.012) 4px);
+    }
+    .vignette {
+      position: fixed; inset: 0; z-index: 2; pointer-events: none;
+      background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 55%, rgba(255,255,255,.6) 100%);
+    }
+
+    /* Top + bottom hairlines */
+    .h-line { position: fixed; left: 40px; right: 40px; z-index: 20; height: 1px; background: rgba(0,0,0,.08); }
+    .h-line--top { top: 70px; }
+    .h-line--bot { bottom: 48px; }
+
+    /* Corner readouts */
+    .corner { position: fixed; z-index: 20; opacity: 0; animation: fadeIn .8s ease forwards; }
+    .c-tl { top: 24px; left: 40px; animation-delay: .5s; }
+    .c-tr { top: 24px; right: 40px; animation-delay: .6s; }
+    .ck {
+      display: flex; flex-direction: column; gap: 5px;
+      padding: 4px 14px; border-left: 1px solid rgba(45,91,227,.22); min-width: 130px;
+    }
+    .c-tr .ck { border-left: none; border-right: 1px solid rgba(45,91,227,.22); align-items: flex-end; text-align: right; }
+    .ck-l { font-size: 8px; letter-spacing: .36em; color: rgba(0,0,0,.32); text-transform: uppercase; }
+    .ck-v {
+      font-size: 11px; letter-spacing: .18em; color: var(--text); text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 7px; font-variant-numeric: tabular-nums;
+    }
+    .ck-hint { font-size: 8px; letter-spacing: .22em; color: rgba(0,0,0,.3); margin-left: 4px; }
+    .live-dot {
+      display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
+      box-shadow: 0 0 8px rgba(45,91,227,.5); animation: blink 2s ease infinite;
+    }
+
+    .brand {
+      position: fixed; top: 22px; left: 50%; transform: translateX(-50%); z-index: 21;
+      font-size: 9px; letter-spacing: .42em; text-transform: uppercase; color: rgba(0,0,0,.4);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 9px;
+      opacity: 0; animation: fadeIn .8s ease .4s forwards;
+    }
+    .brand b { color: var(--text); font-weight: 400; letter-spacing: .3em; }
+    .brand:hover { color: var(--accent); }
+    .brand .bk { width: 5px; height: 5px; background: var(--accent); display: inline-block; }
+
+    /* ── Layout ─────────────────────────────────── */
+    .wrap {
+      position: relative; z-index: 10;
+      max-width: 1180px; margin: 0 auto;
+      min-height: 100vh; padding: 96px 48px 88px;
+      display: grid; grid-template-columns: 1.05fr .95fr; gap: 64px; align-items: center;
+    }
+
+    /* Left column */
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 14px;
+      font-size: 10px; letter-spacing: .42em; color: var(--text);
+      text-transform: uppercase; margin-bottom: 26px;
+      opacity: 0; animation: riseUp .9s ease .5s forwards;
+    }
+    .eyebrow::before { content: ''; width: 24px; height: 1px; background: rgba(45,91,227,.4); }
+    .eyebrow .free { color: var(--accent); }
+
+    .headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 6.4vw, 96px);
+      line-height: .9; letter-spacing: .012em;
+      opacity: 0; animation: riseUp 1s ease .7s forwards;
+    }
+    .headline em { font-style: normal; color: var(--accent); position: relative; display: inline-block; }
+    .headline em::after {
+      content: ''; position: absolute; left: 0; right: 0; top: 100%; margin-top: 2px; height: 2px;
+      background: var(--accent); transform: scaleX(0); transform-origin: left; animation: lineIn .7s ease 1.6s forwards;
+    }
+
+    .sub {
+      font-weight: 300; font-size: clamp(12px, 1.25vw, 15px);
+      line-height: 1.85; letter-spacing: .04em; color: var(--muted);
+      margin-top: 26px; max-width: 460px;
+      opacity: 0; animation: riseUp .9s ease 1s forwards;
+    }
+    .sub b { color: var(--text); font-weight: 400; }
+
+    .spec {
+      display: flex; align-items: center; gap: 24px; margin-top: 30px;
+      opacity: 0; animation: riseUp .9s ease 1.2s forwards;
+    }
+    .spec-col { display: flex; flex-direction: column; gap: 5px; }
+    .spec-col b {
+      font-family: 'Bebas Neue', sans-serif; font-size: 30px; line-height: 1; letter-spacing: .04em;
+      color: var(--text); font-weight: 400;
+    }
+    .spec-col.accent b { color: var(--accent); }
+    .spec-col em {
+      font-style: normal; font-size: 8px; letter-spacing: .3em; color: rgba(0,0,0,.4); text-transform: uppercase;
+    }
+    .spec-sep { width: 1px; height: 26px; background: rgba(0,0,0,.1); }
+
+    /* Form */
+    .form-card {
+      margin-top: 40px; max-width: 460px;
+      opacity: 0; animation: riseUp .9s ease 1.4s forwards;
+    }
+    .form-row { display: flex; gap: 0; border: 1px solid rgba(45,91,227,.3); background: rgba(255,255,255,.7); backdrop-filter: blur(4px); }
+    .form-row:focus-within { border-color: var(--accent); }
+    .email-in {
+      flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+      font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .08em; color: var(--text);
+      padding: 0 18px;
+    }
+    .email-in::placeholder { color: rgba(0,0,0,.32); letter-spacing: .12em; }
+    .send-btn {
+      flex-shrink: 0; border: none; background: var(--accent); color: #fff;
+      font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .26em; text-transform: uppercase;
+      padding: 16px 26px; display: inline-flex; align-items: center; gap: 12px;
+      transition: background .2s, gap .2s;
+    }
+    .send-btn:hover { background: #1f44c0; gap: 18px; }
+    .send-btn:disabled { opacity: .55; }
+    .send-ar { width: 18px; height: 8px; display: block; }
+
+    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+    .form-note {
+      display: flex; align-items: center; gap: 9px; margin-top: 14px;
+      font-size: 9px; letter-spacing: .14em; color: rgba(0,0,0,.36); text-transform: uppercase;
+    }
+    .form-note::before { content: ''; width: 5px; height: 5px; border: 1px solid rgba(45,91,227,.5); border-radius: 50%; }
+    .form-msg { margin-top: 12px; font-size: 10px; letter-spacing: .08em; min-height: 14px; }
+    .form-msg.err { color: var(--red); }
+
+    /* ── Right column — asset cover ─────────────── */
+    .cover-stage {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      opacity: 0; animation: riseUp 1s ease .9s forwards;
+      perspective: 1400px;
+    }
+    .cover {
+      position: relative; width: 320px; aspect-ratio: 3 / 4;
+      background: linear-gradient(165deg, #0A1230 0%, #142a6e 60%, #0A1230 100%);
+      border: 1px solid rgba(45,91,227,.5);
+      box-shadow: 0 40px 80px -30px rgba(45,91,227,.5), 0 0 0 1px rgba(255,255,255,.04) inset;
+      transform: rotateY(-13deg) rotateX(4deg) rotateZ(.5deg);
+      transition: transform .5s cubic-bezier(.4,0,.2,1);
+      padding: 30px 28px;
+      display: flex; flex-direction: column; color: #fff;
+      overflow: hidden;
+    }
+    .cover::after {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,.025) 3px, rgba(255,255,255,.025) 4px);
+      pointer-events: none;
+    }
+    .cover-stage:hover .cover { transform: rotateY(-7deg) rotateX(2deg) translateY(-6px); }
+    .cover-grid {
+      position: absolute; inset: 0; opacity: .5;
+      background-image:
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    .cover-top { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 2; }
+    .cover-tag { font-size: 7px; letter-spacing: .34em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+    .cover-tag b { display: block; color: #fff; font-weight: 400; margin-top: 4px; letter-spacing: .26em; }
+    .cover-live { display: inline-flex; align-items: center; gap: 6px; font-size: 7px; letter-spacing: .3em; color: rgba(255,255,255,.6); text-transform: uppercase; }
+    .cover-live i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: blink 2s ease infinite; }
+
+    .cover-title {
+      position: relative; z-index: 2; margin-top: auto;
+      font-family: 'Bebas Neue', sans-serif; font-size: 40px; line-height: .92; letter-spacing: .02em;
+    }
+    .cover-title em { font-style: normal; color: #6f93ff; }
+    .cover-list { position: relative; z-index: 2; list-style: none; margin: 18px 0 14px; display: flex; flex-direction: column; gap: 9px; }
+    .cover-list li { display: flex; align-items: center; gap: 10px; opacity: 0; animation: riseUp .5s ease forwards; }
+    .cl-box {
+      width: 13px; height: 13px; flex-shrink: 0; border: 1px solid rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cl-box svg { width: 8px; height: 8px; }
+    .cl-box.ok { background: var(--accent); border-color: var(--accent); }
+    .cl-box.warn { border-color: var(--red); }
+    .cl-bar { height: 5px; border-radius: 1px; background: rgba(255,255,255,.16); }
+    .cover-list li.ok .cl-bar { background: rgba(255,255,255,.28); }
+    .cover-list li.warn .cl-bar { background: rgba(214,64,64,.42); }
+    .cover-foot {
+      position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center;
+      padding-top: 14px; border-top: 1px solid rgba(255,255,255,.12);
+      font-size: 7px; letter-spacing: .26em; text-transform: uppercase; color: rgba(255,255,255,.5);
+    }
+    .cover-foot b { color: #fff; font-weight: 400; }
+    .cover-badge {
+      position: absolute; z-index: 5; top: 26px; right: -16px;
+      background: var(--accent); color: #fff;
+      font-size: 8px; letter-spacing: .28em; text-transform: uppercase;
+      padding: 7px 13px; box-shadow: 0 10px 24px -8px rgba(45,91,227,.7);
+    }
+
+    /* Bottom ticker */
+    .ticker-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+      height: 40px; display: flex; align-items: stretch;
+      border-top: 1px solid rgba(0,0,0,.07);
+      background: rgba(255,255,255,.94); backdrop-filter: blur(8px); overflow: hidden;
+      opacity: 0; animation: fadeIn .8s ease 1.6s forwards;
+    }
+    .ticker-badge {
+      display: flex; align-items: center; gap: 8px; padding: 0 18px;
+      border-right: 1px solid rgba(0,0,0,.08);
+      font-size: 9px; letter-spacing: .3em; color: var(--accent); text-transform: uppercase;
+      background: rgba(45,91,227,.04); flex-shrink: 0;
+    }
+    .ticker-scroll { flex: 1; display: flex; align-items: center; overflow: hidden; }
+    .ticker-inner { display: flex; gap: 44px; padding: 0 28px; animation: scroll 44s linear infinite; white-space: nowrap; }
+    .tick { display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: .12em; }
+    .tick__sym { color: var(--muted); }
+    .tick__val { color: var(--text); font-variant-numeric: tabular-nums; }
+    .tick__chg { font-size: 9px; font-variant-numeric: tabular-nums; }
+    .tick__chg.up { color: var(--accent); }
+    .tick__chg.dn { color: var(--red); }
+
+    @keyframes riseUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes lineIn { to { transform:scaleX(1); } }
+    @keyframes blink  { 0%,100% { opacity:1; } 50% { opacity:.25; } }
+    @keyframes scroll { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+    @keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+    /* Responsive */
+    @media (max-width: 920px) {
+      .wrap { grid-template-columns: 1fr; gap: 48px; padding: 110px 28px 88px; }
+      .cover-stage { order: -1; }
+      .cover { width: 240px; transform: rotateY(-8deg) rotateX(3deg); }
+      .corner, .h-line { display: none; }
+    }
+    @media (max-width: 560px) {
+      .wrap { padding: 96px 20px 84px; }
+      .form-row { flex-direction: column; }
+      .email-in { padding: 16px 18px; border-bottom: 1px solid rgba(45,91,227,.18); }
+      .send-btn { justify-content: center; }
+      .spec { gap: 16px; }
+      .ticker-badge { font-size: 8px; padding: 0 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="cur-dot"></div>
+  <div id="cur-ring"></div>
+  <div class="grid-bg"></div>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="h-line h-line--top"></div>
+  <div class="h-line h-line--bot"></div>
+
+  <a class="brand" href="/index.html"><span class="bk"></span><b>VLADYSLAV IVANKO</b> · UI/UX</a>
+
+  <div class="corner c-tl">
+    <div class="ck">
+      <span class="ck-l">Resource</span>
+      <span class="ck-v"><span class="live-dot"></span>Free<span class="ck-hint">PDF</span></span>
+    </div>
+  </div>
+  <div class="corner c-tr">
+    <div class="ck">
+      <span class="ck-l">Local Time</span>
+      <span class="ck-v" id="local-time">—</span>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <!-- Left -->
+    <section>
+      <p class="eyebrow"><span class="free">Free Checklist</span> · 2026 Edition</p>
+      <h1 class="headline">ONBOARDING<br>UX <em>AUDIT</em><br>CHECKLIST</h1>
+      <p class="sub">
+        The <b>18 trust-and-friction checks</b> that decide whether a new user
+        finishes signup — or quietly leaves. <b>Score your flow before you ship.</b>
+      </p>
+
+      <div class="spec">
+        <div class="spec-col accent"><b>18</b><em>Checks</em></div>
+        <span class="spec-sep"></span>
+        <div class="spec-col"><b>2</b><em>Trust + Friction</em></div>
+        <span class="spec-sep"></span>
+        <div class="spec-col"><b>PDF</b><em>Score sheet</em></div>
+      </div>
+
+      <!-- Form -->
+      <form class="form-card" id="lead-form" novalidate>
+        <div class="form-row">
+          <input class="email-in" id="email" type="email" name="email"
+                 placeholder="you@studio.com" autocomplete="email" required>
+          <!-- honeypot -->
+          <input class="hp" id="company" name="company" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="send-btn" id="send" type="submit">
+            Send me the checklist
+            <svg class="send-ar" viewBox="0 0 20 8" fill="none"><path d="M0 4h18M15 1l3 3-3 3" stroke="currentColor" stroke-width="1.2"/></svg>
+          </button>
+        </div>
+        <p class="form-note">No spam · One email · Unsubscribe anytime</p>
+        <p class="form-msg" id="msg"></p>
+      </form>
+
+    </section>
+
+    <!-- Right — asset cover -->
+    <aside class="cover-stage">
+      <div class="cover">
+        <div class="cover-grid"></div>
+        <div class="cover-badge">Free · 2026</div>
+        <div class="cover-top">
+          <div class="cover-tag">File A-07<b>Checklist</b></div>
+          <div class="cover-live"><i></i>Self-score</div>
+        </div>
+        <h2 class="cover-title">ONBOARDING<br><em>UX AUDIT</em><br>CHECKLIST</h2>
+        <ul class="cover-list" id="cover-list"></ul>
+        <div class="cover-foot"><span>18 Checks</span><span>by <b>V. Ivanko</b></span></div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="ticker-bar">
+    <div class="ticker-badge"><span class="live-dot"></span>Markets</div>
+    <div class="ticker-scroll"><div class="ticker-inner" id="ticker"></div></div>
+  </div>
+
+  <script>
+  /* ── Custom cursor ── */
+  (function () {
+    var dot = document.getElementById('cur-dot'), ring = document.getElementById('cur-ring');
+    var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+    addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; });
+    (function loop() {
+      rx += (mx - rx) * 0.13; ry += (my - ry) * 0.13;
+      dot.style.left = mx + 'px';  dot.style.top = my + 'px';
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(loop);
+    })();
+  })();
+
+  /* ── Live clock ── */
+  (function () {
+    var el = document.getElementById('local-time');
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    function tick() {
+      var d = new Date();
+      el.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    }
+    tick(); setInterval(tick, 1000);
+  })();
+
+  /* ── Ticker ── */
+  (function () {
+    var data = [
+      ['BTC/USD','67,234.50',+2.34],['ETH/USD','3,521.20',+1.87],['SOL/USD','172.4',+4.21],
+      ['S&P 500','5,234.18',-0.42],['NASDAQ','18,421.31',+0.93],['GOLD','2,341.60',+0.21],
+      ['EUR/USD','1.0842',-0.18],['OIL WTI','82.41',+1.23],
+    ];
+    var html = '';
+    for (var pass = 0; pass < 2; pass++) {
+      data.forEach(function (t) {
+        var up = t[2] >= 0;
+        html += '<span class="tick"><span class="tick__sym">' + t[0] + '</span>' +
+          '<span class="tick__val">' + t[1] + '</span>' +
+          '<span class="tick__chg ' + (up ? 'up' : 'dn') + '">' + (up ? '+' : '') + t[2].toFixed(2) + '%</span></span>';
+      });
+    }
+    document.getElementById('ticker').innerHTML = html;
+  })();
+
+  /* ── Cover checklist ── */
+  (function () {
+    var list = document.getElementById('cover-list');
+    // state: 'ok' (passed), 'warn' (friction flagged), '' (unchecked) · bar width %
+    var rows = [
+      ['ok', 82], ['ok', 64], ['warn', 74], ['ok', 58], ['', 70], ['warn', 50]
+    ];
+    var check = '<svg viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-5" stroke="#fff" stroke-width="1.3"/></svg>';
+    var cross = '<svg viewBox="0 0 8 8" fill="none"><path d="M1.5 1.5l5 5M6.5 1.5l-5 5" stroke="#D64040" stroke-width="1.3"/></svg>';
+    var html = '';
+    rows.forEach(function (r, i) {
+      var cls = r[0], inner = cls === 'ok' ? check : (cls === 'warn' ? cross : '');
+      html += '<li class="' + cls + '" style="animation-delay:' + (0.9 + i * 0.1) + 's">' +
+        '<span class="cl-box ' + cls + '">' + inner + '</span>' +
+        '<span class="cl-bar" style="width:' + r[1] + '%"></span></li>';
+    });
+    list.innerHTML = html;
+  })();
+
+  /* ── Lead form ── */
+  (function () {
+    // Where to send the visitor once their email is saved.
+    var CHECKLIST_URL = 'https://drive.google.com/file/d/1IZLK0S5F4VIeHsdRrC8CsgAn-Gb3bxti/view?usp=sharing';
+    var form = document.getElementById('lead-form');
+    var emailEl = document.getElementById('email');
+    var btn = document.getElementById('send');
+    var msg = document.getElementById('msg');
+    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      msg.textContent = ''; msg.classList.remove('err');
+      var email = emailEl.value.trim();
+      if (!EMAIL_RE.test(email)) {
+        msg.textContent = 'Please enter a valid email address.';
+        msg.classList.add('err'); emailEl.focus(); return;
+      }
+      btn.disabled = true;
+      var original = btn.firstChild.textContent;
+      btn.firstChild.textContent = 'Sending… ';
+
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          company: document.getElementById('company').value,
+          source: 'onboarding-ux-audit-checklist'
+        })
+      }).then(function (r) {
+        return r.json().then(function (j) { return { ok: r.ok, j: j }; });
+      }).then(function (res) {
+        if (!res.ok) throw new Error((res.j && res.j.error) || 'Something went wrong.');
+        // Email + date saved — send them straight to the checklist.
+        btn.firstChild.textContent = 'Opening… ';
+        window.location.href = CHECKLIST_URL;
+      }).catch(function (err) {
+        btn.disabled = false; btn.firstChild.textContent = original;
+        msg.textContent = err.message || 'Network error — please try again.';
+        msg.classList.add('err');
+      });
+    });
+  })();
+  </script>
+</body>
+</html>
