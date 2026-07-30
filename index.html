@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vladyslav Ivanko — UI/UX Designer</title>
+  <meta name="description" content="Vladyslav Ivanko — UI/UX designer for trading and crypto interfaces. 3 years UX, based in Warsaw, working remotely.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Vladyslav Ivanko — UI/UX Designer">
+  <meta property="og:description" content="UI/UX designer for trading and crypto interfaces. Based in Warsaw, working remotely.">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
   <style>
@@ -11,10 +16,22 @@
 
     :root {
       --bg:     #FFFFFF;
-      --accent: #2D5BE3;
-      --text:   #0A0A18;
-      --muted:  #8888A4;
+      --accent: #2D5BE3;          /* 5.6:1 on white */
+      --text:   #0A0A18;          /* 19.4:1 */
+      --muted:  #4A4A63;          /* 8.6:1  — body / supporting copy */
+      --faint:  #5A5A72;          /* 6.7:1  — the quietest text we allow */
       --dim:    rgba(45,91,227,0.07);
+      --rule:   rgba(10,10,24,.10);
+
+      /* Type scale — no public text below 13px */
+      --t-label: 13px;            /* tracked caps: labels, meta, buttons */
+      --t-body:  15px;            /* supporting copy */
+      --t-lead:  18px;            /* role line under the name */
+
+      /* Motion — one shared vocabulary so nothing eases differently by accident */
+      --ease-out:  cubic-bezier(.16, 1, .3, 1);      /* entrances: fast out, long settle */
+      --ease-soft: cubic-bezier(.4, 0, .2, 1);       /* state changes */
+      --ease-back: cubic-bezier(.34, 1.56, .64, 1);  /* press / snap-back */
     }
 
     html, body {
@@ -48,85 +65,68 @@
       background: radial-gradient(ellipse 72% 72% at 50% 55%, transparent 18%, rgba(255,255,255,.55) 65%, rgba(255,255,255,.96) 100%);
       pointer-events: none;
     }
-    .scanlines {
-      position: fixed; inset: 0; z-index: 3;
-      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.012) 3px, rgba(0,0,0,.012) 4px);
-      pointer-events: none;
-    }
 
-    .corner {
-      position: fixed; z-index: 20;
-      opacity: 0; animation: fadeIn .8s ease forwards;
+    /* ── Ambient light drift ──────────────────
+       Two very slow, very soft accent washes. Pure atmosphere on long
+       periods (28s / 37s) so it never reads as a loop, and it makes no
+       claim about anything. Composited on transform+opacity only. */
+    .aura {
+      position: fixed; inset: -20%; z-index: 1;
+      pointer-events: none; overflow: hidden;
     }
-    .c-tl { top: 28px; left: 40px; animation-delay: 1.8s; }
-    .c-tr { top: 28px; right: 40px; animation-delay: 1.9s; }
-    .c-bl { bottom: 56px; left: 40px; animation-delay: 2s; }
-    .c-br { bottom: 56px; right: 40px; animation-delay: 2.1s; }
+    .aura::before, .aura::after {
+      content: ''; position: absolute;
+      width: 62vmax; height: 62vmax; border-radius: 50%;
+      filter: blur(60px); will-change: transform, opacity;
+    }
+    .aura::before {
+      left: -6%; top: 2%;
+      background: radial-gradient(circle, rgba(45,91,227,.10), transparent 68%);
+      animation: drift-a 28s var(--ease-soft) infinite alternate;
+    }
+    .aura::after {
+      right: -10%; bottom: -4%;
+      background: radial-gradient(circle, rgba(111,168,220,.11), transparent 68%);
+      animation: drift-b 37s var(--ease-soft) infinite alternate;
+    }
+    @keyframes drift-a {
+      0%   { transform: translate3d(0,0,0)        scale(1);    opacity: .55; }
+      50%  { transform: translate3d(6vw,4vh,0)    scale(1.14); opacity: .9;  }
+      100% { transform: translate3d(12vw,-3vh,0)  scale(1.02); opacity: .6;  }
+    }
+    @keyframes drift-b {
+      0%   { transform: translate3d(0,0,0)        scale(1.06); opacity: .5;  }
+      50%  { transform: translate3d(-7vw,-5vh,0)  scale(1);    opacity: .85; }
+      100% { transform: translate3d(-3vw,5vh,0)   scale(1.12); opacity: .55; }
+    }
+    /* ── Top bar: the only persistent chrome ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; padding: 20px 40px;
+      border-bottom: 1px solid var(--rule);
+      background: rgba(255,255,255,.72);
+      backdrop-filter: blur(8px);
+      opacity: 0; animation: fadeIn .6s ease 1.4s forwards;
+    }
+    .topbar-mark {
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--text);
+    }
+    .topbar-mark span { color: var(--accent); }
 
-    .ck {
-      display: flex; flex-direction: column; gap: 5px;
-      padding: 4px 14px;
-      border-left: 1px solid rgba(45,91,227,.22);
-      min-width: 130px;
+    .contact {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--accent); text-decoration: none;
+      padding: 10px 18px;
+      border: 1px solid rgba(45,91,227,.35); border-radius: 3px;
+      transition: background .2s, border-color .2s;
+      cursor: none;
     }
-    .c-tr .ck, .c-br .ck {
-      border-left: none; border-right: 1px solid rgba(45,91,227,.22);
-      align-items: flex-end; text-align: right;
-    }
-    .ck-l {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px; letter-spacing: .36em; color: rgba(0,0,0,.32);
-      text-transform: uppercase;
-    }
-    .ck-v {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px; letter-spacing: .18em; color: var(--text);
-      text-transform: uppercase;
-      display: inline-flex; align-items: center; gap: 7px;
-      font-variant-numeric: tabular-nums;
-    }
-    .ck-v .ck-hint {
-      font-size: 8px; letter-spacing: .22em; color: rgba(0,0,0,.3);
-      margin-left: 4px;
-    }
-
-    .live-dot {
-      display: inline-block; width: 6px; height: 6px;
-      background: var(--accent); border-radius: 50%;
-      vertical-align: middle;
-      box-shadow: 0 0 8px rgba(45,91,227,.5);
-      animation: blink 2s ease infinite;
-    }
-
-    .h-line { position: fixed; left: 40px; right: 40px; z-index: 20; height: 1px; background: rgba(0,0,0,.08); }
-    .h-line--top { top: 82px; opacity: 0; animation: fadeIn .5s ease 2.2s forwards; }
-    .h-line--bot { bottom: 52px; opacity: 0; animation: fadeIn .5s ease 2.2s forwards; }
-
-    /* ── Side rails (chart-axis feel) ─────── */
-    .rail {
-      position: fixed; z-index: 20; top: 50%; transform: translateY(-50%);
-      display: flex; flex-direction: column; gap: 34px;
-      font-family: 'IBM Plex Mono', monospace;
-      opacity: 0; animation: fadeIn .9s ease 2.4s forwards;
-    }
-    .rail-l { left: 22px; align-items: flex-start; }
-    .rail-r { right: 22px; align-items: flex-end; }
-    .rail-mark {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 9px; letter-spacing: .18em; color: rgba(0,0,0,.28);
-      font-variant-numeric: tabular-nums;
-    }
-    .rail-l .rail-mark::after {
-      content: ''; width: 14px; height: 1px; background: rgba(0,0,0,.2);
-    }
-    .rail-r .rail-mark::before {
-      content: ''; width: 14px; height: 1px; background: rgba(0,0,0,.2);
-    }
-    .rail-mark--zero { color: var(--accent); }
-    .rail-l .rail-mark--zero::after,
-    .rail-r .rail-mark--zero::before {
-      background: var(--accent); width: 24px;
-    }
+    .contact:hover { background: var(--dim); border-color: var(--accent); }
 
     .overlay {
       position: fixed; inset: 0; z-index: 15;
@@ -134,153 +134,146 @@
       align-items: center; justify-content: center;
       pointer-events: none;
     }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 14px;
-      font-size: 10px; font-weight: 400;
-      letter-spacing: .42em; color: var(--text);
-      text-transform: uppercase; margin-bottom: 22px;
-      opacity: 0; animation: riseUp .9s ease .5s forwards;
+    /* Parallax group — JS lerps this toward the pointer every frame. */
+    .hero-shift {
+      display: flex; flex-direction: column; align-items: center;
+      will-change: transform;
+      position: relative; isolation: isolate;
     }
-    .eyebrow::before, .eyebrow::after {
-      content: ''; width: 24px; height: 1px;
-      background: rgba(45,91,227,.4);
+    /* Soft white wash so the supporting copy stays legible over the
+       brightest part of the chart, whatever the candles are doing. */
+    .hero-shift::before {
+      content: ''; position: absolute; z-index: -1;
+      left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 150%; height: 175%;
+      background: radial-gradient(ellipse at center,
+        rgba(255,255,255,.92) 0%, rgba(255,255,255,.7) 42%,
+        rgba(255,255,255,.25) 68%, transparent 100%);
+      pointer-events: none;
     }
 
     .headline {
       font-family: 'Bebas Neue', sans-serif;
       font-size: clamp(60px, 10vw, 160px);
       line-height: .88; letter-spacing: .015em; text-align: center;
-      opacity: 0; animation: riseUp 1s ease .85s forwards;
       position: relative;
     }
-    .headline em { font-style: normal; color: var(--accent); position: relative; display: inline-block; }
+    /* Per-letter reveal. JS wraps each glyph in .ch and sets --i for stagger;
+       without JS the letters simply sit at their final state. */
+    .headline .ch {
+      display: inline-block;
+      opacity: 0;
+      transform: translate3d(0, .5em, 0) rotate(3deg);
+      filter: blur(9px);
+      animation: letterIn 1.05s var(--ease-out) forwards;
+      animation-delay: calc(.18s + var(--i) * .038s);
+    }
+    .headline .ch--space { width: .28em; }
+    @keyframes letterIn {
+      to { opacity: 1; transform: translate3d(0,0,0) rotate(0); filter: blur(0); }
+    }
+
+    .headline em {
+      font-style: normal; color: var(--accent);
+      position: relative; display: inline-block;
+    }
     .headline em::after {
       content: ''; position: absolute;
       left: 0; right: 0; top: 100%; margin-top: 2px;
       height: 2px;
       background: var(--accent);
       transform: scaleX(0); transform-origin: left;
-      animation: lineIn .7s ease 1.8s forwards;
-    }
-    .hl-serial {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px; letter-spacing: .4em; color: rgba(45,91,227,.75);
-      text-transform: uppercase;
-      display: flex; align-items: center; gap: 10px;
-      margin-top: 34px;
-      padding: 6px 16px;
-      background: rgba(255,255,255,.6);
-      border: 1px solid rgba(45,91,227,.14);
-      backdrop-filter: blur(4px);
-      opacity: 0; animation: riseUp .9s ease 2.1s forwards;
-    }
-    .hl-serial span.hl-dot {
-      width: 3px; height: 3px; background: rgba(45,91,227,.5);
-      border-radius: 50%;
+      animation: lineIn 1.1s var(--ease-out) 1.05s forwards;
     }
 
-    .sub {
-      font-size: clamp(11px,1.2vw,14px); font-weight: 300;
-      letter-spacing: .22em; color: var(--muted);
-      margin-top: 28px; text-align: center;
-      opacity: 0; animation: riseUp .9s ease 1.2s forwards;
+    /* Role line — the single piece of supporting copy */
+    .role {
+      font-size: var(--t-lead); font-weight: 400;
+      letter-spacing: .02em; line-height: 1.5;
+      color: var(--muted);
+      margin-top: 28px; text-align: center; max-width: 34ch;
+      opacity: 0; animation: riseUp 1.1s var(--ease-out) .95s forwards;
     }
-
-    .spec {
-      display: flex; align-items: center; gap: 26px;
-      margin-top: 34px;
-      opacity: 0; animation: riseUp .9s ease 1.45s forwards;
+    /* Real, checkable facts. No counters, no fake telemetry. */
+    .facts {
+      margin-top: 16px; text-align: center;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--faint);
+      display: inline-flex; align-items: center; gap: 14px;
+      opacity: 0; animation: riseUp 1.1s var(--ease-out) 1.12s forwards;
     }
-    .spec-col {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    .facts b { font-weight: 500; color: var(--faint); }
+    .facts i {
+      font-style: normal; width: 3px; height: 3px; border-radius: 50%;
+      background: currentColor; opacity: .5; flex-shrink: 0;
     }
-    .spec-col b {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 26px; line-height: 1; letter-spacing: .04em;
-      color: var(--text); font-weight: 400;
+    /* Warsaw local time — true, useful for a remote hire, and it ticks. */
+    #wtime {
+      color: var(--accent); font-variant-numeric: tabular-nums;
+      transition: opacity .35s var(--ease-soft);
     }
-    .spec-col.accent b { color: var(--accent); }
-    .spec-col em {
-      font-style: normal; font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px; letter-spacing: .32em; color: rgba(0,0,0,.35);
-      text-transform: uppercase;
-    }
-    .spec-sep { width: 1px; height: 22px; background: rgba(0,0,0,.1); }
 
     .cta-wrap {
-      position: fixed; bottom: 82px; left: 50%;
+      position: fixed; bottom: 64px; left: 50%;
       transform: translateX(-50%); z-index: 20;
-      display: flex; flex-direction: column; align-items: center; gap: 14px;
-      opacity: 0; animation: fadeIn .8s ease 2.3s forwards;
+      display: flex; align-items: center;
+      /* Own keyframe: a plain riseUp would overwrite translateX(-50%)
+         and knock the button off centre. */
+      opacity: 0; animation: riseUpCentered 1s var(--ease-out) 1.34s forwards;
     }
     .cta {
       display: inline-flex; align-items: center; gap: 16px;
-      pointer-events: all;
+      pointer-events: all; position: relative; isolation: isolate;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px; font-weight: 400;
-      letter-spacing: .42em; color: var(--accent);
-      text-decoration: none; text-transform: uppercase;
-      border: 1px solid rgba(45,91,227,.3);
-      padding: 15px 26px 15px 32px;
-      position: relative;
-      transition: background .25s, border-color .25s, color .25s, padding .25s;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .22em; color: #fff;
+      text-transform: uppercase;
+      background: var(--accent);
+      border: 1px solid var(--accent); border-radius: 3px;
+      padding: 16px 26px;
+      overflow: hidden;
+      transition: gap .4s var(--ease-out), transform .4s var(--ease-back),
+                  box-shadow .4s var(--ease-soft);
       cursor: none;
     }
-    .cta::before {
-      content: ''; position: absolute; left: 12px; top: 50%;
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--accent); transform: translateY(-50%);
-      box-shadow: 0 0 8px rgba(45,91,227,.5);
-      animation: blink 2.4s ease infinite;
+    /* Sheen that wipes across on hover. */
+    .cta::after {
+      content: ''; position: absolute; inset: 0; z-index: -1;
+      background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.28) 50%, transparent 70%);
+      transform: translateX(-110%);
+      transition: transform .7s var(--ease-out);
     }
-    .cta:hover { background: var(--dim); border-color: var(--accent); padding-right: 32px; }
-    .cta-ar { width: 20px; height: 8px; display: block; transition: transform .25s; }
-    .cta:hover .cta-ar { transform: translateX(6px); }
-    .cta-meta {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px; letter-spacing: .34em; color: rgba(0,0,0,.32);
-      text-transform: uppercase;
-      display: inline-flex; align-items: center; gap: 12px;
+    .cta:hover  { gap: 24px; transform: translateY(-2px); box-shadow: 0 10px 26px -8px rgba(45,91,227,.6); }
+    .cta:hover::after { transform: translateX(110%); }
+    .cta:active { transform: translateY(0) scale(.985); transition-duration: .12s; }
+    .cta[disabled] { background: #9AA0B4; border-color: #9AA0B4; cursor: none; }
+    .cta-ar {
+      width: 20px; height: 8px; display: block; flex-shrink: 0;
+      transition: transform .4s var(--ease-out);
     }
-    .cta-meta::before, .cta-meta::after {
-      content: ''; width: 22px; height: 1px; background: rgba(0,0,0,.14);
-    }
+    .cta:hover .cta-ar { transform: translateX(3px); }
 
-    .ticker-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
-      height: 40px; display: flex; align-items: stretch;
-      border-top: 1px solid rgba(0,0,0,.07);
-      background: rgba(255,255,255,.94);
-      backdrop-filter: blur(8px); overflow: hidden;
-      opacity: 0; animation: fadeIn .8s ease 2.5s forwards;
+    /* Top-bar entrance + contact button micro-interaction */
+    .topbar   { animation: slideDown .9s var(--ease-out) .1s forwards; }
+    .contact  { position: relative; overflow: hidden; isolation: isolate; }
+    .contact::after {
+      content: ''; position: absolute; inset: 0; z-index: -1;
+      background: var(--accent); opacity: 0;
+      transform: translateY(101%);
+      transition: transform .45s var(--ease-out), opacity .45s var(--ease-out);
     }
-    .ticker-badge {
-      display: flex; align-items: center; gap: 8px;
-      padding: 0 18px;
-      border-right: 1px solid rgba(0,0,0,.08);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px; letter-spacing: .3em;
-      color: var(--accent); text-transform: uppercase;
-      background: rgba(45,91,227,.04);
-      flex-shrink: 0;
-    }
-    .ticker-scroll { flex: 1; display: flex; align-items: center; overflow: hidden; }
-    .ticker-inner {
-      display: flex; gap: 44px; padding: 0 28px;
-      animation: scroll 44s linear infinite; white-space: nowrap;
-    }
-    .tick { display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: .12em; font-family: 'IBM Plex Mono', monospace; }
-    .tick__sym { color: var(--muted); font-weight: 400; }
-    .tick__val { color: var(--text); font-variant-numeric: tabular-nums; }
-    .tick__chg { font-size: 9px; font-variant-numeric: tabular-nums; }
-    .tick__chg.up { color: #2D5BE3; }
-    .tick__chg.dn { color: #D64040; }
+    .contact:hover { color: #fff; border-color: var(--accent); }
+    .contact:hover::after { transform: translateY(0); opacity: 1; }
 
-    @keyframes riseUp  { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
-    @keyframes lineIn  { to { transform:scaleX(1); } }
-    @keyframes blink   { 0%,100% { opacity:1; } 50% { opacity:.25; } }
-    @keyframes scroll  { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+    @keyframes riseUp    { from { opacity:0; transform:translateY(26px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
+    @keyframes lineIn    { to { transform:scaleX(1); } }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-100%); } to { opacity:1; transform:translateY(0); } }
+    @keyframes riseUpCentered {
+      from { opacity:0; transform: translate(-50%, 26px); }
+      to   { opacity:1; transform: translate(-50%, 0); }
+    }
 
     /* ─── Projects Overlay ──────────────────────── */
     .pov {
@@ -288,29 +281,49 @@
       display: flex;
       background: #ffffff;
       opacity: 0; pointer-events: none;
-      transition: opacity .4s cubic-bezier(.4,0,.2,1);
+      transition: opacity .45s var(--ease-soft);
     }
     .pov.open { opacity: 1; pointer-events: all; }
 
     /* Sidebar */
     .pov-sidebar {
-      width: 240px; flex-shrink: 0;
+      width: 290px; flex-shrink: 0;   /* widened to fit the larger list type */
       border-right: 1px solid rgba(0,0,0,.07);
       display: flex; flex-direction: column;
-      transform: translateX(-16px); opacity: 0;
-      transition: transform .52s cubic-bezier(.4,0,.2,1) .06s,
-                  opacity .45s ease .06s;
+      transform: translateX(-22px); opacity: 0;
+      transition: transform .6s var(--ease-out) .05s,
+                  opacity .5s var(--ease-soft) .05s;
     }
     .pov.open .pov-sidebar { transform: translateX(0); opacity: 1; }
 
-    .pov-sb-hd {
-      padding: 34px 28px 16px;
-      display: flex; justify-content: space-between; align-items: baseline;
-      border-bottom: 1px solid rgba(0,0,0,.07);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px; letter-spacing: .4em; text-transform: uppercase;
-      color: rgba(0,0,0,.3);
+    /* Project rows cascade in behind the sidebar itself. */
+    .pov.open .pov-item {
+      animation: rowIn .55s var(--ease-out) forwards;
+      animation-delay: calc(.22s + var(--r, 0) * .045s);
+      opacity: 0;
     }
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateX(-14px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Project switch: the gallery and title crossfade rather than snapping. */
+    .pov-swap { animation: swapIn .5s var(--ease-out); }
+    @keyframes swapIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .pov-sb-hd {
+      padding: 30px 28px 14px;
+      display: flex; justify-content: space-between; align-items: baseline;
+      border-bottom: 1px solid var(--rule);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--faint);
+    }
+    .pov-sb-hd #pov-total { color: var(--accent); }
 
     .pov-nav { flex: 1; overflow-y: auto; padding: 6px 0; }
     .pov-nav::-webkit-scrollbar { width: 0; }
@@ -332,30 +345,31 @@
 
     .pi-num {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px; color: rgba(0,0,0,.18); min-width: 16px;
+      font-size: var(--t-label); font-weight: 500;
+      color: var(--faint); min-width: 20px;
       transition: color .18s;
     }
     .pov-item.sel .pi-num { color: var(--accent); }
 
-    .pi-body { display: flex; flex-direction: column; gap: 4px; }
+    .pi-body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     .pi-name {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px; font-weight: 300; letter-spacing: .05em;
-      color: rgba(0,0,0,.45); transition: color .18s;
+      font-size: var(--t-body); font-weight: 500; letter-spacing: .02em;
+      color: var(--muted); transition: color .18s;
     }
     .pov-item:hover .pi-name, .pov-item.sel .pi-name { color: var(--text); }
     .pi-tags {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px; letter-spacing: .13em; text-transform: uppercase;
-      color: rgba(0,0,0,.22);
+      font-size: var(--t-label); letter-spacing: .1em; text-transform: uppercase;
+      color: var(--faint);
     }
-    .pi-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .pi-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .pi-proto-badge {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 7px; letter-spacing: .16em; text-transform: uppercase;
+      font-size: 12px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase;
       color: var(--accent);
       border: 1px solid rgba(45,91,227,.28); border-radius: 2px;
-      padding: 1px 5px; flex-shrink: 0;
+      padding: 2px 7px; flex-shrink: 0;
     }
 
     /* Main */
@@ -379,7 +393,7 @@
     .pov-meta-n {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 40px; line-height: 1; letter-spacing: .04em;
-      color: rgba(45,91,227,.18); flex-shrink: 0;
+      color: rgba(45,91,227,.42); flex-shrink: 0;
     }
     .pov-meta-title {
       font-family: 'Bebas Neue', sans-serif;
@@ -387,30 +401,32 @@
     }
     .pov-meta-desc {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px; color: rgba(0,0,0,.38);
-      letter-spacing: .12em; margin-top: 5px;
+      font-size: 14px; color: var(--muted);
+      letter-spacing: .02em; margin-top: 6px; line-height: 1.5;
     }
 
     .pov-topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
     .pov-close-btn {
-      display: flex; align-items: center; gap: 6px;
-      padding: 7px 14px;
-      background: none; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
-      color: rgba(0,0,0,.35);
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px;
+      background: none; border: 1px solid var(--rule); border-radius: 3px;
+      color: var(--muted);
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px; letter-spacing: .25em; text-transform: uppercase;
-      cursor: none; transition: all .18s;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .16em; text-transform: uppercase;
+      cursor: none; transition: color .18s, border-color .18s;
     }
-    .pov-close-btn:hover { color: var(--text); border-color: rgba(0,0,0,.3); }
+    .pov-close-btn:hover { color: var(--text); border-color: var(--text); }
 
     .figma-btn {
-      display: flex; align-items: center; gap: 7px;
-      padding: 7px 14px;
-      border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
-      color: rgba(0,0,0,.4);
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px;
+      border: 1px solid var(--rule); border-radius: 3px;
+      color: var(--muted);
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px; letter-spacing: .2em; text-transform: uppercase;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .14em; text-transform: uppercase;
       text-decoration: none;
       transition: color .2s, border-color .2s, background .2s;
       cursor: none;
@@ -433,8 +449,9 @@
     }
     .pov-tab {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px; letter-spacing: .25em; text-transform: uppercase;
-      padding: 7px 13px;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .16em; text-transform: uppercase;
+      padding: 10px 16px;
       background: none; border: none; cursor: none;
       color: var(--accent);
       transition: color .18s, background .18s;
@@ -468,12 +485,13 @@
     .pd-meta-item { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
     .pd-meta-label {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px; letter-spacing: .3em; text-transform: uppercase;
-      color: rgba(0,0,0,.32);
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--faint);
     }
     .pd-meta-val {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px; color: var(--text); letter-spacing: .04em;
+      font-size: var(--t-body); color: var(--text); letter-spacing: .02em;
     }
     .pd-meta-val.accent { color: var(--accent); }
 
@@ -484,8 +502,8 @@
     }
     .pd-tool-chip {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px; letter-spacing: .12em;
-      padding: 5px 10px;
+      font-size: var(--t-label); font-weight: 500; letter-spacing: .06em;
+      padding: 7px 12px;
       background: rgba(45,91,227,.06);
       color: var(--accent);
       border: 1px solid rgba(45,91,227,.18);
@@ -504,19 +522,20 @@
     }
     .pd-section-title {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px; letter-spacing: .35em; text-transform: uppercase;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .2em; text-transform: uppercase;
       color: var(--accent);
     }
     .pd-section-body {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px; line-height: 1.75;
-      color: rgba(0,0,0,.72);
+      font-size: var(--t-body); line-height: 1.75;
+      color: #24243A;
       white-space: pre-wrap;
     }
     .pd-empty {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px; letter-spacing: .25em; text-transform: uppercase;
-      color: rgba(0,0,0,.22);
+      font-size: var(--t-body); letter-spacing: .02em;
+      color: var(--muted);
       text-align: center; padding: 60px 0;
     }
 
@@ -570,6 +589,37 @@
       color: #fff; cursor: none; transition: opacity .15s;
     }
     .pw-enter:hover { opacity: .85; }
+
+    /* ─── Empty / unavailable state ───────────── */
+    .pov-blank {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; padding: 48px 32px; text-align: center;
+      background: #fff;
+    }
+    .pov-blank[hidden] { display: none; }
+    .pov-blank-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px; letter-spacing: .04em; color: var(--text);
+    }
+    .pov-blank-body {
+      font-size: var(--t-body); line-height: 1.6;
+      color: var(--muted); max-width: 46ch;
+    }
+    .pov-blank-actions {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center; margin-top: 8px;
+    }
+    .pov-blank-retry {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .16em; text-transform: uppercase;
+      padding: 10px 18px;
+      background: none; border: 1px solid var(--rule); border-radius: 3px;
+      color: var(--muted); cursor: none; transition: border-color .2s, color .2s;
+    }
+    .pov-blank-retry[hidden] { display: none; }
+    .pov-blank-retry:hover { border-color: var(--text); color: var(--text); }
 
     /* ─── Admin Panel ─────────────────────────── */
     .adm {
@@ -819,8 +869,8 @@
       padding: 14px 20px;
       background: none; border: none; cursor: none;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px; font-weight: 400;
-      letter-spacing: .28em; text-transform: uppercase;
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .16em; text-transform: uppercase;
       color: var(--text);
       transition: color .15s, background .15s;
     }
@@ -911,12 +961,13 @@
     .pc-btn {
       position: absolute; top: 50%; z-index: 50;
       transform: translateY(-50%);
-      width: 36px; height: 36px;
-      background: rgba(255,255,255,.88); border: 1px solid rgba(0,0,0,.1);
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,.92); border: 1px solid var(--rule);
       border-radius: 50%; cursor: none;
       display: flex; align-items: center; justify-content: center;
-      transition: all .18s; backdrop-filter: blur(4px);
-      color: rgba(0,0,0,.45);
+      transition: background .18s, border-color .18s, color .18s;
+      backdrop-filter: blur(4px);
+      color: var(--muted);
     }
     .pc-btn:hover { background: #fff; border-color: var(--accent); color: var(--accent); }
     .pc-btn.pc-prev { left: 12px; }
@@ -927,15 +978,16 @@
       display: flex; gap: 6px; z-index: 10;
     }
     .pc-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: rgba(0,0,0,.18); cursor: none;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(10,10,24,.28); cursor: none;
       transition: background .18s, transform .18s;
     }
-    .pc-dot.active { background: var(--accent); transform: scale(1.25); }
+    .pc-dot.active { background: var(--accent); transform: scale(1.3); }
     .pc-counter {
-      position: absolute; top: 10px; right: 14px; z-index: 10;
+      position: absolute; top: 12px; right: 16px; z-index: 10;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px; letter-spacing: .2em; color: rgba(0,0,0,.3);
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .14em; color: var(--faint);
     }
 
     /* ─── Prototype inline ───────────────── */
@@ -975,6 +1027,119 @@
       transition: color .15s;
     }
     .proto-file-rm:hover { color: #c44; }
+
+    /* ══════════════════════════════════════════════
+       Focus — the page hides the system cursor, so a
+       visible focus ring is the only keyboard cue.
+       ══════════════════════════════════════════════ */
+    :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+    .cta:focus-visible { outline-color: var(--text); }
+
+    /* ══════════════════════════════════════════════
+       Responsive — the layout had no breakpoints.
+       ══════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .topbar { padding: 14px 20px; }
+      .role  { margin-top: 20px; max-width: 26ch; }
+      .facts { margin-top: 12px; letter-spacing: .12em; }
+      .cta-wrap { bottom: 40px; }
+
+      /* Overlay: sidebar becomes a scrollable strip above the work */
+      .pov { flex-direction: column; }
+      .pov-sidebar {
+        width: 100%; flex-shrink: 0; max-height: 38vh;
+        border-right: none; border-bottom: 1px solid var(--rule);
+        transform: translateY(-10px);
+      }
+      .pov.open .pov-sidebar { transform: translateY(0); }
+      .pov-sb-hd { padding: 18px 20px 12px; }
+      .pov-item  { padding: 12px 20px; }
+      .pov-main  { padding: 18px 20px 20px; }
+
+      /* Topbar stacks so the title never collides with the controls */
+      .pov-topbar {
+        flex-direction: column; align-items: flex-start; gap: 14px;
+        padding-bottom: 14px; margin-bottom: 16px;
+      }
+      .pov-topbar-right { width: 100%; flex-wrap: wrap; }
+      .pov-meta-n     { font-size: 30px; }
+      .pov-meta-title { font-size: 24px; }
+      .pd-meta-row { gap: 20px 28px; }
+      .frame-d { padding: 20px 20px 24px; }
+    }
+
+    @media (max-width: 560px) {
+      .topbar { padding: 12px 16px; gap: 12px; }
+      .topbar-mark { letter-spacing: .12em; }
+      .contact { padding: 9px 12px; letter-spacing: .1em; }
+      .headline { letter-spacing: 0; }
+      .role  { font-size: var(--t-body); max-width: 22ch; }
+      .facts { font-size: var(--t-label); letter-spacing: .08em; }
+      .cta { width: min(300px, calc(100vw - 40px)); justify-content: center; }
+      .pov-sidebar { max-height: 34vh; }
+      .pov-blank-title { font-size: 26px; }
+      .pov-blank-actions { flex-direction: column; width: 100%; }
+      .pov-blank-actions > * { justify-content: center; }
+    }
+
+    /* Short viewports: the fixed CTA must not sit on top of the name */
+    @media (max-height: 620px) {
+      .cta-wrap { position: static; transform: none; margin-top: 28px; }
+      .overlay  { justify-content: center; padding: 90px 20px 32px; }
+    }
+
+    /* Touch / no-hover: restore the real pointer, drop the custom cursor */
+    @media (hover: none), (pointer: coarse) {
+      html, body { cursor: auto; }
+      #cur-dot, #cur-ring { display: none; }
+      .cta, .contact, .pov-item, .pov-tab, .pov-close-btn,
+      .figma-btn, .pov-blank-retry, .pc-btn { cursor: pointer; }
+      /* Comfortable touch targets */
+      .cta { padding: 18px 28px; }
+      .pov-item { padding: 15px 20px; }
+    }
+
+    /* ══════════════════════════════════════════════
+       Reduced motion — REDUCE, not remove.
+       A blanket `animation: 1ms !important` kill-switch
+       flattened the whole page, so instead only the
+       genuinely uncomfortable effects are dropped:
+       pointer parallax, blur/rotate letter flight, and
+       the travelling sheens. Fades, the ambient wash and
+       the chart keep running, just calmer and slower.
+       ══════════════════════════════════════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      /* Letters fade up gently in place — no blur, no rotation. */
+      .headline .ch {
+        transform: translate3d(0, .12em, 0);
+        filter: none;
+        animation-name: letterInSoft;
+        animation-duration: .7s;
+      }
+      @keyframes letterInSoft {
+        to { opacity: 1; transform: translate3d(0,0,0); }
+      }
+
+      /* Ambient wash keeps drifting, at roughly half speed. */
+      .aura::before { animation-duration: 54s; }
+      .aura::after  { animation-duration: 70s; }
+
+      /* Drop the travelling highlights and the lift. */
+      .cta::after, .contact::after { display: none; }
+      .cta:hover { transform: none; box-shadow: none; }
+
+      /* Shorter, plainer entrances. */
+      .role, .facts, .cta-wrap, .topbar { animation-duration: .6s; }
+      .pov.open .pov-item { animation-duration: .35s; }
+      .pov-swap { animation-duration: .3s; }
+
+      /* Tighter cursor trail = less travel on screen. */
+      #cur-ring { transition-duration: .1s; }
+    }
   </style>
 </head>
 <body>
@@ -982,85 +1147,39 @@
 <div id="cur-dot"></div>
 <div id="cur-ring"></div>
 <div id="canvas-wrap"></div>
+<div class="aura" aria-hidden="true"></div>
 <div class="vignette"></div>
-<div class="scanlines"></div>
-<div class="h-line h-line--top"></div>
-<div class="h-line h-line--bot"></div>
 
-<div class="corner c-tl">
-  <div class="ck">
-    <span class="ck-l">Session</span>
-    <span class="ck-v"><span class="live-dot"></span>Open<span class="ck-hint">NYSE</span></span>
-  </div>
-</div>
-<div class="corner c-tr">
-  <div class="ck">
-    <span class="ck-l">Local Time</span>
-    <span class="ck-v" id="local-time">—</span>
-  </div>
-</div>
-<div class="corner c-bl">
-  <div class="ck">
-    <span class="ck-l">Portfolio</span>
-    <span class="ck-v">Vol · 02 / 2026</span>
-  </div>
-</div>
-<div class="corner c-br">
-  <div class="ck">
-    <span class="ck-l">BTC / USD</span>
-    <span class="ck-v" id="live-price">—</span>
-  </div>
-</div>
+<header class="topbar">
+  <span class="topbar-mark">Vladyslav <span>Ivanko</span></span>
+  <a class="contact" href="mailto:wrender34@gmail.com">Email me</a>
+</header>
 
-<aside class="rail rail-l" aria-hidden="true">
-  <span class="rail-mark">+2.0%</span>
-  <span class="rail-mark">+1.0%</span>
-  <span class="rail-mark rail-mark--zero">0.00</span>
-  <span class="rail-mark">−1.0%</span>
-  <span class="rail-mark">−2.0%</span>
-</aside>
-<aside class="rail rail-r" aria-hidden="true">
-  <span class="rail-mark">H 162.4</span>
-  <span class="rail-mark">·</span>
-  <span class="rail-mark rail-mark--zero" id="rail-mid">MID</span>
-  <span class="rail-mark">·</span>
-  <span class="rail-mark">L 94.8</span>
-</aside>
-
-<div class="overlay">
-  <p class="eyebrow">UI/UX Designer · Trading & Crypto</p>
-  <h1 class="headline">VLADYSLAV<br><em>IVANKO</em></h1>
-  <div class="hl-serial">
-    <span>File A-02</span><span class="hl-dot"></span>
-    <span>Edition 2026</span><span class="hl-dot"></span>
-    <span>Live</span>
+<main class="overlay" id="hero">
+  <div class="hero-shift" id="hero-shift">
+    <h1 class="headline" data-split aria-label="Vladyslav Ivanko">VLADYSLAV<br><em>IVANKO</em></h1>
+    <p class="role">UI/UX designer for trading and crypto interfaces</p>
+    <p class="facts">
+      <b>3 years UX</b><i></i><b>Warsaw <span id="wtime"></span></b><i></i><b>Remote</b>
+    </p>
   </div>
-  <p class="sub">Crafting interfaces where data drives decision</p>
-  <div class="spec">
-    <div class="spec-col accent"><b id="spec-count">00</b><em>Case Studies</em></div>
-    <span class="spec-sep"></span>
-    <div class="spec-col"><b>03</b><em>Years · UX</em></div>
-    <span class="spec-sep"></span>
-    <div class="spec-col"><b>WARSAW</b><em>Based · Remote</em></div>
-  </div>
-</div>
 
-<div class="cta-wrap">
-  <a class="cta" href="#" id="cta-open">
-    <span class="cta-lbl">Enter Portfolio</span>
-    <svg class="cta-ar" viewBox="0 0 20 8" fill="none" aria-hidden="true">
-      <path d="M0 4h18M14 1l4 3-4 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </a>
-  <span class="cta-meta"><span id="cta-count">00</span> Projects · Updated Q2 2026</span>
-</div>
+  <div class="cta-wrap">
+    <button class="cta" type="button" id="cta-open">
+      <span class="cta-lbl">View work</span>
+      <svg class="cta-ar" viewBox="0 0 20 8" fill="none" aria-hidden="true">
+        <path d="M0 4h18M14 1l4 3-4 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</main>
 
 <!-- ══════════ PROJECTS OVERLAY ══════════ -->
-<div id="pov" class="pov" aria-hidden="true">
+<div id="pov" class="pov" role="dialog" aria-modal="true" aria-label="Selected work" aria-hidden="true">
 
   <aside class="pov-sidebar">
     <div class="pov-sb-hd"><span>Projects</span><span id="pov-total">—</span></div>
-    <nav class="pov-nav" id="pov-nav"></nav>
+    <nav class="pov-nav" id="pov-nav" aria-label="Projects"></nav>
   </aside>
 
   <div class="pov-main">
@@ -1092,6 +1211,16 @@
     </div>
 
     <div class="pov-preview" id="pov-preview">
+      <!-- Shown when there is genuinely nothing to display, or the list failed to load. -->
+      <div class="pov-blank" id="pov-blank" hidden>
+        <p class="pov-blank-title" id="pov-blank-title">No projects published yet</p>
+        <p class="pov-blank-body" id="pov-blank-body">Case studies are being written up. Email me and I'll send work samples directly.</p>
+        <div class="pov-blank-actions">
+          <a class="contact" href="mailto:wrender34@gmail.com">Email me</a>
+          <button class="pov-blank-retry" type="button" id="pov-retry" hidden>Try again</button>
+        </div>
+      </div>
+
       <div class="frame-p active" id="frame-p">
         <div class="pc-main-section">
           <div class="pc-wrap" id="pc-wrap">
@@ -1281,59 +1410,103 @@
   </div>
 </div>
 
-<div class="ticker-bar">
-  <div class="ticker-badge"><span class="live-dot"></span>Live · Feed</div>
-  <div class="ticker-scroll"><div class="ticker-inner" id="ticker"></div></div>
-</div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <script>
-/* ── Cursor ──────────────────────────── */
+/* ── Motion + input preferences ───────── */
+var REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
+
+/* ── Headline letter split ─────────────
+   Wraps each glyph so it can be staggered. The h1 carries an aria-label, and
+   the split spans are hidden from assistive tech, so the accessible name stays
+   "Vladyslav Ivanko" rather than a string of single letters. */
 (function () {
-  var dot = document.getElementById('cur-dot');
-  var ring = document.getElementById('cur-ring');
+  var h = document.querySelector('[data-split]');
+  if (!h) return;   /* runs under reduced motion too — CSS softens the reveal */
+
+  var i = 0;
+  function split(node) {
+    var kids = [].slice.call(node.childNodes);
+    kids.forEach(function (n) {
+      if (n.nodeType === 3) {                       // text → one span per glyph
+        var frag = document.createDocumentFragment();
+        n.textContent.split('').forEach(function (ch) {
+          var s = document.createElement('span');
+          s.className = 'ch' + (ch === ' ' ? ' ch--space' : '');
+          s.style.setProperty('--i', i++);
+          s.textContent = ch === ' ' ? ' ' : ch;
+          frag.appendChild(s);
+        });
+        node.replaceChild(frag, n);
+      } else if (n.nodeType === 1 && n.tagName !== 'BR') {
+        split(n);                                    // recurse into <em>
+      }
+    });
+  }
+  split(h);
+  h.setAttribute('role', 'heading');
+  h.setAttribute('aria-level', '1');
+  [].forEach.call(h.querySelectorAll('.ch'), function (s) {
+    s.setAttribute('aria-hidden', 'true');
+  });
+})();
+
+/* ── Warsaw local time ─────────────────
+   Real time in the timezone actually claimed, regardless of where the visitor
+   is. Useful for a remote hire deciding about overlap — and it keeps ticking. */
+(function () {
+  var el = document.getElementById('wtime');
+  if (!el) return;
+  function paint() {
+    try {
+      el.textContent = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Warsaw', hour: '2-digit', minute: '2-digit', hour12: false
+      }).format(new Date());
+    } catch (e) { el.textContent = ''; }   // no Intl/tz data → show nothing
+  }
+  paint();
+  /* Tick on the minute boundary, then every minute. */
+  setTimeout(function () {
+    paint();
+    setInterval(paint, 60000);
+  }, (60 - new Date().getSeconds()) * 1000);
+})();
+
+/* ── Cursor + hero parallax ────────────
+   One rAF loop drives both: the trailing cursor ring and a small lerped
+   offset on the hero group. Continuous, transform-only, no layout. */
+(function () {
+  // Only touch devices fall back to the real pointer — the custom cursor is
+  // part of the design, not decoration, so reduced motion keeps it (just with
+  // a tighter trail, set in CSS).
+  if (COARSE_POINTER) return;
+  var dot   = document.getElementById('cur-dot');
+  var ring  = document.getElementById('cur-ring');
+  // Pointer parallax is the one effect reduced motion drops entirely: it moves
+  // a large area of the screen and is the most likely to cause discomfort.
+  var shift = REDUCED_MOTION ? null : document.getElementById('hero-shift');
+  var trail = REDUCED_MOTION ? 0.32 : 0.13;        // higher = follows tighter
   var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+  var sx = 0, sy = 0;                              // current hero offset
   addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; });
+
   (function loop() {
-    rx += (mx - rx) * 0.13;
-    ry += (my - ry) * 0.13;
+    rx += (mx - rx) * trail;
+    ry += (my - ry) * trail;
     dot.style.left = mx + 'px';  dot.style.top = my + 'px';
     ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+
+    if (shift) {
+      // Pointer offset from centre, capped so text never drifts far enough
+      // to collide with the top bar or the CTA.
+      var tx = ((rx / innerWidth)  - 0.5) * 16;
+      var ty = ((ry / innerHeight) - 0.5) * 11;
+      sx += (tx - sx) * 0.045;                      // slower than the cursor,
+      sy += (ty - sy) * 0.045;                      // so it reads as depth
+      shift.style.transform = 'translate3d(' + sx.toFixed(2) + 'px,' + sy.toFixed(2) + 'px,0)';
+    }
     requestAnimationFrame(loop);
   })();
-})();
-
-/* ── Live Clock ──────────────────────── */
-(function () {
-  var el = document.getElementById('local-time');
-  if (!el) return;
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
-  function tick() {
-    var d = new Date();
-    el.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-  }
-  tick();
-  setInterval(tick, 1000);
-})();
-
-/* ── Ticker ──────────────────────────── */
-(function () {
-  var tickers = [
-    ['BTC/USD',67234.50,+2.34],['ETH/USD',3521.20,+1.87],['S&P 500',5234.18,-0.42],
-    ['NASDAQ',18421.31,+0.93],['GOLD',2341.60,+0.21],['EUR/USD',1.0842,-0.18],
-    ['GBP/USD',1.2634,+0.09],['OIL WTI',82.41,+1.23],['TSLA',184.23,-3.12],['AAPL',211.48,+0.74],
-  ];
-  var el = document.getElementById('ticker');
-  var html = '';
-  for (var r = 0; r < 2; r++) {
-    for (var i = 0; i < tickers.length; i++) {
-      var t = tickers[i], sign = t[2] >= 0 ? '+' : '', cls = t[2] >= 0 ? 'up' : 'dn';
-      html += '<span class="tick"><span class="tick__sym">' + t[0] + '</span><span class="tick__val">' +
-        t[1].toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) +
-        '</span><span class="tick__chg ' + cls + '">' + sign + t[2].toFixed(2) + '%</span></span>';
-    }
-  }
-  el.innerHTML = html;
 })();
 
 /* ── Three.js Candlestick Background ── */
@@ -1369,8 +1542,6 @@
   keyLight.position.set(-8, 18, 12);
   keyLight.castShadow = true;
   scene.add(keyLight);
-
-  scene.add(new THREE.PointLight(0xB0D0F8, 1.2, 80).position.set(18, 6, -8) || scene.children[scene.children.length - 1]);
 
   var fillLight = new THREE.PointLight(0xB0D0F8, 1.2, 80);
   fillLight.position.set(18, 6, -8);
@@ -1613,10 +1784,6 @@
     tgt.dnH = Math.max(0.02, Math.min(cn.open, cn.close) - cn.lo);
     tgt.dnY = Math.min(cn.open, cn.close) - tgt.dnH / 2;
     tgt.bull = cn.bull;
-
-    var px = (67000 + last.close * 80).toFixed(2);
-    document.getElementById('live-price').textContent =
-      Number(px).toLocaleString('en-US', { minimumFractionDigits: 2 });
   }
 
   // ── Reusable color temps ──────────────
@@ -1739,6 +1906,8 @@
     // ── Live tick ───────────────────────
     tickLast(now);
 
+    /* The chart runs continuously, always. It is the centrepiece of the
+       page, so it is treated as essential content rather than decoration. */
     renderer.render(scene, camera);
   });
 
@@ -1772,15 +1941,31 @@
   function clearAdminPw() { try { sessionStorage.removeItem(PW_KEY); } catch (e) {} }
 
   var _cache = [];
+  /* Was: every failure resolved to an empty list, so "the request broke" and
+     "there are no projects" rendered identically. Track it so the empty state
+     can tell the truth and offer a retry. */
+  var _loadFailed = false;
 
   function loadCustomProjects() { return _cache.slice(); }
   function buildProjectList()   { return BUILTIN.concat(_cache); }
+  function loadFailed()         { return _loadFailed; }
 
   function fetchProjects() {
     return fetch('/api/projects', { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (arr) { _cache = Array.isArray(arr) ? arr : []; return _cache; })
-      .catch(function () { return _cache; });
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (arr) {
+        _cache = Array.isArray(arr) ? arr : [];
+        _loadFailed = false;
+        return _cache;
+      })
+      .catch(function (e) {
+        _loadFailed = true;
+        console.warn('Could not load projects:', e && e.message);
+        return _cache;
+      });
   }
 
   function saveCustomProjects(arr) {
@@ -1895,23 +2080,72 @@
   var pdSecGoals    = document.getElementById('pd-sec-goals');
   var pdSecWorkflow = document.getElementById('pd-sec-workflow');
   var pdSecOutcomes = document.getElementById('pd-sec-outcomes');
+  var povTabs     = document.getElementById('pov-tabs');
+  var povPreview  = document.getElementById('pov-preview');
+  var povBlank    = document.getElementById('pov-blank');
+  var povBlankTtl = document.getElementById('pov-blank-title');
+  var povBlankBdy = document.getElementById('pov-blank-body');
+  var povRetry    = document.getElementById('pov-retry');
 
   var curProj  = 0;
   var curPhoto = 0;
   var curView  = 'gallery';
 
+  /* Restart a CSS animation on elements that are already in the DOM:
+     drop the class, force a reflow, add it back. */
+  function replayAnim(els) {
+    els.forEach(function (el) {
+      if (!el) return;
+      el.classList.remove('pov-swap');
+      void el.offsetWidth;
+      el.classList.add('pov-swap');
+    });
+  }
+
+  /* ── Empty / unavailable state ─────────
+     Replaces the old behaviour, where an absent project left "—" placeholders
+     and a dead carousel on screen and threw a TypeError on the way there. */
+  function renderNoProjects() {
+    var failed = loadFailed();
+    povBlankTtl.textContent = failed
+      ? "Couldn't load the projects"
+      : 'No projects published yet';
+    povBlankBdy.textContent = failed
+      ? 'Something went wrong fetching the list. Retry, or email me and I’ll send work samples directly.'
+      : 'Case studies are being written up. Email me and I’ll send work samples directly.';
+    povRetry.hidden = !failed;
+    povBlank.hidden = false;
+
+    /* Hide every control that has nothing to act on. */
+    framePEl.classList.remove('active');
+    frameDEl.classList.remove('active');
+    povTabs.style.display = 'none';
+    figmaLink.classList.add('hidden');
+    protoIframe.removeAttribute('srcdoc');
+    protoIframe.src = 'about:blank';
+    protoIframe.classList.remove('active');
+
+    /* The panel already states the situation — don't echo it in the topbar. */
+    numEl.textContent   = '';
+    titleEl.textContent = '';
+    descEl.textContent  = '';
+  }
+
+  function clearNoProjects() {
+    if (povBlank.hidden) return;
+    povBlank.hidden = true;
+    povTabs.style.display = '';
+    setView(curView);
+  }
+
   /* ── Sidebar nav ─────────────────────── */
   function buildNav() {
     navEl.innerHTML = '';
-    var countStr = String(PROJECTS.length).padStart(2, '0');
-    document.getElementById('pov-total').textContent = countStr;
-    var heroCount = document.getElementById('spec-count');
-    var ctaCount  = document.getElementById('cta-count');
-    if (heroCount) heroCount.textContent = countStr;
-    if (ctaCount)  ctaCount.textContent  = countStr;
+    document.getElementById('pov-total').textContent = String(PROJECTS.length);
     PROJECTS.forEach(function (p, i) {
       var btn = document.createElement('button');
       btn.className = 'pov-item' + (i === curProj ? ' sel' : '');
+      btn.style.setProperty('--r', i);   /* drives the cascade stagger */
       var protoBadge = p.protoUrl ? '<span class="pi-proto-badge">Prototype</span>' : '';
       btn.innerHTML =
         '<span class="pi-num">' + String(i + 1).padStart(2, '0') + '</span>' +
@@ -1925,12 +2159,21 @@
 
   /* ── Select project ──────────────────── */
   function selectProject(i) {
-    curProj = i;
     var p = PROJECTS[i];
+    /* Nothing to select — render the honest empty/unavailable state instead of
+       dereferencing an absent project (was an uncaught TypeError). */
+    if (!p) { renderNoProjects(); return; }
+    clearNoProjects();
+    var changed = curProj !== i;
+    curProj = i;
     navEl.querySelectorAll('.pov-item').forEach(function (el, j) { el.classList.toggle('sel', j === i); });
     numEl.textContent   = String(i + 1).padStart(2, '0');
     titleEl.textContent = p.title;
     descEl.textContent  = p.desc;
+    /* Crossfade the title block and preview when moving between projects
+       instead of swapping content instantly. Gentle enough to keep under
+       reduced motion (CSS shortens it there). */
+    if (changed) replayAnim([document.querySelector('.pov-meta'), povPreview]);
     if (p.figmaUrl) { figmaLink.href = p.figmaUrl; figmaLink.classList.remove('hidden'); }
     else            { figmaLink.href = '#';         figmaLink.classList.add('hidden'); }
     buildCarousel(p.photos || []);
@@ -2058,7 +2301,11 @@
         if (media.videoWidth) fitSlide(slide, media);
       } else {
         media = document.createElement('img');
-        media.src = src; media.alt = 'Photo ' + (idx + 1); media.draggable = false;
+        media.src = src; media.draggable = false;
+        /* Name the actual project rather than "Photo 3". */
+        var pj = PROJECTS[curProj];
+        media.alt = (pj && pj.title ? pj.title : 'Project') +
+          ' — screen ' + (idx + 1) + ' of ' + photos.length;
         media.addEventListener('load', function () { fitSlide(slide, media); updateBarrel(); });
         if (media.complete && media.naturalWidth) fitSlide(slide, media);
       }
@@ -2273,20 +2520,82 @@
     document.body.appendChild(lb);
   }
 
-  /* ── Open / close overlay ────────────── */
+  /* ── Open / close overlay ──────────────
+     A real modal: focus moves in, is trapped while open, and returns to the
+     control that opened it. The page behind is hidden from assistive tech
+     instead of staying silently tabbable. */
+  var heroEl     = document.getElementById('hero');
+  var topbarEl   = document.querySelector('.topbar');
+  var ovReturnTo = null;
+  var closeBtn   = document.getElementById('pov-close');
+
+  function ovFocusables() {
+    return [].filter.call(
+      ov.querySelectorAll('a[href], button:not([disabled]), input, textarea, select, [tabindex]:not([tabindex="-1"])'),
+      function (el) {
+        if (el.hidden || el.closest('[hidden]')) return false;
+        var r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      }
+    );
+  }
+
+  function setBackgroundHidden(hidden) {
+    [heroEl, topbarEl].forEach(function (el) {
+      if (!el) return;
+      if (hidden) { el.setAttribute('aria-hidden', 'true'); el.inert = true; }
+      else        { el.removeAttribute('aria-hidden'); el.inert = false; }
+    });
+  }
+
   function openOv() {
+    ovReturnTo = document.activeElement;
     ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    setBackgroundHidden(true);
     selectProject(curProj);
+    /* Prefer the first project in the list; fall back to Close so focus is
+       never left on the now-hidden hero. */
+    var first = navEl.querySelector('.pov-item');
+    (first || closeBtn).focus();
   }
+
   function closeOv() {
+    if (!ov.classList.contains('open')) return;
     ov.classList.remove('open'); ov.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    setBackgroundHidden(false);
+    if (ovReturnTo && document.contains(ovReturnTo)) ovReturnTo.focus();
+    ovReturnTo = null;
   }
-  document.getElementById('cta-open').addEventListener('click', function (e) { e.preventDefault(); openOv(); });
-  document.getElementById('pov-close').addEventListener('click', closeOv);
+
+  document.getElementById('cta-open').addEventListener('click', openOv);
+  closeBtn.addEventListener('click', closeOv);
+
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeOv(); closeAdm(); }
+    if (e.key === 'Escape') { closeOv(); closeAdm(); return; }
+    if (e.key !== 'Tab' || !ov.classList.contains('open')) return;
+    var f = ovFocusables();
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  /* Retry re-fetches the list and re-renders, so a transient failure is
+     recoverable without a page reload. */
+  povRetry.addEventListener('click', function () {
+    povRetry.disabled = true;
+    povBlankBdy.textContent = 'Retrying…';
+    fetchProjects().then(function () {
+      PROJECTS = buildProjectList();
+      curProj = 0;
+      buildNav();
+      selectProject(0);
+      povRetry.disabled = false;
+      var first = navEl.querySelector('.pov-item');
+      if (first) first.focus();
+    });
   });
 
   /* ══════════ ADMIN ══════════ */
