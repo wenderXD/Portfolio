@@ -10,8 +10,9 @@
   <meta property="og:description" content="UI/UX designer for trading and crypto interfaces. Based in Warsaw, working remotely.">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    :root { --font-ui: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif; --font-text: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
@@ -38,7 +39,7 @@
       width: 100%; height: 100%; overflow: hidden;
       background: var(--bg);
       color: var(--text);
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       cursor: none;
     }
 
@@ -188,8 +189,9 @@
 
     /* Role line — the single piece of supporting copy */
     .role {
+      font-family: var(--font-text);
       font-size: var(--t-lead); font-weight: 400;
-      letter-spacing: .02em; line-height: 1.5;
+      line-height: 1.5;
       color: var(--muted);
       margin-top: 28px; text-align: center; max-width: 34ch;
       opacity: 0; animation: riseUp 1.1s var(--ease-out) .95s forwards;
@@ -225,7 +227,7 @@
     .cta {
       display: inline-flex; align-items: center; gap: 16px;
       pointer-events: all; position: relative; isolation: isolate;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .22em; color: #fff;
       text-transform: uppercase;
@@ -318,7 +320,7 @@
       padding: 30px 28px 14px;
       display: flex; justify-content: space-between; align-items: baseline;
       border-bottom: 1px solid var(--rule);
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .2em; text-transform: uppercase;
       color: var(--faint);
@@ -344,7 +346,7 @@
     .pov-item:hover, .pov-item.sel { background: rgba(45,91,227,.05); }
 
     .pi-num {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       color: var(--faint); min-width: 20px;
       transition: color .18s;
@@ -353,19 +355,18 @@
 
     .pi-body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     .pi-name {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: var(--t-body); font-weight: 500; letter-spacing: .02em;
-      color: var(--muted); transition: color .18s;
+      font-family: var(--font-text);
+      font-size: var(--t-body); font-weight: 500; color: var(--muted); transition: color .18s;
     }
     .pov-item:hover .pi-name, .pov-item.sel .pi-name { color: var(--text); }
     .pi-tags {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); letter-spacing: .1em; text-transform: uppercase;
       color: var(--faint);
     }
     .pi-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .pi-proto-badge {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 12px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase;
       color: var(--accent);
       border: 1px solid rgba(45,91,227,.28); border-radius: 2px;
@@ -400,9 +401,9 @@
       font-size: 28px; color: var(--text); letter-spacing: .05em; line-height: 1;
     }
     .pov-meta-desc {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-text);
       font-size: 14px; color: var(--muted);
-      letter-spacing: .02em; margin-top: 6px; line-height: 1.5;
+      margin-top: 6px; line-height: 1.5;
     }
 
     .pov-topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -412,7 +413,7 @@
       padding: 10px 16px;
       background: none; border: 1px solid var(--rule); border-radius: 3px;
       color: var(--muted);
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .16em; text-transform: uppercase;
       cursor: none; transition: color .18s, border-color .18s;
@@ -424,7 +425,7 @@
       padding: 10px 16px;
       border: 1px solid var(--rule); border-radius: 3px;
       color: var(--muted);
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .14em; text-transform: uppercase;
       text-decoration: none;
@@ -448,7 +449,7 @@
       border-radius: 3px; overflow: hidden;
     }
     .pov-tab {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .16em; text-transform: uppercase;
       padding: 10px 16px;
@@ -484,13 +485,13 @@
     }
     .pd-meta-item { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
     .pd-meta-label {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .18em; text-transform: uppercase;
       color: var(--faint);
     }
     .pd-meta-val {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-body); color: var(--text); letter-spacing: .02em;
     }
     .pd-meta-val.accent { color: var(--accent); }
@@ -501,7 +502,7 @@
       border-bottom: 1px solid rgba(0,0,0,.07);
     }
     .pd-tool-chip {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500; letter-spacing: .06em;
       padding: 7px 12px;
       background: rgba(45,91,227,.06);
@@ -521,23 +522,188 @@
       background: var(--accent);
     }
     .pd-section-title {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .2em; text-transform: uppercase;
       color: var(--accent);
     }
     .pd-section-body {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-text);
       font-size: var(--t-body); line-height: 1.75;
       color: #24243A;
       white-space: pre-wrap;
     }
     .pd-empty {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: var(--t-body); letter-spacing: .02em;
-      color: var(--muted);
+      font-family: var(--font-text);
+      font-size: var(--t-body); color: var(--muted);
       text-align: center; padding: 60px 0;
     }
+
+    /* ─── Case study (chapters + annotated screens) ─── */
+    .frame-c {
+      flex: 1; min-height: 0; width: 100%;
+      display: none;
+      grid-template-columns: minmax(300px, 38%) 1fr;
+    }
+    .frame-c.active { display: grid; }
+
+    .cs-rail {
+      display: flex; flex-direction: column; min-height: 0;
+      background: #fff; border-right: 1px solid var(--rule);
+    }
+    .cs-label {
+      font-family: var(--font-ui);
+      font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--faint);
+      padding: 16px 24px 14px; border-bottom: 1px solid var(--rule);
+      flex-shrink: 0;
+    }
+    .cs-label[hidden] { display: none; }
+    .cs-chapters { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 0; }
+    .cs-chapters::-webkit-scrollbar { width: 6px; }
+    .cs-chapters::-webkit-scrollbar-thumb { background: rgba(0,0,0,.12); border-radius: 3px; }
+    .cs-ch { border-bottom: 1px solid var(--rule); }
+    .cs-ch-hd {
+      width: 100%; display: flex; align-items: baseline; gap: 14px;
+      padding: 16px 24px; text-align: left;
+      background: none; border: none; cursor: none;
+      transition: background .18s;
+    }
+    .cs-ch-hd:hover { background: var(--dim); }
+    .cs-ch-n {
+      font-family: var(--font-ui);
+      font-size: var(--t-label); letter-spacing: .06em;
+      color: var(--faint); flex-shrink: 0;
+    }
+    .cs-ch-t {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: .05em; line-height: 1.05;
+      color: var(--muted); transition: color .18s;
+    }
+    .cs-ch.active .cs-ch-n { color: var(--accent); }
+    .cs-ch.active .cs-ch-t { color: var(--text); }
+    .cs-ch-body { display: none; padding: 0 24px 22px 24px; }
+    .cs-ch.active .cs-ch-body { display: block; animation: fadeIn .28s var(--ease-out); }
+    .cs-ch-text {
+      font-family: var(--font-text);
+      font-size: 14px; line-height: 1.75; color: #24243A;
+      white-space: pre-wrap; margin: 0;
+    }
+    .cs-notes { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+    .cs-note {
+      display: flex; gap: 12px; align-items: flex-start;
+      width: 100%; text-align: left;
+      padding: 9px 10px; margin: 0 -10px;
+      background: none; border: none; border-radius: 3px; cursor: none;
+      font-family: var(--font-text); font-size: 13px; line-height: 1.6; color: var(--muted);
+      transition: background .18s, color .18s;
+    }
+    .cs-note:hover, .cs-note.active { background: var(--dim); color: var(--text); }
+    .cs-dot {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--font-ui); font-size: 11px; font-weight: 500;
+      background: #fff; color: var(--accent); border: 1.5px solid var(--accent);
+      margin-top: 1px;
+    }
+    .cs-note.active .cs-dot { background: var(--accent); color: #fff; }
+
+    .cs-nav {
+      flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 24px; border-top: 1px solid var(--rule);
+    }
+    .cs-nav-btn {
+      font-family: var(--font-ui);
+      font-size: var(--t-label); font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+      padding: 8px 12px; background: none; border: 1px solid var(--rule); border-radius: 3px;
+      color: var(--muted); cursor: none; transition: color .18s, border-color .18s;
+    }
+    .cs-nav-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+    .cs-nav-btn:disabled { opacity: .35; }
+    .cs-nav-pos { font-family: var(--font-ui); font-size: var(--t-label); color: var(--faint); letter-spacing: .08em; }
+
+    .cs-stage {
+      position: relative; min-width: 0; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; overflow: hidden;
+    }
+    .cs-shot { position: relative; flex-shrink: 0; }
+    .cs-shot.pov-swap { animation-duration: .35s; }
+    .cs-shot img, .cs-shot video { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; }
+    .cs-pin {
+      position: absolute; transform: translate(-50%, -50%);
+      width: 28px; height: 28px; border-radius: 50%; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+      background: var(--accent); color: #fff;
+      border: 2px solid #fff; cursor: none;
+      box-shadow: 0 2px 10px rgba(10,10,24,.35);
+      transition: transform .2s var(--ease-back), background .18s;
+      z-index: 2;
+    }
+    .cs-pin::after {
+      content: ''; position: absolute; inset: -6px; border-radius: 50%;
+      border: 2px solid var(--accent); opacity: 0;
+      animation: csPulse 2.4s ease-out infinite;
+    }
+    .cs-pin:hover, .cs-pin.active { transform: translate(-50%, -50%) scale(1.15); }
+    .cs-pin.active { background: var(--text); }
+    .cs-pin.active::after { animation: none; }
+    @keyframes csPulse {
+      0%   { opacity: .7; transform: scale(.8); }
+      70%  { opacity: 0;  transform: scale(1.35); }
+      100% { opacity: 0; }
+    }
+    .cs-tip {
+      position: absolute; z-index: 3;
+      width: max-content; max-width: min(300px, 70%);
+      padding: 12px 14px;
+      background: var(--text); color: #fff;
+      font-family: var(--font-text); font-size: 13px; line-height: 1.6;
+      border-radius: 3px; box-shadow: 0 8px 28px rgba(10,10,24,.3);
+      pointer-events: none;
+      animation: fadeIn .2s var(--ease-out);
+    }
+    .cs-tip[hidden] { display: none; }
+    .cs-hint {
+      position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+      font-family: var(--font-ui); font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--faint); white-space: nowrap; pointer-events: none;
+    }
+
+    /* Case study editor (admin) */
+    .cs-ed-list { display: flex; flex-direction: column; gap: 10px; }
+    .cs-ed-card {
+      border: 1px solid rgba(0,0,0,.1); border-radius: 4px; background: #fafafa;
+      padding: 12px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .cs-ed-top { display: flex; gap: 6px; align-items: center; }
+    .cs-ed-top .adm-input { flex: 1; }
+    .cs-ed-num { font-family: var(--font-ui); font-size: 9px; color: var(--accent); letter-spacing: .1em; width: 18px; }
+    .cs-ed-mini {
+      font-family: var(--font-ui); font-size: 9px; line-height: 1;
+      padding: 6px 7px; background: #fff; border: 1px solid rgba(0,0,0,.12); border-radius: 3px;
+      color: rgba(0,0,0,.55); cursor: none;
+    }
+    .cs-ed-mini:hover { border-color: var(--accent); color: var(--accent); }
+    .cs-ed-mini.danger:hover { border-color: #c44; color: #c44; }
+    .cs-ed-media { display: flex; flex-wrap: wrap; gap: 5px; }
+    .cs-ed-media button {
+      width: 44px; height: 44px; padding: 0; border-radius: 3px; overflow: hidden;
+      border: 2px solid transparent; background: #eee; cursor: none;
+    }
+    .cs-ed-media button.sel { border-color: var(--accent); }
+    .cs-ed-media img, .cs-ed-media video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .cs-ed-canvas { position: relative; align-self: flex-start; cursor: crosshair; }
+    .cs-ed-canvas img, .cs-ed-canvas video { display: block; max-width: 100%; max-height: 320px; pointer-events: none; }
+    .cs-ed-canvas .cs-pin { width: 20px; height: 20px; font-size: 9px; cursor: grab; }
+    .cs-ed-canvas .cs-pin::after { display: none; }
+    .cs-ed-pins { display: flex; flex-direction: column; gap: 6px; }
+    .cs-ed-pin { display: flex; gap: 6px; align-items: flex-start; }
+    .cs-ed-pin .cs-dot { width: 18px; height: 18px; font-size: 9px; margin-top: 6px; }
+    .cs-ed-pin textarea.adm-input { flex: 1; min-height: 44px; }
+    .cs-ed-json textarea.adm-input { min-height: 120px; font-size: 10px; }
+    .cs-ed-json summary { font-family: var(--font-ui); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(0,0,0,.45); cursor: none; }
 
     /* ─── Password prompt ────────────────────── */
     .pw-prompt {
@@ -559,11 +725,11 @@
       color: var(--text); margin-bottom: 4px;
     }
     .pw-sub {
-      font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: .2em;
+      font-family: var(--font-ui); font-size: 8px; letter-spacing: .2em;
       text-transform: uppercase; color: rgba(0,0,0,.3); margin-bottom: 20px;
     }
     .pw-input {
-      width: 100%; font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+      width: 100%; font-family: var(--font-text); font-size: 13px;
       color: var(--text); background: #fafafa;
       border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
       padding: 10px 12px; outline: none; transition: border-color .15s;
@@ -571,19 +737,19 @@
     }
     .pw-input:focus { border-color: var(--accent); background: #fff; }
     .pw-error {
-      font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: .1em;
+      font-family: var(--font-ui); font-size: 8px; letter-spacing: .1em;
       color: #c44; margin-top: 8px; min-height: 14px;
     }
     .pw-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
     .pw-cancel {
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
       text-transform: uppercase; padding: 9px 18px;
       background: none; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
       color: rgba(0,0,0,.4); cursor: none; transition: all .15s;
     }
     .pw-cancel:hover { border-color: rgba(0,0,0,.25); color: var(--text); }
     .pw-enter {
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
       text-transform: uppercase; padding: 9px 22px;
       background: var(--accent); border: none; border-radius: 3px;
       color: #fff; cursor: none; transition: opacity .15s;
@@ -603,6 +769,7 @@
       font-size: 32px; letter-spacing: .04em; color: var(--text);
     }
     .pov-blank-body {
+      font-family: var(--font-text);
       font-size: var(--t-body); line-height: 1.6;
       color: var(--muted); max-width: 46ch;
     }
@@ -611,7 +778,7 @@
       justify-content: center; margin-top: 8px;
     }
     .pov-blank-retry {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .16em; text-transform: uppercase;
       padding: 10px 18px;
@@ -653,7 +820,7 @@
       font-size: 22px; letter-spacing: .06em; color: var(--text);
     }
     .adm-hd-sub {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 8px; letter-spacing: .18em; color: rgba(0,0,0,.3);
       text-transform: uppercase; margin-top: 2px;
     }
@@ -668,7 +835,7 @@
     .adm-body::-webkit-scrollbar { width: 0; }
 
     .adm-section-title {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 8px; letter-spacing: .35em; text-transform: uppercase;
       color: rgba(0,0,0,.3); margin-bottom: 10px;
     }
@@ -681,25 +848,25 @@
     }
     .adm-proj-row-name {
       flex: 1;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 11px; color: var(--text);
     }
     .adm-proj-row-tags {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 8px; letter-spacing: .1em; color: rgba(0,0,0,.3);
       text-transform: uppercase;
     }
     .adm-del-btn {
       background: none; border: 1px solid rgba(209,64,64,.25); border-radius: 3px;
       color: #c44; padding: 4px 9px; cursor: none;
-      font-family: 'IBM Plex Mono', monospace; font-size: 7px; letter-spacing: .1em;
+      font-family: var(--font-ui); font-size: 7px; letter-spacing: .1em;
       transition: all .15s; flex-shrink: 0;
     }
     .adm-del-btn:hover { background: rgba(209,64,64,.06); border-color: #c44; }
     .adm-edit-btn {
       background: none; border: 1px solid rgba(45,91,227,.2); border-radius: 3px;
       color: var(--accent); padding: 4px 9px; cursor: none;
-      font-family: 'IBM Plex Mono', monospace; font-size: 7px; letter-spacing: .1em;
+      font-family: var(--font-ui); font-size: 7px; letter-spacing: .1em;
       transition: all .15s; flex-shrink: 0;
     }
     .adm-edit-btn:hover { background: var(--dim); border-color: var(--accent); }
@@ -710,11 +877,11 @@
       animation: fadeIn .2s ease;
     }
     .adm-edit-banner-text {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 9px; letter-spacing: .12em; color: var(--accent);
     }
     .adm-edit-discard {
-      font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: .15em;
+      font-family: var(--font-ui); font-size: 8px; letter-spacing: .15em;
       text-transform: uppercase; color: rgba(0,0,0,.3);
       background: none; border: none; cursor: none; padding: 2px 6px;
       transition: color .15s;
@@ -726,21 +893,21 @@
       display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;
     }
     .adm-storage-chip {
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .18em;
+      font-family: var(--font-ui); font-size: 9px; letter-spacing: .18em;
       text-transform: uppercase; padding: 6px 10px; border-radius: 3px;
       background: rgba(0,0,0,.05); color: rgba(0,0,0,.5);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;
     }
     .adm-storage-chip.ok { background: rgba(45,91,227,.08); color: var(--accent); }
     .adm-storage-btn {
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
       text-transform: uppercase; padding: 7px 14px;
       background: none; border: 1px solid rgba(0,0,0,.12); border-radius: 3px;
       color: rgba(0,0,0,.55); cursor: none; transition: all .15s;
     }
     .adm-storage-btn:hover { border-color: var(--accent); color: var(--accent); }
     .adm-storage-hint {
-      font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: .08em;
+      font-family: var(--font-ui); font-size: 8px; letter-spacing: .08em;
       color: rgba(0,0,0,.38); line-height: 1.7; margin-top: 4px;
     }
 
@@ -758,13 +925,13 @@
       border-color: var(--accent); background: rgba(45,91,227,.07);
     }
     .photo-zone-label {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
       color: rgba(0,0,0,.35); text-align: center; pointer-events: none;
     }
     .photo-zone-label span { color: var(--accent); }
     .photo-zone-sub {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 8px; color: rgba(0,0,0,.22); letter-spacing: .06em;
       pointer-events: none;
     }
@@ -801,28 +968,28 @@
     .adm-field { display: flex; flex-direction: column; gap: 5px; }
     .adm-field.full { grid-column: 1 / -1; }
     .adm-label {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 8px; letter-spacing: .2em; text-transform: uppercase;
       color: rgba(0,0,0,.4);
     }
     .adm-input {
-      font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text);
+      font-family: var(--font-text); font-size: 11px; color: var(--text);
       background: #fafafa; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
       padding: 8px 10px; outline: none; transition: border-color .15s;
     }
     .adm-input:focus { border-color: var(--accent); background: #fff; }
     textarea.adm-input {
-      font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.6;
+      font-family: var(--font-text); font-size: 11px; line-height: 1.6;
       resize: vertical; min-height: 84px;
     }
     .adm-hint {
-      font-family: 'IBM Plex Mono', monospace; font-size: 8px;
+      font-family: var(--font-ui); font-size: 8px;
       color: rgba(0,0,0,.28); letter-spacing: .05em;
     }
     .adm-check-row { display: flex; gap: 18px; }
     .adm-check-label {
       display: flex; align-items: center; gap: 7px; cursor: none;
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: rgba(0,0,0,.5);
+      font-family: var(--font-ui); font-size: 9px; color: rgba(0,0,0,.5);
     }
     .adm-check-label input { accent-color: var(--accent); cursor: none; }
 
@@ -833,14 +1000,14 @@
       flex-shrink: 0;
     }
     .adm-cancel {
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
       text-transform: uppercase; padding: 9px 20px;
       background: none; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
       color: rgba(0,0,0,.4); cursor: none; transition: all .15s;
     }
     .adm-cancel:hover { border-color: rgba(0,0,0,.25); color: var(--text); }
     .adm-save {
-      font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .2em;
+      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
       text-transform: uppercase; padding: 9px 24px;
       background: var(--accent); border: none; border-radius: 3px;
       color: #fff; cursor: none; transition: opacity .15s;
@@ -868,7 +1035,7 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 20px;
       background: none; border: none; cursor: none;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .16em; text-transform: uppercase;
       color: var(--text);
@@ -954,7 +1121,7 @@
       pointer-events: none; /* toggled to auto for the centered slide via JS */
     }
     .pc-empty {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 10px; letter-spacing: .25em; text-transform: uppercase;
       color: rgba(0,0,0,.2);
     }
@@ -985,7 +1152,7 @@
     .pc-dot.active { background: var(--accent); transform: scale(1.3); }
     .pc-counter {
       position: absolute; top: 12px; right: 16px; z-index: 10;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: var(--t-label); font-weight: 500;
       letter-spacing: .14em; color: var(--faint);
     }
@@ -1009,14 +1176,14 @@
       border-color: var(--accent); background: rgba(45,91,227,.07);
     }
     .proto-zone-label {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
       color: rgba(0,0,0,.35); pointer-events: none;
     }
     .proto-zone-label span { color: var(--accent); }
     .proto-file-chip {
       display: none; align-items: center; gap: 8px;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-ui);
       font-size: 9px; color: var(--accent);
       background: rgba(45,91,227,.08); border: 1px solid rgba(45,91,227,.2);
       border-radius: 3px; padding: 4px 10px; flex-shrink: 0;
@@ -1058,7 +1225,7 @@
       .pov.open .pov-sidebar { transform: translateY(0); }
       .pov-sb-hd { padding: 18px 20px 12px; }
       .pov-item  { padding: 12px 20px; }
-      .pov-main  { padding: 18px 20px 20px; }
+      .pov-main  { padding: 18px 20px 20px; min-height: 0; }
 
       /* Topbar stacks so the title never collides with the controls */
       .pov-topbar {
@@ -1070,6 +1237,21 @@
       .pov-meta-title { font-size: 24px; }
       .pd-meta-row { gap: 20px 28px; }
       .frame-d { padding: 20px 20px 24px; }
+
+      /* Case study stacks: the whole panel scrolls, the screen sticks to the
+         top and chapters read underneath it. The preview box alone is too
+         short on phones once the project list and topbar take their share. */
+      .pov-main:has(.frame-c.active) { overflow-y: auto; }
+      .pov-preview:has(> .frame-c.active) { flex: none; overflow: visible; }
+      .frame-c.active { display: flex; flex-direction: column; }
+      .cs-stage {
+        flex: none; height: 52vh; min-height: 260px; padding: 12px; order: -1;
+        position: sticky; top: -18px; z-index: 4; background: #f0f2f8;
+      }
+      .cs-rail { border-right: none; min-height: auto; }
+      .cs-chapters { overflow: visible; flex: none; }
+      .cs-label, .cs-ch-hd, .cs-ch-body, .cs-nav { padding-left: 16px; padding-right: 16px; }
+      .cs-tip { max-width: calc(100% - 16px); }
     }
 
     @media (max-width: 560px) {
@@ -1097,7 +1279,9 @@
       html, body { cursor: auto; }
       #cur-dot, #cur-ring { display: none; }
       .cta, .contact, .pov-item, .pov-tab, .pov-close-btn,
-      .figma-btn, .pov-blank-retry, .pc-btn { cursor: pointer; }
+      .figma-btn, .pov-blank-retry, .pc-btn,
+      .cs-ch-hd, .cs-note, .cs-nav-btn, .cs-pin { cursor: pointer; }
+      .cs-pin { width: 34px; height: 34px; }
       /* Comfortable touch targets */
       .cta { padding: 18px 28px; }
       .pov-item { padding: 15px 20px; }
@@ -1136,6 +1320,9 @@
       .role, .facts, .cta-wrap, .topbar { animation-duration: .6s; }
       .pov.open .pov-item { animation-duration: .35s; }
       .pov-swap { animation-duration: .3s; }
+
+      /* Pins stop pulsing; they're still marked by colour and number. */
+      .cs-pin::after { animation: none; }
 
       /* Tighter cursor trail = less travel on screen. */
       #cur-ring { transition-duration: .1s; }
@@ -1193,6 +1380,7 @@
       </div>
       <div class="pov-topbar-right">
         <div class="pov-tabs" id="pov-tabs">
+          <button class="pov-tab hidden" data-tab="case" id="tab-case">Case study</button>
           <button class="pov-tab active" data-tab="gallery" id="tab-gallery">Gallery</button>
           <button class="pov-tab" data-tab="about" id="tab-about">About</button>
         </div>
@@ -1244,6 +1432,23 @@
             <svg class="pc-extra-arrow" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <div class="pc-extra-grid" id="pc-extra-grid"></div>
+        </div>
+      </div>
+
+      <div class="frame-c" id="frame-c">
+        <div class="cs-rail">
+          <p class="cs-label" id="cs-label" hidden></p>
+          <ol class="cs-chapters" id="cs-chapters"></ol>
+          <div class="cs-nav">
+            <button class="cs-nav-btn" type="button" id="cs-prev">← Prev</button>
+            <span class="cs-nav-pos" id="cs-pos" aria-live="polite"></span>
+            <button class="cs-nav-btn" type="button" id="cs-next">Next →</button>
+          </div>
+        </div>
+        <div class="cs-stage" id="cs-stage">
+          <div class="cs-shot" id="cs-shot"></div>
+          <div class="cs-tip" id="cs-tip" role="status" hidden></div>
+          <span class="cs-hint" id="cs-hint" hidden>Tap the numbered dots</span>
         </div>
       </div>
 
@@ -1401,6 +1606,28 @@
           <label class="adm-label" for="af-outcomes">Outcomes</label>
           <textarea class="adm-input" id="af-outcomes" rows="4" placeholder="Results, learnings, or impact"></textarea>
         </div>
+
+        <div class="adm-divider" style="margin: 6px 0 4px"></div>
+        <div class="adm-section-title" style="margin-bottom: 0">Case Study <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· optional · chapters shown in Case study tab · click a screen to drop a note pin, drag to move</span></div>
+
+        <div class="adm-field full">
+          <label class="adm-label" for="af-cs-label">Label</label>
+          <input class="adm-input" id="af-cs-label" type="text" placeholder="e.g. Self-initiated concept · not affiliated with Hyperliquid">
+        </div>
+        <div class="cs-ed-list" id="cs-ed-list"></div>
+        <div class="adm-check-row">
+          <button class="adm-storage-btn" type="button" id="cs-ed-add">+ Add chapter</button>
+        </div>
+        <details class="cs-ed-json">
+          <summary>Paste case study JSON</summary>
+          <div class="adm-field full" style="margin-top:8px">
+            <textarea class="adm-input" id="cs-ed-json" placeholder='{"csLabel": "...", "caseStudy": [{"title": "...", "body": "...", "media": "https://...", "pins": [{"x": 50, "y": 40, "text": "..."}]}]}'></textarea>
+            <div class="adm-check-row" style="margin-top:6px">
+              <button class="adm-storage-btn" type="button" id="cs-ed-json-load">Load into form</button>
+              <span class="adm-hint" id="cs-ed-json-msg"></span>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
     <div class="adm-ft">
@@ -2119,6 +2346,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     /* Hide every control that has nothing to act on. */
     framePEl.classList.remove('active');
     frameDEl.classList.remove('active');
+    frameCEl.classList.remove('active');
     povTabs.style.display = 'none';
     figmaLink.classList.add('hidden');
     protoIframe.removeAttribute('srcdoc');
@@ -2179,6 +2407,12 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     buildCarousel(p.photos || []);
     buildExtraPhotos(p.extraPhotos || []);
     buildDetails(p);
+    /* Lead with the story when a project has one; otherwise never strand
+       the viewer on an empty Case study tab. */
+    var hasCase = buildCaseStudy(p);
+    if (hasCase && (changed || !caseShownOnce)) { caseShownOnce = true; setView('case'); }
+    else if (!hasCase && curView === 'case') setView('gallery');
+    else setView(curView);
     var protoUrl = p.protoUrl || '';
     if (protoUrl) {
       protoIframe.classList.add('active');
@@ -2263,13 +2497,236 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
 
   function setView(v) {
     curView = v;
+    tabCase.classList.toggle('active', v === 'case');
     tabGallery.classList.toggle('active', v === 'gallery');
     tabAbout.classList.toggle('active', v === 'about');
+    frameCEl.classList.toggle('active', v === 'case');
     framePEl.classList.toggle('active', v === 'gallery');
     frameDEl.classList.toggle('active', v === 'about');
+    if (v === 'case') fitShot();
   }
   tabGallery.addEventListener('click', function () { setView('gallery'); });
   tabAbout.addEventListener('click',   function () { setView('about'); });
+
+  /* ── Case study ─────────────────────────
+     Chapters on the left; each one owns a screen on the right with numbered
+     note pins. Pin x/y are percentages of the media box, so they stay put at
+     any size. Clicking a pin or its note in the list shows the same text. */
+  var frameCEl   = document.getElementById('frame-c');
+  var tabCase    = document.getElementById('tab-case');
+  var csLabelEl  = document.getElementById('cs-label');
+  var csList     = document.getElementById('cs-chapters');
+  var csStage    = document.getElementById('cs-stage');
+  var csShot     = document.getElementById('cs-shot');
+  var csTip      = document.getElementById('cs-tip');
+  var csHint     = document.getElementById('cs-hint');
+  var csPos      = document.getElementById('cs-pos');
+  var csPrev     = document.getElementById('cs-prev');
+  var csNext     = document.getElementById('cs-next');
+  var csChapters = [];
+  var curChapter = 0;
+  var curPin     = -1;
+  var caseShownOnce = false;
+  tabCase.addEventListener('click', function () { setView('case'); });
+
+  function caseChapters(p) {
+    return (Array.isArray(p.caseStudy) ? p.caseStudy : []).filter(function (c) {
+      return c && ((c.title || '').trim() || (c.body || '').trim() || c.media);
+    });
+  }
+
+  function buildCaseStudy(p) {
+    csChapters = caseChapters(p);
+    var label = (p.csLabel || '').trim();
+    csLabelEl.textContent = label;
+    csLabelEl.hidden = !label;
+    csList.innerHTML = '';
+    csList.scrollTop = 0;
+    csChapters.forEach(function (c, i) {
+      var li = document.createElement('li');
+      li.className = 'cs-ch';
+
+      var hd = document.createElement('button');
+      hd.type = 'button'; hd.className = 'cs-ch-hd';
+      hd.setAttribute('aria-expanded', 'false');
+      var n = document.createElement('span'); n.className = 'cs-ch-n'; n.textContent = String(i + 1).padStart(2, '0');
+      var t = document.createElement('span'); t.className = 'cs-ch-t'; t.textContent = c.title || 'Chapter ' + (i + 1);
+      hd.appendChild(n); hd.appendChild(t);
+      hd.addEventListener('click', function () { goChapter(i, false); });
+
+      var body = document.createElement('div'); body.className = 'cs-ch-body';
+      if ((c.body || '').trim()) {
+        var txt = document.createElement('p'); txt.className = 'cs-ch-text'; txt.textContent = c.body.trim();
+        body.appendChild(txt);
+      }
+      var pins = pinsOf(c);
+      if (pins.length) {
+        var ul = document.createElement('ul'); ul.className = 'cs-notes';
+        pins.forEach(function (pin, j) {
+          var nli = document.createElement('li');
+          var nb = document.createElement('button');
+          nb.type = 'button'; nb.className = 'cs-note';
+          var dot = document.createElement('span'); dot.className = 'cs-dot'; dot.textContent = j + 1;
+          var nt = document.createElement('span'); nt.textContent = pin.text;
+          nb.appendChild(dot); nb.appendChild(nt);
+          nb.addEventListener('click', function () { setPin(curPin === j ? -1 : j); });
+          nb.addEventListener('mouseenter', function () { if (!COARSE_POINTER) setPin(j); });
+          nli.appendChild(nb); ul.appendChild(nli);
+        });
+        body.appendChild(ul);
+      }
+      li.appendChild(hd); li.appendChild(body);
+      csList.appendChild(li);
+    });
+
+    var has = csChapters.length > 0;
+    tabCase.classList.toggle('hidden', !has);
+    curChapter = -1;
+    if (has) goChapter(0, false, true);
+    return has;
+  }
+
+  function pinsOf(c) {
+    return (Array.isArray(c.pins) ? c.pins : []).filter(function (pin) {
+      return pin && (pin.text || '').trim() && isFinite(pin.x) && isFinite(pin.y);
+    });
+  }
+
+  function goChapter(i, fromKey, silent) {
+    if (!csChapters.length) return;
+    i = Math.max(0, Math.min(csChapters.length - 1, i));
+    if (i === curChapter && !silent) return;
+    var prevMedia = curChapter >= 0 && csChapters[curChapter] ? csChapters[curChapter].media : null;
+    curChapter = i;
+    var c = csChapters[i];
+
+    csList.querySelectorAll('.cs-ch').forEach(function (li, j) {
+      li.classList.toggle('active', j === i);
+      li.querySelector('.cs-ch-hd').setAttribute('aria-expanded', String(j === i));
+    });
+    csPos.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(csChapters.length).padStart(2, '0');
+    csPrev.disabled = i === 0;
+    csNext.disabled = i === csChapters.length - 1;
+
+    /* Keep the screen when consecutive chapters share it, so only pins change. */
+    if (silent || c.media !== prevMedia || !csShot.firstChild) renderShot(c);
+    else renderPins(c);
+    setPin(-1);
+
+    var active = csList.children[i];
+    if (active && !silent) {
+      /* Bring the chapter's title into view. "nearest" would align a tall
+         chapter by its bottom edge and hide the title. */
+      var scroller = scrollParent(active);
+      var top = active.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
+      var cover = scroller === csList ? 0 : csStage.offsetHeight;   /* sticky stage sits above on narrow screens */
+      if (top < scroller.scrollTop + cover || top + 60 > scroller.scrollTop + scroller.clientHeight) {
+        scroller.scrollTo({ top: Math.max(0, top - cover - 8), behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
+      }
+      if (fromKey) active.querySelector('.cs-ch-hd').focus({ preventScroll: true });
+    }
+  }
+  function scrollParent(el) {
+    for (var n = el.parentElement; n && n !== document.body; n = n.parentElement) {
+      if (n.scrollHeight > n.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(n).overflowY)) return n;
+    }
+    return csList;
+  }
+  csPrev.addEventListener('click', function () { goChapter(curChapter - 1, false); });
+  csNext.addEventListener('click', function () { goChapter(curChapter + 1, false); });
+
+  function renderShot(c) {
+    csShot.innerHTML = '';
+    csShot.style.width = csShot.style.height = '';
+    if (c.media) {
+      var el;
+      if (isVideoSrc(c.media)) {
+        el = document.createElement('video');
+        el.src = c.media; el.muted = true; el.loop = true; el.playsInline = true;
+        el.setAttribute('playsinline', '');
+        if (!REDUCED_MOTION) el.autoplay = true; else el.controls = true;
+        el.addEventListener('loadedmetadata', fitShot);
+      } else {
+        el = document.createElement('img');
+        el.src = c.media; el.alt = c.title || '';
+        el.addEventListener('load', fitShot);
+      }
+      csShot.appendChild(el);
+    }
+    renderPins(c);
+    replayAnim([csShot]);
+  }
+
+  function renderPins(c) {
+    csShot.querySelectorAll('.cs-pin').forEach(function (el) { el.remove(); });
+    var pins = pinsOf(c);
+    pins.forEach(function (pin, j) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'cs-pin'; b.textContent = j + 1;
+      b.style.left = pin.x + '%'; b.style.top = pin.y + '%';
+      b.setAttribute('aria-label', 'Note ' + (j + 1) + ': ' + pin.text);
+      b.addEventListener('click', function (e) { e.stopPropagation(); setPin(curPin === j ? -1 : j); });
+      b.addEventListener('mouseenter', function () { if (!COARSE_POINTER) setPin(j); });
+      csShot.appendChild(b);
+    });
+    csHint.hidden = !pins.length || !COARSE_POINTER;
+  }
+
+  function setPin(j) {
+    var c = csChapters[curChapter];
+    var pins = c ? pinsOf(c) : [];
+    curPin = j >= 0 && j < pins.length ? j : -1;
+    csShot.querySelectorAll('.cs-pin').forEach(function (el, k) { el.classList.toggle('active', k === curPin); });
+    var li = csList.children[curChapter];
+    if (li) li.querySelectorAll('.cs-note').forEach(function (el, k) { el.classList.toggle('active', k === curPin); });
+    if (curPin < 0) { csTip.hidden = true; return; }
+    csHint.hidden = true;
+    csTip.textContent = pins[curPin].text;
+    csTip.hidden = false;
+    placeTip(pins[curPin]);
+  }
+
+  /* Put the note beside its pin, flipping sides so it never leaves the stage. */
+  function placeTip(pin) {
+    var sr = csStage.getBoundingClientRect();
+    var br = csShot.getBoundingClientRect();
+    var px = br.left - sr.left + br.width  * pin.x / 100;
+    var py = br.top  - sr.top  + br.height * pin.y / 100;
+    var tw = csTip.offsetWidth, th = csTip.offsetHeight, gap = 24;
+    if (sr.width < 520) {
+      /* Narrow stage: no room beside the pin, so dock the note to the
+         opposite half of the screen from the pin. */
+      csTip.style.left = Math.max(8, (sr.width - tw) / 2) + 'px';
+      csTip.style.top  = (pin.y > 50 ? 8 : sr.height - th - 8) + 'px';
+      return;
+    }
+    var left = pin.x > 55 ? px - gap - tw : px + gap;
+    if (left < 8 || left + tw > sr.width - 8) left = Math.max(8, Math.min(sr.width - tw - 8, px - tw / 2));
+    var top = Math.max(8, Math.min(sr.height - th - 8, py - th / 2));
+    csTip.style.left = left + 'px';
+    csTip.style.top  = top + 'px';
+  }
+
+  /* Size the media box to "contain" inside the stage so pin percentages map
+     onto the visible pixels, not onto letterboxing. */
+  function fitShot() {
+    var m = csShot.querySelector('img, video');
+    if (!m || !frameCEl.classList.contains('active')) return;
+    var nw = m.naturalWidth || m.videoWidth, nh = m.naturalHeight || m.videoHeight;
+    if (!nw || !nh) return;
+    var cs = getComputedStyle(csStage);
+    var W = csStage.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var H = csStage.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
+    if (W <= 0 || H <= 0) return;
+    var s = Math.min(W / nw, H / nh);
+    csShot.style.width  = Math.floor(nw * s) + 'px';
+    csShot.style.height = Math.floor(nh * s) + 'px';
+    var c = csChapters[curChapter];
+    if (curPin >= 0 && c) placeTip(pinsOf(c)[curPin]);
+  }
+  if (window.ResizeObserver) new ResizeObserver(fitShot).observe(csStage);
+  else window.addEventListener('resize', fitShot);
+  csStage.addEventListener('click', function (e) { if (e.target === csStage || e.target === csShot || e.target.tagName === 'IMG') setPin(-1); });
 
   /* ── Barrel carousel ────────────────── */
   function buildCarousel(photos) {
@@ -2421,8 +2878,12 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
   document.getElementById('pc-next').addEventListener('click', function () { goPhoto(curPhoto + 1); });
   document.addEventListener('keydown', function (e) {
     if (!ov.classList.contains('open')) return;
-    if (e.key === 'ArrowLeft')  goPhoto(curPhoto - 1);
-    if (e.key === 'ArrowRight') goPhoto(curPhoto + 1);
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    var step = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0;
+    if (!step) return;
+    if (curView === 'case') goChapter(curChapter + step, true);
+    else if (curView === 'gallery') goPhoto(curPhoto + step);
   });
 
   /* ── Scale prototype iframe to fill container ── */
@@ -2666,7 +3127,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     list.innerHTML = '';
     var custom = loadCustomProjects();
     if (!custom.length) {
-      list.innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(0,0,0,.25);letter-spacing:.12em;padding:6px 0">No projects yet</div>';
+      list.innerHTML = '<div style="font-family:var(--font-ui);font-size:9px;color:rgba(0,0,0,.25);letter-spacing:.12em;padding:6px 0">No projects yet</div>';
       return;
     }
     custom.forEach(function (p) {
@@ -2719,6 +3180,8 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     pendingExtraPhotos.length = 0;
     Array.prototype.push.apply(pendingMainPhotos,  p.photos      || []);
     Array.prototype.push.apply(pendingExtraPhotos, p.extraPhotos || []);
+    document.getElementById('af-cs-label').value = p.csLabel || '';
+    csEdit = csClone(p.caseStudy);
     renderMainThumbs(); renderExtraThumbs();
     document.getElementById('adm-form-title').textContent      = 'Edit Project';
     document.getElementById('adm-edit-banner').style.display   = '';
@@ -2919,8 +3382,167 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     });
   }
 
-  function renderMainThumbs()  { renderThumbs('photo-thumbs-main',  pendingMainPhotos,  renderMainThumbs);  }
-  function renderExtraThumbs() { renderThumbs('photo-thumbs-extra', pendingExtraPhotos, renderExtraThumbs); }
+  function renderMainThumbs()  { renderThumbs('photo-thumbs-main',  pendingMainPhotos,  renderMainThumbs);  renderCsEditor(); }
+  function renderExtraThumbs() { renderThumbs('photo-thumbs-extra', pendingExtraPhotos, renderExtraThumbs); renderCsEditor(); }
+
+  /* ── Case study editor ───────────────── */
+  var csEdit = [];   /* [{ title, body, media, pins: [{ x, y, text }] }] */
+
+  function csClone(arr) { return JSON.parse(JSON.stringify(Array.isArray(arr) ? arr : [])); }
+  function csMediaPool() {
+    return pendingMainPhotos.concat(pendingExtraPhotos).filter(function (s, i, a) { return a.indexOf(s) === i; });
+  }
+  function csMediaEl(src, ctrl) {
+    var el;
+    if (isVideoSrc(src)) {
+      el = document.createElement('video');
+      el.src = src; el.muted = true; el.preload = 'metadata'; el.playsInline = true;
+      if (ctrl) { el.loop = true; el.autoplay = true; }
+    } else {
+      el = document.createElement('img'); el.src = src; el.alt = '';
+    }
+    return el;
+  }
+  function csBtn(label, title, fn, danger) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'cs-ed-mini' + (danger ? ' danger' : '');
+    b.textContent = label; b.title = title;
+    b.addEventListener('click', fn);
+    return b;
+  }
+
+  function renderCsEditor() {
+    var list = document.getElementById('cs-ed-list');
+    if (!list || !csEdit) return;
+    list.innerHTML = '';
+    var pool = csMediaPool();
+
+    csEdit.forEach(function (c, i) {
+      c.pins = Array.isArray(c.pins) ? c.pins : [];
+      var card = document.createElement('div'); card.className = 'cs-ed-card';
+
+      var top = document.createElement('div'); top.className = 'cs-ed-top';
+      var num = document.createElement('span'); num.className = 'cs-ed-num'; num.textContent = String(i + 1).padStart(2, '0');
+      var title = document.createElement('input');
+      title.className = 'adm-input'; title.type = 'text'; title.placeholder = 'Chapter title, e.g. The problem';
+      title.value = c.title || '';
+      title.addEventListener('input', function () { c.title = title.value; });
+      top.appendChild(num); top.appendChild(title);
+      top.appendChild(csBtn('↑', 'Move up', function () {
+        if (i > 0) { csEdit.splice(i - 1, 0, csEdit.splice(i, 1)[0]); renderCsEditor(); }
+      }));
+      top.appendChild(csBtn('↓', 'Move down', function () {
+        if (i < csEdit.length - 1) { csEdit.splice(i + 1, 0, csEdit.splice(i, 1)[0]); renderCsEditor(); }
+      }));
+      top.appendChild(csBtn('✕', 'Delete chapter', function () { csEdit.splice(i, 1); renderCsEditor(); }, true));
+      card.appendChild(top);
+
+      var body = document.createElement('textarea');
+      body.className = 'adm-input'; body.rows = 4;
+      body.placeholder = 'What was the problem here, what did you decide, and why?';
+      body.value = c.body || '';
+      body.addEventListener('input', function () { c.body = body.value; });
+      card.appendChild(body);
+
+      /* Screen picker — any photo or video already attached to the project. */
+      var pick = document.createElement('div'); pick.className = 'cs-ed-media';
+      if (c.media && pool.indexOf(c.media) < 0) pool = pool.concat([c.media]);
+      pool.forEach(function (src) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = src === c.media ? 'sel' : '';
+        b.title = 'Use this screen';
+        b.appendChild(csMediaEl(src, false));
+        b.addEventListener('click', function () {
+          if (c.media !== src) { c.media = src; c.pins = []; }
+          renderCsEditor();
+        });
+        pick.appendChild(b);
+      });
+      if (!pool.length) {
+        var none = document.createElement('span'); none.className = 'adm-hint';
+        none.textContent = 'Add photos above first, then pick one for this chapter.';
+        pick.appendChild(none);
+      }
+      card.appendChild(pick);
+
+      if (c.media) {
+        var canvas = document.createElement('div'); canvas.className = 'cs-ed-canvas';
+        canvas.appendChild(csMediaEl(c.media, true));
+        c.pins.forEach(function (pin, j) {
+          var dot = document.createElement('span');
+          dot.className = 'cs-pin'; dot.textContent = j + 1;
+          dot.style.left = pin.x + '%'; dot.style.top = pin.y + '%';
+          dot.addEventListener('pointerdown', function (e) {
+            e.preventDefault(); e.stopPropagation();
+            dot.setPointerCapture(e.pointerId);
+            function move(ev) {
+              var r = canvas.getBoundingClientRect();
+              pin.x = Math.round(Math.max(0, Math.min(100, (ev.clientX - r.left) / r.width  * 100)) * 10) / 10;
+              pin.y = Math.round(Math.max(0, Math.min(100, (ev.clientY - r.top)  / r.height * 100)) * 10) / 10;
+              dot.style.left = pin.x + '%'; dot.style.top = pin.y + '%';
+            }
+            function up() { dot.removeEventListener('pointermove', move); dot.removeEventListener('pointerup', up); }
+            dot.addEventListener('pointermove', move);
+            dot.addEventListener('pointerup', up);
+          });
+          canvas.appendChild(dot);
+        });
+        canvas.addEventListener('click', function (e) {
+          if (e.target.classList.contains('cs-pin')) return;
+          var r = canvas.getBoundingClientRect();
+          c.pins.push({
+            x: Math.round((e.clientX - r.left) / r.width  * 1000) / 10,
+            y: Math.round((e.clientY - r.top)  / r.height * 1000) / 10,
+            text: ''
+          });
+          renderCsEditor();
+          var areas = document.querySelectorAll('#cs-ed-list .cs-ed-card')[i].querySelectorAll('.cs-ed-pin textarea');
+          if (areas.length) areas[areas.length - 1].focus();
+        });
+        card.appendChild(canvas);
+
+        var pinsWrap = document.createElement('div'); pinsWrap.className = 'cs-ed-pins';
+        c.pins.forEach(function (pin, j) {
+          var row = document.createElement('div'); row.className = 'cs-ed-pin';
+          var d = document.createElement('span'); d.className = 'cs-dot'; d.textContent = j + 1;
+          var ta = document.createElement('textarea');
+          ta.className = 'adm-input'; ta.rows = 2; ta.placeholder = 'Note for pin ' + (j + 1) + ': what decision does this point at?';
+          ta.value = pin.text || '';
+          ta.addEventListener('input', function () { pin.text = ta.value; });
+          row.appendChild(d); row.appendChild(ta);
+          row.appendChild(csBtn('✕', 'Remove pin', function () { c.pins.splice(j, 1); renderCsEditor(); }, true));
+          pinsWrap.appendChild(row);
+        });
+        card.appendChild(pinsWrap);
+      }
+      list.appendChild(card);
+    });
+  }
+
+  document.getElementById('cs-ed-add').addEventListener('click', function () {
+    var pool = csMediaPool();
+    var used = csEdit.map(function (c) { return c.media; });
+    var next = pool.find(function (s) { return used.indexOf(s) < 0; }) || pool[0] || '';
+    csEdit.push({ title: '', body: '', media: next, pins: [] });
+    renderCsEditor();
+    var titles = document.querySelectorAll('#cs-ed-list .cs-ed-top input');
+    if (titles.length) titles[titles.length - 1].focus();
+  });
+
+  document.getElementById('cs-ed-json-load').addEventListener('click', function () {
+    var msg = document.getElementById('cs-ed-json-msg');
+    try {
+      var data = JSON.parse(document.getElementById('cs-ed-json').value);
+      var chapters = Array.isArray(data) ? data : data.caseStudy;
+      if (!Array.isArray(chapters)) throw new Error('expected a "caseStudy" array');
+      csEdit = csClone(chapters);
+      if (!Array.isArray(data) && typeof data.csLabel === 'string') document.getElementById('af-cs-label').value = data.csLabel;
+      renderCsEditor();
+      msg.textContent = 'Loaded ' + csEdit.length + ' chapters. Review, then save.';
+    } catch (e) {
+      msg.textContent = 'Could not read JSON: ' + e.message;
+    }
+  });
 
   function renderThumbs(containerId, arr, refreshFn) {
     var el = document.getElementById(containerId);
@@ -2984,7 +3606,15 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
       figmaUrl: figma, protoUrl: protoUrl,
       year: year, duration: duration, role: role, tools: tools,
       goals: goals, workflow: workflow, outcomes: outcomes,
-      photos: pendingMainPhotos.slice(), extraPhotos: pendingExtraPhotos.slice()
+      photos: pendingMainPhotos.slice(), extraPhotos: pendingExtraPhotos.slice(),
+      csLabel: document.getElementById('af-cs-label').value.trim(),
+      caseStudy: csClone(csEdit).map(function (c) {
+        return {
+          title: (c.title || '').trim(), body: (c.body || '').trim(), media: c.media || '',
+          pins: (c.pins || []).filter(function (pin) { return (pin.text || '').trim(); })
+                              .map(function (pin) { return { x: pin.x, y: pin.y, text: pin.text.trim() }; })
+        };
+      }).filter(function (c) { return c.title || c.body || c.media; })
     };
 
     var custom = loadCustomProjects();
@@ -3016,9 +3646,11 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     editingId = null;
     ['af-title','af-desc','af-tags','af-figma','af-proto-url',
      'af-year','af-duration','af-role','af-tools',
-     'af-goals','af-workflow','af-outcomes'].forEach(function (id) {
+     'af-goals','af-workflow','af-outcomes','af-cs-label','cs-ed-json'].forEach(function (id) {
       document.getElementById(id).value = '';
     });
+    csEdit = [];
+    document.getElementById('cs-ed-json-msg').textContent = '';
     document.getElementById('proto-file-chip').style.display = 'none';
     document.getElementById('proto-zone-label').style.display = '';
     pendingMainPhotos.length = 0; pendingExtraPhotos.length = 0;
