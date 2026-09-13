@@ -986,6 +986,8 @@
       font-family: var(--font-ui); font-size: 8px;
       color: rgba(0,0,0,.28); letter-spacing: .05em;
     }
+    #cs-ed-json-msg { font-family: var(--font-text); font-size: 12px; color: var(--accent); letter-spacing: 0; }
+    #cs-ed-json-msg.err { color: #c44; }
     .adm-check-row { display: flex; gap: 18px; }
     .adm-check-label {
       display: flex; align-items: center; gap: 7px; cursor: none;
@@ -2504,6 +2506,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     framePEl.classList.toggle('active', v === 'gallery');
     frameDEl.classList.toggle('active', v === 'about');
     if (v === 'case') fitShot();
+    if (v === 'gallery') refitGallery();   /* photos may have loaded while hidden */
   }
   tabGallery.addEventListener('click', function () { setView('gallery'); });
   tabAbout.addEventListener('click',   function () { setView('about'); });
@@ -2784,10 +2787,12 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
   function fitSlide(slide, media) {
     var mw = media.naturalWidth  || media.videoWidth;
     var mh = media.naturalHeight || media.videoHeight;
-    if (!mw || !mh) return;
+    /* A slide from a project the viewer already left, or a gallery that's
+       hidden behind another tab: nothing to measure. setView refits later. */
+    if (!mw || !mh || !slide.isConnected || !pcTrack.offsetWidth) return;
     var r = mw / mh;
-    var trackW = pcTrack.offsetWidth  || slide.parentElement.offsetWidth  || 800;
-    var trackH = pcTrack.offsetHeight || slide.parentElement.offsetHeight || 600;
+    var trackW = pcTrack.offsetWidth;
+    var trackH = pcTrack.offsetHeight || 600;
     var single = pcTrack.classList.contains('single');
     var maxW = trackW * (single ? 0.94 : 0.58);
     var maxH = trackH * (single ? 0.92 : 0.86);
@@ -2903,7 +2908,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     protoIframe.style.top  = (pad + (H - PROTO_H * scale) / 2) + 'px';
   }
 
-  window.addEventListener('resize', function () {
+  function refitGallery() {
     var slides = Array.from(pcTrack.querySelectorAll('.pc-slide'));
     slides.forEach(function (slide) {
       var media = slide.querySelector('img, video');
@@ -2911,7 +2916,8 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     });
     updateBarrel();
     scaleProtoIframe();
-  });
+  }
+  window.addEventListener('resize', refitGallery);
 
   /* Drag / swipe to navigate */
   (function () {
@@ -3529,20 +3535,40 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     if (titles.length) titles[titles.length - 1].focus();
   });
 
-  document.getElementById('cs-ed-json-load').addEventListener('click', function () {
+  /* Reads the paste box into the editor. Returns true when there was nothing
+     to load or it loaded; false (with a visible message) when it can't. */
+  function loadCsJson() {
+    var box = document.getElementById('cs-ed-json');
     var msg = document.getElementById('cs-ed-json-msg');
+    var raw = box.value.trim();
+    if (!raw) return true;
     try {
-      var data = JSON.parse(document.getElementById('cs-ed-json').value);
+      var data = JSON.parse(raw);
+      /* The combined preview file is an array of whole projects: take ours. */
+      if (Array.isArray(data) && data.length && data[0] && data[0].id !== undefined) {
+        var mine = data.find(function (p) { return p.id === editingId; });
+        if (!mine) throw new Error('this file has no case study for the project you are editing');
+        data = mine;
+      }
       var chapters = Array.isArray(data) ? data : data.caseStudy;
-      if (!Array.isArray(chapters)) throw new Error('expected a "caseStudy" array');
+      if (!Array.isArray(chapters)) throw new Error('expected a "caseStudy" list');
       csEdit = csClone(chapters);
       if (!Array.isArray(data) && typeof data.csLabel === 'string') document.getElementById('af-cs-label').value = data.csLabel;
       renderCsEditor();
-      msg.textContent = 'Loaded ' + csEdit.length + ' chapters. Review, then save.';
+      box.value = '';
+      msg.classList.remove('err');
+      msg.textContent = 'Loaded ' + csEdit.length + ' chapters.';
+      return true;
     } catch (e) {
-      msg.textContent = 'Could not read JSON: ' + e.message;
+      var details = msg.closest('details');
+      if (details) details.open = true;
+      msg.classList.add('err');
+      msg.textContent = "Couldn't read the pasted JSON (" + e.message + '). Copy the whole file and paste again.';
+      msg.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      return false;
     }
-  });
+  }
+  document.getElementById('cs-ed-json-load').addEventListener('click', loadCsJson);
 
   function renderThumbs(containerId, arr, refreshFn) {
     var el = document.getElementById(containerId);
@@ -3599,6 +3625,8 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     var workflow = document.getElementById('af-workflow').value.trim();
     var outcomes = document.getElementById('af-outcomes').value.trim();
     if (!title) { document.getElementById('af-title').focus(); return; }
+    /* Pasted JSON counts even if "Load into form" was never pressed. */
+    if (!loadCsJson()) return;
 
     var protoUrl = document.getElementById('af-proto-url').value.trim();
     var fields = {
