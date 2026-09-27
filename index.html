@@ -8,7 +8,17 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Vladyslav Ivanko — UI/UX Designer">
   <meta property="og:description" content="UI/UX designer for trading and crypto interfaces. Based in Warsaw, working remotely.">
+  <meta property="og:url" content="https://vladyslavivanko.com/">
+  <meta property="og:image" content="https://vladyslavivanko.com/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Vladyslav Ivanko, UI/UX designer for trading and crypto interfaces">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://vladyslavivanko.com/og.png">
+  <link rel="canonical" href="https://vladyslavivanko.com/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/og.png">
+  <meta name="theme-color" content="#2D5BE3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -116,6 +126,14 @@
       color: var(--text);
     }
     .topbar-mark span { color: var(--accent); }
+    .topbar-links { display: flex; align-items: center; gap: 22px; }
+    .topbar-link {
+      font-size: var(--t-label); font-weight: 500;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; cursor: none;
+      transition: color .2s var(--ease-soft);
+    }
+    .topbar-link:hover { color: var(--accent); }
 
     .contact {
       display: inline-flex; align-items: center; gap: 10px;
@@ -165,9 +183,10 @@
       display: inline-block;
       opacity: 0;
       transform: translate3d(0, .5em, 0) rotate(3deg);
-      filter: blur(9px);
-      animation: letterIn 1.05s var(--ease-out) forwards;
-      animation-delay: calc(.18s + var(--i) * .038s);
+      filter: blur(4px);
+      /* Tight stagger: the full name is legible in well under a second. */
+      animation: letterIn .7s var(--ease-out) forwards;
+      animation-delay: calc(.05s + var(--i) * .022s);
     }
     .headline .ch--space { width: .28em; }
     @keyframes letterIn {
@@ -184,7 +203,7 @@
       height: 2px;
       background: var(--accent);
       transform: scaleX(0); transform-origin: left;
-      animation: lineIn 1.1s var(--ease-out) 1.05s forwards;
+      animation: lineIn .9s var(--ease-out) .55s forwards;
     }
 
     /* Role line — the single piece of supporting copy */
@@ -194,7 +213,7 @@
       line-height: 1.5;
       color: var(--muted);
       margin-top: 28px; text-align: center; max-width: 34ch;
-      opacity: 0; animation: riseUp 1.1s var(--ease-out) .95s forwards;
+      opacity: 0; animation: riseUp .9s var(--ease-out) .4s forwards;
     }
     /* Real, checkable facts. No counters, no fake telemetry. */
     .facts {
@@ -203,7 +222,7 @@
       letter-spacing: .16em; text-transform: uppercase;
       color: var(--faint);
       display: inline-flex; align-items: center; gap: 14px;
-      opacity: 0; animation: riseUp 1.1s var(--ease-out) 1.12s forwards;
+      opacity: 0; animation: riseUp .9s var(--ease-out) .52s forwards;
     }
     .facts b { font-weight: 500; color: var(--faint); }
     .facts i {
@@ -222,7 +241,7 @@
       display: flex; align-items: center;
       /* Own keyframe: a plain riseUp would overwrite translateX(-50%)
          and knock the button off centre. */
-      opacity: 0; animation: riseUpCentered 1s var(--ease-out) 1.34s forwards;
+      opacity: 0; animation: riseUpCentered .9s var(--ease-out) .65s forwards;
     }
     .cta {
       display: inline-flex; align-items: center; gap: 16px;
@@ -671,91 +690,6 @@
       color: var(--faint); white-space: nowrap; pointer-events: none;
     }
 
-    /* Case study editor (admin) */
-    .cs-ed-list { display: flex; flex-direction: column; gap: 10px; }
-    .cs-ed-card {
-      border: 1px solid rgba(0,0,0,.1); border-radius: 4px; background: #fafafa;
-      padding: 12px; display: flex; flex-direction: column; gap: 10px;
-    }
-    .cs-ed-top { display: flex; gap: 6px; align-items: center; }
-    .cs-ed-top .adm-input { flex: 1; }
-    .cs-ed-num { font-family: var(--font-ui); font-size: 9px; color: var(--accent); letter-spacing: .1em; width: 18px; }
-    .cs-ed-mini {
-      font-family: var(--font-ui); font-size: 9px; line-height: 1;
-      padding: 6px 7px; background: #fff; border: 1px solid rgba(0,0,0,.12); border-radius: 3px;
-      color: rgba(0,0,0,.55); cursor: none;
-    }
-    .cs-ed-mini:hover { border-color: var(--accent); color: var(--accent); }
-    .cs-ed-mini.danger:hover { border-color: #c44; color: #c44; }
-    .cs-ed-media { display: flex; flex-wrap: wrap; gap: 5px; }
-    .cs-ed-media button {
-      width: 44px; height: 44px; padding: 0; border-radius: 3px; overflow: hidden;
-      border: 2px solid transparent; background: #eee; cursor: none;
-    }
-    .cs-ed-media button.sel { border-color: var(--accent); }
-    .cs-ed-media img, .cs-ed-media video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-    .cs-ed-canvas { position: relative; align-self: flex-start; cursor: crosshair; }
-    .cs-ed-canvas img, .cs-ed-canvas video { display: block; max-width: 100%; max-height: 320px; pointer-events: none; }
-    .cs-ed-canvas .cs-pin { width: 20px; height: 20px; font-size: 9px; cursor: grab; }
-    .cs-ed-canvas .cs-pin::after { display: none; }
-    .cs-ed-pins { display: flex; flex-direction: column; gap: 6px; }
-    .cs-ed-pin { display: flex; gap: 6px; align-items: flex-start; }
-    .cs-ed-pin .cs-dot { width: 18px; height: 18px; font-size: 9px; margin-top: 6px; }
-    .cs-ed-pin textarea.adm-input { flex: 1; min-height: 44px; }
-    .cs-ed-json textarea.adm-input { min-height: 120px; font-size: 10px; }
-    .cs-ed-json summary { font-family: var(--font-ui); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(0,0,0,.45); cursor: none; }
-
-    /* ─── Password prompt ────────────────────── */
-    .pw-prompt {
-      position: fixed; inset: 0; z-index: 400;
-      background: rgba(10,10,24,.5); backdrop-filter: blur(6px);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity .25s ease;
-    }
-    .pw-prompt.open { opacity: 1; pointer-events: all; }
-    .pw-box {
-      background: #fff; border-radius: 6px; padding: 32px 32px 28px;
-      width: min(360px, 92vw);
-      box-shadow: 0 16px 60px rgba(0,0,0,.18);
-      transform: translateY(12px); transition: transform .25s cubic-bezier(.4,0,.2,1);
-    }
-    .pw-prompt.open .pw-box { transform: translateY(0); }
-    .pw-title {
-      font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: .06em;
-      color: var(--text); margin-bottom: 4px;
-    }
-    .pw-sub {
-      font-family: var(--font-ui); font-size: 8px; letter-spacing: .2em;
-      text-transform: uppercase; color: rgba(0,0,0,.3); margin-bottom: 20px;
-    }
-    .pw-input {
-      width: 100%; font-family: var(--font-text); font-size: 13px;
-      color: var(--text); background: #fafafa;
-      border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
-      padding: 10px 12px; outline: none; transition: border-color .15s;
-      letter-spacing: .1em;
-    }
-    .pw-input:focus { border-color: var(--accent); background: #fff; }
-    .pw-error {
-      font-family: var(--font-ui); font-size: 8px; letter-spacing: .1em;
-      color: #c44; margin-top: 8px; min-height: 14px;
-    }
-    .pw-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-    .pw-cancel {
-      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
-      text-transform: uppercase; padding: 9px 18px;
-      background: none; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
-      color: rgba(0,0,0,.4); cursor: none; transition: all .15s;
-    }
-    .pw-cancel:hover { border-color: rgba(0,0,0,.25); color: var(--text); }
-    .pw-enter {
-      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
-      text-transform: uppercase; padding: 9px 22px;
-      background: var(--accent); border: none; border-radius: 3px;
-      color: #fff; cursor: none; transition: opacity .15s;
-    }
-    .pw-enter:hover { opacity: .85; }
-
     /* ─── Empty / unavailable state ───────────── */
     .pov-blank {
       flex: 1; display: flex; flex-direction: column;
@@ -787,234 +721,6 @@
     }
     .pov-blank-retry[hidden] { display: none; }
     .pov-blank-retry:hover { border-color: var(--text); color: var(--text); }
-
-    /* ─── Admin Panel ─────────────────────────── */
-    .adm {
-      position: fixed; inset: 0; z-index: 300;
-      background: rgba(10,10,24,.55); backdrop-filter: blur(6px);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none;
-      transition: opacity .3s ease;
-    }
-    .adm.open { opacity: 1; pointer-events: all; }
-
-    .adm-box {
-      background: #fff;
-      width: min(640px, 94vw); max-height: 88vh;
-      border-radius: 6px; overflow: hidden;
-      box-shadow: 0 24px 80px rgba(0,0,0,.22);
-      display: flex; flex-direction: column;
-      transform: translateY(16px);
-      transition: transform .3s cubic-bezier(.4,0,.2,1);
-    }
-    .adm.open .adm-box { transform: translateY(0); }
-
-    .adm-hd {
-      padding: 22px 28px 18px;
-      border-bottom: 1px solid rgba(0,0,0,.07);
-      display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .adm-hd-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px; letter-spacing: .06em; color: var(--text);
-    }
-    .adm-hd-sub {
-      font-family: var(--font-ui);
-      font-size: 8px; letter-spacing: .18em; color: rgba(0,0,0,.3);
-      text-transform: uppercase; margin-top: 2px;
-    }
-    .adm-x {
-      background: none; border: none; cursor: none;
-      font-size: 18px; color: rgba(0,0,0,.3); line-height: 1;
-      transition: color .15s; padding: 4px;
-    }
-    .adm-x:hover { color: var(--text); }
-
-    .adm-body { flex: 1; overflow-y: auto; padding: 24px 28px; }
-    .adm-body::-webkit-scrollbar { width: 0; }
-
-    .adm-section-title {
-      font-family: var(--font-ui);
-      font-size: 8px; letter-spacing: .35em; text-transform: uppercase;
-      color: rgba(0,0,0,.3); margin-bottom: 10px;
-    }
-
-    .adm-proj-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 28px; }
-    .adm-proj-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border: 1px solid rgba(0,0,0,.07); border-radius: 4px;
-      background: #fafafa;
-    }
-    .adm-proj-row-name {
-      flex: 1;
-      font-family: var(--font-ui);
-      font-size: 11px; color: var(--text);
-    }
-    .adm-proj-row-tags {
-      font-family: var(--font-ui);
-      font-size: 8px; letter-spacing: .1em; color: rgba(0,0,0,.3);
-      text-transform: uppercase;
-    }
-    .adm-del-btn {
-      background: none; border: 1px solid rgba(209,64,64,.25); border-radius: 3px;
-      color: #c44; padding: 4px 9px; cursor: none;
-      font-family: var(--font-ui); font-size: 7px; letter-spacing: .1em;
-      transition: all .15s; flex-shrink: 0;
-    }
-    .adm-del-btn:hover { background: rgba(209,64,64,.06); border-color: #c44; }
-    .adm-edit-btn {
-      background: none; border: 1px solid rgba(45,91,227,.2); border-radius: 3px;
-      color: var(--accent); padding: 4px 9px; cursor: none;
-      font-family: var(--font-ui); font-size: 7px; letter-spacing: .1em;
-      transition: all .15s; flex-shrink: 0;
-    }
-    .adm-edit-btn:hover { background: var(--dim); border-color: var(--accent); }
-    .adm-edit-banner {
-      background: rgba(45,91,227,.05); border: 1px solid rgba(45,91,227,.15);
-      border-radius: 4px; padding: 8px 12px; margin-bottom: 10px;
-      display: flex; align-items: center; justify-content: space-between;
-      animation: fadeIn .2s ease;
-    }
-    .adm-edit-banner-text {
-      font-family: var(--font-ui);
-      font-size: 9px; letter-spacing: .12em; color: var(--accent);
-    }
-    .adm-edit-discard {
-      font-family: var(--font-ui); font-size: 8px; letter-spacing: .15em;
-      text-transform: uppercase; color: rgba(0,0,0,.3);
-      background: none; border: none; cursor: none; padding: 2px 6px;
-      transition: color .15s;
-    }
-    .adm-edit-discard:hover { color: var(--text); }
-
-    .adm-storage { padding: 4px 0 16px; }
-    .adm-storage-row {
-      display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;
-    }
-    .adm-storage-chip {
-      font-family: var(--font-ui); font-size: 9px; letter-spacing: .18em;
-      text-transform: uppercase; padding: 6px 10px; border-radius: 3px;
-      background: rgba(0,0,0,.05); color: rgba(0,0,0,.5);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;
-    }
-    .adm-storage-chip.ok { background: rgba(45,91,227,.08); color: var(--accent); }
-    .adm-storage-btn {
-      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
-      text-transform: uppercase; padding: 7px 14px;
-      background: none; border: 1px solid rgba(0,0,0,.12); border-radius: 3px;
-      color: rgba(0,0,0,.55); cursor: none; transition: all .15s;
-    }
-    .adm-storage-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .adm-storage-hint {
-      font-family: var(--font-ui); font-size: 8px; letter-spacing: .08em;
-      color: rgba(0,0,0,.38); line-height: 1.7; margin-top: 4px;
-    }
-
-    .adm-divider { height: 1px; background: rgba(0,0,0,.07); margin-bottom: 24px; }
-
-    /* ─── Photo Upload Zone ─────────────── */
-    .photo-zone {
-      border: 1.5px dashed rgba(45,91,227,.25); border-radius: 5px;
-      background: rgba(45,91,227,.03);
-      padding: 20px 16px 14px;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-      cursor: pointer; transition: border-color .18s, background .18s;
-    }
-    .photo-zone:hover, .photo-zone.drag-over {
-      border-color: var(--accent); background: rgba(45,91,227,.07);
-    }
-    .photo-zone-label {
-      font-family: var(--font-ui);
-      font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
-      color: rgba(0,0,0,.35); text-align: center; pointer-events: none;
-    }
-    .photo-zone-label span { color: var(--accent); }
-    .photo-zone-sub {
-      font-family: var(--font-ui);
-      font-size: 8px; color: rgba(0,0,0,.22); letter-spacing: .06em;
-      pointer-events: none;
-    }
-    .photo-thumbs {
-      display: flex; flex-wrap: wrap; gap: 7px;
-      width: 100%; margin-top: 4px;
-    }
-    .photo-thumb {
-      position: relative; width: 72px; height: 54px;
-      border-radius: 3px; overflow: hidden;
-      border: 1px solid rgba(0,0,0,.1);
-      flex-shrink: 0;
-    }
-    .photo-thumb img, .photo-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .photo-thumb-vid {
-      position: absolute; left: 4px; bottom: 4px;
-      width: 16px; height: 16px; border-radius: 50%;
-      background: rgba(0,0,0,.55); color: #fff;
-      font-size: 7px; line-height: 16px; text-align: center;
-      pointer-events: none;
-    }
-    .photo-thumb-rm {
-      position: absolute; top: 3px; right: 3px;
-      width: 16px; height: 16px; border-radius: 50%;
-      background: rgba(0,0,0,.55); border: none;
-      color: #fff; font-size: 9px; line-height: 16px; text-align: center;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      padding: 0;
-    }
-    .photo-thumb-rm:hover { background: #c44; }
-
-    .adm-form { display: flex; flex-direction: column; gap: 14px; }
-    .adm-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .adm-field { display: flex; flex-direction: column; gap: 5px; }
-    .adm-field.full { grid-column: 1 / -1; }
-    .adm-label {
-      font-family: var(--font-ui);
-      font-size: 8px; letter-spacing: .2em; text-transform: uppercase;
-      color: rgba(0,0,0,.4);
-    }
-    .adm-input {
-      font-family: var(--font-text); font-size: 11px; color: var(--text);
-      background: #fafafa; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
-      padding: 8px 10px; outline: none; transition: border-color .15s;
-    }
-    .adm-input:focus { border-color: var(--accent); background: #fff; }
-    textarea.adm-input {
-      font-family: var(--font-text); font-size: 11px; line-height: 1.6;
-      resize: vertical; min-height: 84px;
-    }
-    .adm-hint {
-      font-family: var(--font-ui); font-size: 8px;
-      color: rgba(0,0,0,.28); letter-spacing: .05em;
-    }
-    #cs-ed-json-msg { font-family: var(--font-text); font-size: 12px; color: var(--accent); letter-spacing: 0; }
-    #cs-ed-json-msg.err { color: #c44; }
-    .adm-check-row { display: flex; gap: 18px; }
-    .adm-check-label {
-      display: flex; align-items: center; gap: 7px; cursor: none;
-      font-family: var(--font-ui); font-size: 9px; color: rgba(0,0,0,.5);
-    }
-    .adm-check-label input { accent-color: var(--accent); cursor: none; }
-
-    .adm-ft {
-      padding: 16px 28px;
-      border-top: 1px solid rgba(0,0,0,.07);
-      display: flex; justify-content: flex-end; gap: 10px;
-      flex-shrink: 0;
-    }
-    .adm-cancel {
-      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
-      text-transform: uppercase; padding: 9px 20px;
-      background: none; border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
-      color: rgba(0,0,0,.4); cursor: none; transition: all .15s;
-    }
-    .adm-cancel:hover { border-color: rgba(0,0,0,.25); color: var(--text); }
-    .adm-save {
-      font-family: var(--font-ui); font-size: 9px; letter-spacing: .2em;
-      text-transform: uppercase; padding: 9px 24px;
-      background: var(--accent); border: none; border-radius: 3px;
-      color: #fff; cursor: none; transition: opacity .15s;
-    }
-    .adm-save:hover { opacity: .85; }
 
     /* ─── Photo Carousel ─────────────────── */
     .frame-p {
@@ -1165,37 +871,14 @@
       transform-origin: top left;
     }
     .proto-inline.active { display: block; }
-
-    /* ─── Proto upload zone (admin) ─────── */
-    .proto-zone-wrap {
-      border: 1.5px dashed rgba(45,91,227,.25); border-radius: 5px;
-      background: rgba(45,91,227,.03);
-      padding: 12px 16px;
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      cursor: pointer; transition: border-color .18s, background .18s;
+    .proto-note {
+      position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 40;
+      font-family: var(--font-text); font-size: var(--t-label); line-height: 1.5;
+      color: var(--muted); background: #fff;
+      border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px;
     }
-    .proto-zone-wrap:hover, .proto-zone-wrap.drag-over {
-      border-color: var(--accent); background: rgba(45,91,227,.07);
-    }
-    .proto-zone-label {
-      font-family: var(--font-ui);
-      font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
-      color: rgba(0,0,0,.35); pointer-events: none;
-    }
-    .proto-zone-label span { color: var(--accent); }
-    .proto-file-chip {
-      display: none; align-items: center; gap: 8px;
-      font-family: var(--font-ui);
-      font-size: 9px; color: var(--accent);
-      background: rgba(45,91,227,.08); border: 1px solid rgba(45,91,227,.2);
-      border-radius: 3px; padding: 4px 10px; flex-shrink: 0;
-    }
-    .proto-file-rm {
-      background: none; border: none; color: rgba(0,0,0,.4);
-      font-size: 10px; line-height: 1; cursor: pointer; padding: 0;
-      transition: color .15s;
-    }
-    .proto-file-rm:hover { color: #c44; }
+    .proto-note[hidden] { display: none; }
+    .proto-note a { color: var(--accent); font-weight: 500; }
 
     /* ══════════════════════════════════════════════
        Focus — the page hides the system cursor, so a
@@ -1217,17 +900,32 @@
       .facts { margin-top: 12px; letter-spacing: .12em; }
       .cta-wrap { bottom: 40px; }
 
-      /* Overlay: sidebar becomes a scrollable strip above the work */
-      .pov { flex-direction: column; }
+      /* Overlay on phones: ONE scroll for the whole sheet. The project list
+         shrinks to a sticky row of chips (was a 35%-tall list with the case
+         study scrolling in its own small pane underneath it). */
+      .pov { display: block; overflow-y: auto; -webkit-overflow-scrolling: touch; }
       .pov-sidebar {
-        width: 100%; flex-shrink: 0; max-height: 38vh;
-        border-right: none; border-bottom: 1px solid var(--rule);
+        position: sticky; top: 0; z-index: 6; width: 100%;
+        background: #fff; border-right: none; border-bottom: 1px solid var(--rule);
         transform: translateY(-10px);
       }
       .pov.open .pov-sidebar { transform: translateY(0); }
-      .pov-sb-hd { padding: 18px 20px 12px; }
-      .pov-item  { padding: 12px 20px; }
-      .pov-main  { padding: 18px 20px 20px; min-height: 0; }
+      .pov-sb-hd { display: none; }
+      .pov-nav {
+        display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden;
+        padding: 10px 16px; scroll-snap-type: x proximity;
+      }
+      .pov-nav::-webkit-scrollbar { height: 0; }
+      .pov-item {
+        width: auto; flex: none; gap: 8px; padding: 9px 12px;
+        border: 1px solid var(--rule); border-radius: 3px; scroll-snap-align: start;
+      }
+      .pov-item::before { display: none; }
+      .pov-item.sel { border-color: var(--accent); }
+      .pov-item .pi-meta { display: none; }
+      .pi-name { white-space: nowrap; }
+      .pov-main  { padding: 18px 16px 28px; min-height: 0; }
+      .pov-preview { flex: none; overflow: visible; }
 
       /* Topbar stacks so the title never collides with the controls */
       .pov-topbar {
@@ -1238,17 +936,15 @@
       .pov-meta-n     { font-size: 30px; }
       .pov-meta-title { font-size: 24px; }
       .pd-meta-row { gap: 20px 28px; }
-      .frame-d { padding: 20px 20px 24px; }
+      .frame-p { flex: none; height: min(62vh, 560px); min-height: 300px; }
+      .frame-d { overflow: visible; padding: 20px 16px 24px; }
 
-      /* Case study stacks: the whole panel scrolls, the screen sticks to the
-         top and chapters read underneath it. The preview box alone is too
-         short on phones once the project list and topbar take their share. */
-      .pov-main:has(.frame-c.active) { overflow-y: auto; }
-      .pov-preview:has(> .frame-c.active) { flex: none; overflow: visible; }
+      /* Case study stacks: the screen sticks under the chip row and chapters
+         read underneath it, all in the sheet's single scroll. */
       .frame-c.active { display: flex; flex-direction: column; }
       .cs-stage {
-        flex: none; height: 52vh; min-height: 260px; padding: 12px; order: -1;
-        position: sticky; top: -18px; z-index: 4; background: #f0f2f8;
+        flex: none; height: 44vh; min-height: 240px; padding: 12px; order: -1;
+        position: sticky; top: var(--pov-nav-h, 58px); z-index: 4; background: #f0f2f8;
       }
       .cs-rail { border-right: none; min-height: auto; }
       .cs-chapters { overflow: visible; flex: none; }
@@ -1260,11 +956,12 @@
       .topbar { padding: 12px 16px; gap: 12px; }
       .topbar-mark { letter-spacing: .12em; }
       .contact { padding: 9px 12px; letter-spacing: .1em; }
+      .topbar-links { gap: 14px; }
+      .topbar-link { letter-spacing: .1em; }
       .headline { letter-spacing: 0; }
       .role  { font-size: var(--t-body); max-width: 22ch; }
       .facts { font-size: var(--t-label); letter-spacing: .08em; }
       .cta { width: min(300px, calc(100vw - 40px)); justify-content: center; }
-      .pov-sidebar { max-height: 34vh; }
       .pov-blank-title { font-size: 26px; }
       .pov-blank-actions { flex-direction: column; width: 100%; }
       .pov-blank-actions > * { justify-content: center; }
@@ -1280,7 +977,7 @@
     @media (hover: none), (pointer: coarse) {
       html, body { cursor: auto; }
       #cur-dot, #cur-ring { display: none; }
-      .cta, .contact, .pov-item, .pov-tab, .pov-close-btn,
+      .cta, .contact, .topbar-link, .pov-item, .pov-tab, .pov-close-btn,
       .figma-btn, .pov-blank-retry, .pc-btn,
       .cs-ch-hd, .cs-note, .cs-nav-btn, .cs-pin { cursor: pointer; }
       .cs-pin { width: 34px; height: 34px; }
@@ -1341,7 +1038,10 @@
 
 <header class="topbar">
   <span class="topbar-mark">Vladyslav <span>Ivanko</span></span>
-  <a class="contact" href="mailto:wrender34@gmail.com">Email me</a>
+  <nav class="topbar-links" aria-label="Contact">
+    <a class="topbar-link" href="https://www.linkedin.com/in/wender34/" target="_blank" rel="noopener">LinkedIn</a>
+    <a class="contact" href="mailto:wrender34@gmail.com">Email me</a>
+  </nav>
 </header>
 
 <main class="overlay" id="hero">
@@ -1386,7 +1086,7 @@
           <button class="pov-tab active" data-tab="gallery" id="tab-gallery">Gallery</button>
           <button class="pov-tab" data-tab="about" id="tab-about">About</button>
         </div>
-        <a id="figma-link" class="figma-btn hidden" href="#" target="_blank" rel="noopener">
+        <a id="figma-link" class="figma-btn hidden" target="_blank" rel="noopener">
           <svg width="10" height="15" viewBox="0 0 10 15" fill="none" aria-hidden="true" style="flex-shrink:0;display:block">
             <path d="M0 12.5A2.5 2.5 0 0 0 2.5 15 2.5 2.5 0 0 0 5 12.5V10H2.5A2.5 2.5 0 0 0 0 12.5Z" fill="currentColor" opacity=".55"/>
             <path d="M0 7.5A2.5 2.5 0 0 0 2.5 10H5V5H2.5A2.5 2.5 0 0 0 0 7.5Z" fill="currentColor" opacity=".7"/>
@@ -1424,6 +1124,10 @@
             <div class="pc-dots" id="pc-dots"></div>
             <div class="pc-counter" id="pc-counter"></div>
           </div>
+          <p class="proto-note" id="proto-note" hidden>
+            Interactive prototype, built for a 1440px screen.
+            <a id="proto-open" target="_blank" rel="noopener">Open it on desktop</a>
+          </p>
           <iframe id="proto-iframe" class="proto-inline"
             sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals"
             src="about:blank"></iframe>
@@ -1475,168 +1179,6 @@
     </div>
   </div>
 
-</div>
-
-<!-- ══════════ PASSWORD PROMPT ══════════ -->
-<div id="pw-prompt" class="pw-prompt" aria-hidden="true">
-  <div class="pw-box">
-    <div class="pw-title">Admin Access</div>
-    <div class="pw-sub">Enter password to manage projects</div>
-    <input class="pw-input" id="pw-input" type="password" placeholder="Password" autocomplete="off">
-    <div class="pw-error" id="pw-error"></div>
-    <div class="pw-actions">
-      <button class="pw-cancel" id="pw-cancel">Cancel</button>
-      <button class="pw-enter" id="pw-enter">Enter</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════ ADMIN PANEL ══════════ -->
-<div id="adm" class="adm" aria-hidden="true">
-  <div class="adm-box">
-    <div class="adm-hd">
-      <div>
-        <div class="adm-hd-title">Manage Projects</div>
-        <div class="adm-hd-sub">Add or remove portfolio entries</div>
-      </div>
-      <button class="adm-x" id="adm-close">✕</button>
-    </div>
-    <div class="adm-body">
-      <div class="adm-section-title">Backup</div>
-      <div class="adm-storage">
-        <div class="adm-storage-row">
-          <button class="adm-storage-btn" id="st-export">Export JSON</button>
-        </div>
-        <div class="adm-storage-hint">Downloads a copy of all projects as JSON. Your data lives on the server — this is just a local backup.</div>
-      </div>
-      <div class="adm-divider"></div>
-      <div class="adm-section-title">Current Projects</div>
-      <div class="adm-proj-list" id="adm-proj-list"></div>
-      <div class="adm-divider"></div>
-      <div class="adm-section-title" id="adm-form-title">Add New Project</div>
-      <div class="adm-edit-banner" id="adm-edit-banner" style="display:none">
-        <span class="adm-edit-banner-text" id="adm-edit-banner-text">Editing: —</span>
-        <button class="adm-edit-discard" id="adm-edit-discard">Discard</button>
-      </div>
-      <div class="adm-form" id="adm-form">
-        <div class="adm-row">
-          <div class="adm-field">
-            <label class="adm-label" for="af-title">Title</label>
-            <input class="adm-input" id="af-title" type="text" placeholder="e.g. TradeFlow">
-          </div>
-          <div class="adm-field">
-            <label class="adm-label" for="af-tags">Tags</label>
-            <input class="adm-input" id="af-tags" type="text" placeholder="e.g. DeFi · Web · Mobile">
-          </div>
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label" for="af-desc">Description</label>
-          <input class="adm-input" id="af-desc" type="text" placeholder="Short project description">
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label">Main Photos & Videos <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· shown in carousel · paste Ctrl+V</span></label>
-          <div class="photo-zone" id="photo-zone-main">
-            <div class="photo-zone-label">Drop or <span>click to browse</span></div>
-            <div class="photo-zone-sub">PNG · JPG · WEBP · MP4 · WEBM · paste from clipboard</div>
-            <div class="photo-thumbs" id="photo-thumbs-main"></div>
-          </div>
-          <input type="file" id="af-photos-main" accept="image/*,video/*" multiple style="display:none">
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label">Additional Photos & Videos <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· expandable section · paste Ctrl+V</span></label>
-          <div class="photo-zone" id="photo-zone-extra">
-            <div class="photo-zone-label">Drop or <span>click to browse</span></div>
-            <div class="photo-zone-sub">PNG · JPG · WEBP · MP4 · WEBM · paste from clipboard</div>
-            <div class="photo-thumbs" id="photo-thumbs-extra"></div>
-          </div>
-          <input type="file" id="af-photos-extra" accept="image/*,video/*" multiple style="display:none">
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label" for="af-figma">Figma URL (optional)</label>
-          <input class="adm-input" id="af-figma" type="url" placeholder="https://www.figma.com/design/...">
-        </div>
-
-        <div class="adm-divider" style="margin: 6px 0 4px"></div>
-        <div class="adm-section-title" style="margin-bottom: 0">HTML Prototype <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· optional · interactive prototype shown in Prototype tab</span></div>
-
-        <div class="adm-field full">
-          <label class="adm-label">Upload .html File</label>
-          <div class="proto-zone-wrap" id="proto-zone">
-            <div class="proto-zone-label" id="proto-zone-label">Drop or <span>click to browse</span> — .html file</div>
-            <div class="proto-file-chip" id="proto-file-chip">
-              <span id="proto-file-name">prototype.html</span>
-              <button class="proto-file-rm" id="proto-file-rm" type="button">✕</button>
-            </div>
-          </div>
-          <input type="file" id="af-proto-file" accept=".html,text/html" style="display:none">
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label" for="af-proto-url">— or Prototype URL <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· direct link to a hosted .html prototype</span></label>
-          <input class="adm-input" id="af-proto-url" type="url" placeholder="https://...">
-        </div>
-
-        <div class="adm-divider" style="margin: 6px 0 4px"></div>
-        <div class="adm-section-title" style="margin-bottom: 0">Project Details <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· optional · shown in About tab</span></div>
-
-        <div class="adm-row">
-          <div class="adm-field">
-            <label class="adm-label" for="af-year">Year</label>
-            <input class="adm-input" id="af-year" type="text" placeholder="e.g. 2024">
-          </div>
-          <div class="adm-field">
-            <label class="adm-label" for="af-duration">Duration</label>
-            <input class="adm-input" id="af-duration" type="text" placeholder="e.g. 3 months">
-          </div>
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label" for="af-role">Role</label>
-          <input class="adm-input" id="af-role" type="text" placeholder="e.g. Lead UI/UX Designer">
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label" for="af-tools">Tools <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· comma or · separated</span></label>
-          <input class="adm-input" id="af-tools" type="text" placeholder="e.g. Figma, FigJam, Principle">
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label" for="af-goals">Goals</label>
-          <textarea class="adm-input" id="af-goals" rows="4" placeholder="What was this project trying to achieve?"></textarea>
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label" for="af-workflow">Workflow / Process</label>
-          <textarea class="adm-input" id="af-workflow" rows="4" placeholder="How did you approach it? Research, iterations, decisions..."></textarea>
-        </div>
-        <div class="adm-field full">
-          <label class="adm-label" for="af-outcomes">Outcomes</label>
-          <textarea class="adm-input" id="af-outcomes" rows="4" placeholder="Results, learnings, or impact"></textarea>
-        </div>
-
-        <div class="adm-divider" style="margin: 6px 0 4px"></div>
-        <div class="adm-section-title" style="margin-bottom: 0">Case Study <span style="font-size:7px;color:rgba(0,0,0,.28);text-transform:none;letter-spacing:.04em">· optional · chapters shown in Case study tab · click a screen to drop a note pin, drag to move</span></div>
-
-        <div class="adm-field full">
-          <label class="adm-label" for="af-cs-label">Label</label>
-          <input class="adm-input" id="af-cs-label" type="text" placeholder="e.g. Self-initiated concept · not affiliated with Hyperliquid">
-        </div>
-        <div class="cs-ed-list" id="cs-ed-list"></div>
-        <div class="adm-check-row">
-          <button class="adm-storage-btn" type="button" id="cs-ed-add">+ Add chapter</button>
-        </div>
-        <details class="cs-ed-json">
-          <summary>Paste case study JSON</summary>
-          <div class="adm-field full" style="margin-top:8px">
-            <textarea class="adm-input" id="cs-ed-json" placeholder='{"csLabel": "...", "caseStudy": [{"title": "...", "body": "...", "media": "https://...", "pins": [{"x": 50, "y": 40, "text": "..."}]}]}'></textarea>
-            <div class="adm-check-row" style="margin-top:6px">
-              <button class="adm-storage-btn" type="button" id="cs-ed-json-load">Load into form</button>
-              <span class="adm-hint" id="cs-ed-json-msg"></span>
-            </div>
-          </div>
-        </details>
-      </div>
-    </div>
-    <div class="adm-ft">
-      <button class="adm-cancel" id="adm-cancel">Cancel</button>
-      <button class="adm-save" id="adm-save">Add Project</button>
-    </div>
-  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
@@ -2149,25 +1691,11 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
 })();
 </script>
 
-<!-- Vercel Blob client-upload helper: lets large files (videos) upload
-     directly from the browser to Blob storage, bypassing the ~4.5MB
-     serverless function body limit. Exposed on window for the main script. -->
-<script type="module">
-  import { upload } from 'https://esm.sh/@vercel/blob@0.27.0/client';
-  window.__blobUpload = upload;
-</script>
-
 <script>
-/* ── Projects Overlay + Admin ──────────────────────── */
+/* ── Projects Overlay ─────────────────────────────── */
 (function () {
 
   var BUILTIN = [];
-
-  /* ── Persistent storage (backend API) ── */
-  var PW_KEY = 'portfolio_pw';
-  function getAdminPw()   { try { return sessionStorage.getItem(PW_KEY) || ''; } catch (e) { return ''; } }
-  function setAdminPw(p)  { try { sessionStorage.setItem(PW_KEY, p); } catch (e) {} }
-  function clearAdminPw() { try { sessionStorage.removeItem(PW_KEY); } catch (e) {} }
 
   var _cache = [];
   /* Was: every failure resolved to an empty list, so "the request broke" and
@@ -2175,7 +1703,6 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
      can tell the truth and offer a retry. */
   var _loadFailed = false;
 
-  function loadCustomProjects() { return _cache.slice(); }
   function buildProjectList()   { return BUILTIN.concat(_cache); }
   function loadFailed()         { return _loadFailed; }
 
@@ -2195,80 +1722,6 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
         console.warn('Could not load projects:', e && e.message);
         return _cache;
       });
-  }
-
-  function saveCustomProjects(arr) {
-    return fetch('/api/projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: getAdminPw(), projects: arr }),
-    }).then(function (r) {
-      if (r.status === 401) {
-        clearAdminPw();
-        alert('Admin session invalid. Close and re-open admin, then re-enter password.');
-        return false;
-      }
-      if (!r.ok) {
-        return r.text().then(function (t) {
-          alert('Save failed: HTTP ' + r.status + '\n' + t);
-          return false;
-        });
-      }
-      _cache = arr.slice();
-      return true;
-    }).catch(function (e) {
-      alert('Network error: ' + (e && e.message || e));
-      return false;
-    });
-  }
-
-  function uploadImage(dataURL) {
-    return fetch(dataURL).then(function (r) { return r.blob(); }).then(function (blob) {
-      var ext = ((blob.type || '').split('/')[1] || 'bin').split(';')[0];
-      return fetch('/api/upload?ext=' + encodeURIComponent(ext), {
-        method: 'POST',
-        headers: {
-          'Content-Type': blob.type || 'application/octet-stream',
-          'x-admin-password': getAdminPw(),
-        },
-        body: blob,
-      });
-    }).then(function (r) {
-      if (!r.ok) {
-        return r.text().then(function (t) { throw new Error('upload ' + r.status + ' ' + t); });
-      }
-      return r.json();
-    }).then(function (j) { return j.url; });
-  }
-
-  /* Upload an arbitrary file (e.g. video) straight to blob storage, no compression.
-     Large files use Vercel Blob's client-direct upload (browser → Blob) to avoid
-     the serverless function's ~4.5MB request-body limit. Falls back to the regular
-     server route only if the client SDK failed to load. */
-  function uploadFile(file) {
-    var ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 6) || 'bin';
-    if (window.__blobUpload) {
-      var name = 'videos/' + Date.now() + '-' + Math.random().toString(36).slice(2, 10) + '.' + ext;
-      return window.__blobUpload(name, file, {
-        access: 'public',
-        contentType: file.type || undefined,
-        handleUploadUrl: '/api/blob-upload',
-        clientPayload: getAdminPw(),
-      }).then(function (blob) { return blob.url; });
-    }
-    return fetch('/api/upload?ext=' + encodeURIComponent(ext), {
-      method: 'POST',
-      headers: {
-        'Content-Type': file.type || 'application/octet-stream',
-        'x-admin-password': getAdminPw(),
-      },
-      body: file,
-    }).then(function (r) {
-      if (!r.ok) {
-        return r.text().then(function (t) { throw new Error('upload ' + r.status + ' ' + t); });
-      }
-      return r.json();
-    }).then(function (j) { return j.url; });
   }
 
   /* True if a stored media src points at a video (by extension or data-URL mime). */
@@ -2299,6 +1752,8 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
   var tabGallery  = document.getElementById('tab-gallery');
   var tabAbout    = document.getElementById('tab-about');
   var protoIframe = document.getElementById('proto-iframe');
+  var protoNote   = document.getElementById('proto-note');
+  var protoOpen   = document.getElementById('proto-open');
   var pcWrapEl    = document.getElementById('pc-wrap');
   var pdMetaRow   = document.getElementById('pd-meta-row');
   var pdTools     = document.getElementById('pd-tools');
@@ -2368,6 +1823,20 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     setView(curView);
   }
 
+  /* ── Deep links ──────────────────────── */
+  function slugOf(p) {
+    return String(p.slug || p.title || p.id || '')
+      .toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || String(p.id);
+  }
+  function indexFromHash() {
+    var m = /^#work\/(.+)$/.exec(location.hash);
+    if (!m) return -1;
+    var want = decodeURIComponent(m[1]);
+    for (var k = 0; k < PROJECTS.length; k++) if (slugOf(PROJECTS[k]) === want) return k;
+    return /^\d+$/.test(want) ? Math.min(PROJECTS.length - 1, Math.max(0, +want - 1)) : -1;
+  }
+
   /* ── Sidebar nav ─────────────────────── */
   function buildNav() {
     navEl.innerHTML = '';
@@ -2396,7 +1865,19 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     clearNoProjects();
     var changed = curProj !== i;
     curProj = i;
+    /* Every project gets a shareable address: /#work/<slug>. */
+    if (ov.classList.contains('open')) {
+      var hash = '#work/' + slugOf(p);
+      if (location.hash !== hash) history.replaceState(null, '', hash);
+    }
     navEl.querySelectorAll('.pov-item').forEach(function (el, j) { el.classList.toggle('sel', j === i); });
+    /* Phones: the sheet is one scroll with a chip row on top. Start a newly
+       picked project at its title and keep its chip in view. */
+    if (changed && ov.scrollTop > 0) ov.scrollTop = 0;
+    var chip = navEl.children[i];
+    if (chip && navEl.scrollWidth > navEl.clientWidth) {
+      navEl.scrollTo({ left: Math.max(0, chip.offsetLeft - 16), behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
+    }
     numEl.textContent   = String(i + 1).padStart(2, '0');
     titleEl.textContent = p.title;
     descEl.textContent  = p.desc;
@@ -2405,7 +1886,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
        reduced motion (CSS shortens it there). */
     if (changed) replayAnim([document.querySelector('.pov-meta'), povPreview]);
     if (p.figmaUrl) { figmaLink.href = p.figmaUrl; figmaLink.classList.remove('hidden'); }
-    else            { figmaLink.href = '#';         figmaLink.classList.add('hidden'); }
+    else            { figmaLink.removeAttribute('href'); figmaLink.classList.add('hidden'); }
     buildCarousel(p.photos || []);
     buildExtraPhotos(p.extraPhotos || []);
     buildDetails(p);
@@ -2416,7 +1897,12 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     else if (!hasCase && curView === 'case') setView('gallery');
     else setView(curView);
     var protoUrl = p.protoUrl || '';
-    if (protoUrl) {
+    /* A 1440px prototype scaled into a phone is an unreadable thumbnail:
+       show the screenshots instead and point to the live version. */
+    var protoFits = !matchMedia('(max-width: 900px)').matches;
+    protoNote.hidden = !(protoUrl && !protoFits);
+    if (protoUrl) protoOpen.href = protoUrl; else protoOpen.removeAttribute('href');
+    if (protoUrl && protoFits) {
       protoIframe.classList.add('active');
       pcWrapEl.style.display = 'none';
       scaleProtoIframe();
@@ -2622,7 +2108,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
          chapter by its bottom edge and hide the title. */
       var scroller = scrollParent(active);
       var top = active.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
-      var cover = scroller === csList ? 0 : csStage.offsetHeight;   /* sticky stage sits above on narrow screens */
+      var cover = scroller === csList ? 0 : csStage.offsetHeight + (parseFloat(getComputedStyle(csStage).top) || 0);   /* sticky stage (and chip row) sit above on narrow screens */
       if (top < scroller.scrollTop + cover || top + 60 > scroller.scrollTop + scroller.clientHeight) {
         scroller.scrollTo({ top: Math.max(0, top - cover - 8), behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
       }
@@ -2729,6 +2215,11 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
   }
   if (window.ResizeObserver) new ResizeObserver(fitShot).observe(csStage);
   else window.addEventListener('resize', fitShot);
+  /* The sticky case-study screen docks under the sticky chip row on phones. */
+  var sidebarEl = document.querySelector('.pov-sidebar');
+  function syncNavH() { ov.style.setProperty('--pov-nav-h', sidebarEl.offsetHeight + 'px'); }
+  if (window.ResizeObserver) new ResizeObserver(syncNavH).observe(sidebarEl);
+  else window.addEventListener('resize', syncNavH);
   csStage.addEventListener('click', function (e) { if (e.target === csStage || e.target === csShot || e.target.tagName === 'IMG') setPin(-1); });
 
   /* ── Barrel carousel ────────────────── */
@@ -3031,6 +2522,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     if (!ov.classList.contains('open')) return;
     ov.classList.remove('open'); ov.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (/^#work\//.test(location.hash)) history.replaceState(null, '', location.pathname + location.search);
     setBackgroundHidden(false);
     if (ovReturnTo && document.contains(ovReturnTo)) ovReturnTo.focus();
     ovReturnTo = null;
@@ -3040,7 +2532,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
   closeBtn.addEventListener('click', closeOv);
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeOv(); closeAdm(); return; }
+    if (e.key === 'Escape') { if (!document.querySelector('.adm.open, .pw-prompt.open')) closeOv(); return; }
     if (e.key !== 'Tab' || !ov.classList.contains('open')) return;
     var f = ovFocusables();
     if (!f.length) return;
@@ -3065,653 +2557,65 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     });
   });
 
-  /* ══════════ ADMIN ══════════ */
-  var adm      = document.getElementById('adm');
-  var pwPrompt = document.getElementById('pw-prompt');
-  var pwInput  = document.getElementById('pw-input');
-  var pwError  = document.getElementById('pw-error');
-  var editingId = null;
-
-  function openAdm()  { renderAdmList(); adm.classList.add('open'); adm.setAttribute('aria-hidden','false'); }
-  function closeAdm() { adm.classList.remove('open'); adm.setAttribute('aria-hidden','true'); clearForm(); }
-  function openPw()   {
-    pwInput.value = ''; pwError.textContent = '';
-    pwPrompt.classList.add('open'); pwPrompt.setAttribute('aria-hidden','false');
-    setTimeout(function () { pwInput.focus(); }, 120);
-  }
-  function closePw()  {
-    pwPrompt.classList.remove('open'); pwPrompt.setAttribute('aria-hidden','true');
-    pwInput.value = ''; pwError.textContent = '';
-  }
-  function checkPassword() {
-    var pw = pwInput.value;
-    if (!pw) { pwError.textContent = 'Enter a password'; pwInput.focus(); return; }
-    pwError.textContent = 'Checking…';
-    fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pw }),
-    }).then(function (r) {
-      if (r.ok) {
-        setAdminPw(pw);
-        closePw();
-        openAdm();
-      } else {
-        pwError.textContent = 'Incorrect password';
-        pwInput.value = ''; pwInput.focus();
-      }
-    }).catch(function () {
-      pwError.textContent = 'Network error — is the backend deployed?';
-      pwInput.focus();
-    });
-  }
-
-  document.getElementById('pw-cancel').addEventListener('click', closePw);
-  document.getElementById('pw-enter').addEventListener('click', checkPassword);
-  pwInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') checkPassword();
-    if (e.key === 'Escape') closePw();
+  /* ── Startup: pull projects from backend ── */
+  var ready = fetchProjects().then(function () {
+    PROJECTS = buildProjectList();
+    var linked = indexFromHash();
+    if (linked >= 0) curProj = linked;
+    buildNav();
+    if (ov.classList.contains('open') && PROJECTS.length) {
+      if (curProj >= PROJECTS.length) curProj = 0;
+      selectProject(curProj);
+    } else if (linked >= 0) {
+      openOv();
+    }
   });
-  pwPrompt.addEventListener('click', function (e) { if (e.target === pwPrompt) closePw(); });
-  // Open admin by typing the secret word "admin" (avoids browser shortcut conflicts).
+  window.addEventListener('hashchange', function () {
+    var k = indexFromHash();
+    if (k < 0) return;
+    if (ov.classList.contains('open')) selectProject(k);
+    else { curProj = k; openOv(); }
+  });
+
+  /* ── Admin hook ────────────────────────
+     The editor lives in /admin.js and is only downloaded when requested
+     (type "admin" anywhere, or open /#admin). Visitors never load it. Every
+     write it makes is checked against ADMIN_PASSWORD on the server. */
+  window.__pf = {
+    ready:      ready,
+    projects:   function () { return _cache.slice(); },
+    setCache:   function (arr) { _cache = arr.slice(); },
+    current:    function () { return curProj; },
+    isVideoSrc: isVideoSrc,
+    refresh: function (goTo) {
+      PROJECTS = buildProjectList();
+      if (goTo != null) curProj = goTo;
+      if (curProj >= PROJECTS.length) curProj = Math.max(0, PROJECTS.length - 1);
+      buildNav();
+      if (ov.classList.contains('open')) selectProject(curProj);
+    }
+  };
+
+  var adminLoading = false;
+  function openAdmin() {
+    if (window.__pfAdmin) { window.__pfAdmin.open(); return; }
+    if (adminLoading) return;
+    adminLoading = true;
+    var sc = document.createElement('script');
+    sc.src = '/admin.js';
+    sc.onerror = function () { adminLoading = false; };
+    document.body.appendChild(sc);
+  }
   var admSeq = '';
   document.addEventListener('keydown', function (e) {
     var t = e.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
     if (e.key && e.key.length === 1) {
       admSeq = (admSeq + e.key.toLowerCase()).slice(-5);
-      if (admSeq === 'admin') { admSeq = ''; openPw(); }
+      if (admSeq === 'admin') { admSeq = ''; openAdmin(); }
     }
   });
-  document.getElementById('adm-close').addEventListener('click', closeAdm);
-  document.getElementById('adm-cancel').addEventListener('click', closeAdm);
-  adm.addEventListener('click', function (e) { if (e.target === adm) closeAdm(); });
-
-  /* ── Projects list ───────────────────── */
-  function renderAdmList() {
-    var list = document.getElementById('adm-proj-list');
-    list.innerHTML = '';
-    var custom = loadCustomProjects();
-    if (!custom.length) {
-      list.innerHTML = '<div style="font-family:var(--font-ui);font-size:9px;color:rgba(0,0,0,.25);letter-spacing:.12em;padding:6px 0">No projects yet</div>';
-      return;
-    }
-    custom.forEach(function (p) {
-      var row = document.createElement('div');
-      row.className = 'adm-proj-row' + (editingId === p.id ? ' editing' : '');
-      row.innerHTML =
-        '<span class="adm-proj-row-name">' + p.title + '</span>' +
-        '<span class="adm-proj-row-tags">' + p.tags + '</span>' +
-        '<button class="adm-edit-btn" data-id="' + p.id + '">Edit</button>' +
-        '<button class="adm-del-btn"  data-id="' + p.id + '">Delete</button>';
-      list.appendChild(row);
-    });
-    list.querySelectorAll('.adm-edit-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () { openEditProject(btn.getAttribute('data-id')); });
-    });
-    list.querySelectorAll('.adm-del-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var id = btn.getAttribute('data-id');
-        if (editingId === id) clearForm();
-        saveCustomProjects(loadCustomProjects().filter(function (p) { return p.id !== id; }));
-        PROJECTS = buildProjectList();
-        if (curProj >= PROJECTS.length) curProj = Math.max(0, PROJECTS.length - 1);
-        buildNav();
-        renderAdmList();
-        if (ov.classList.contains('open') && PROJECTS.length) selectProject(curProj);
-      });
-    });
-  }
-
-  /* ── Edit existing project ───────────── */
-  function openEditProject(id) {
-    var p = loadCustomProjects().find(function (x) { return x.id === id; });
-    if (!p) return;
-    editingId = id;
-    document.getElementById('af-title').value    = p.title    || '';
-    document.getElementById('af-desc').value     = p.desc     || '';
-    document.getElementById('af-tags').value     = p.tags     || '';
-    document.getElementById('af-figma').value    = p.figmaUrl || '';
-    document.getElementById('af-proto-url').value = p.protoUrl || '';
-    document.getElementById('af-year').value     = p.year     || '';
-    document.getElementById('af-duration').value = p.duration || '';
-    document.getElementById('af-role').value     = p.role     || '';
-    document.getElementById('af-tools').value    = p.tools    || '';
-    document.getElementById('af-goals').value    = p.goals    || '';
-    document.getElementById('af-workflow').value = p.workflow || '';
-    document.getElementById('af-outcomes').value = p.outcomes || '';
-    document.getElementById('proto-file-chip').style.display = 'none';
-    document.getElementById('proto-zone-label').style.display = '';
-    pendingMainPhotos.length  = 0;
-    pendingExtraPhotos.length = 0;
-    Array.prototype.push.apply(pendingMainPhotos,  p.photos      || []);
-    Array.prototype.push.apply(pendingExtraPhotos, p.extraPhotos || []);
-    document.getElementById('af-cs-label').value = p.csLabel || '';
-    csEdit = csClone(p.caseStudy);
-    renderMainThumbs(); renderExtraThumbs();
-    document.getElementById('adm-form-title').textContent      = 'Edit Project';
-    document.getElementById('adm-edit-banner').style.display   = '';
-    document.getElementById('adm-edit-banner-text').textContent = 'Editing: ' + p.title;
-    document.getElementById('adm-save').textContent            = 'Update Project';
-    renderAdmList();
-    document.getElementById('adm-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  /* ── Photo upload zones ──────────────── */
-  var pendingMainPhotos  = [];
-  var pendingExtraPhotos = [];
-  var activeZone = 'main';
-
-  function setupZone(zoneId, inputId, arr, renderFn) {
-    var zone  = document.getElementById(zoneId);
-    var input = document.getElementById(inputId);
-    zone.addEventListener('mouseenter', function () { activeZone = zoneId; });
-    zone.addEventListener('click', function (e) {
-      if (e.target.classList.contains('photo-thumb-rm')) return;
-      activeZone = zoneId; input.click();
-    });
-    input.addEventListener('change', function () {
-      readFilesInto(arr, Array.from(input.files), renderFn);
-      input.value = '';
-    });
-    zone.addEventListener('dragover',  function (e) { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', function ()  { zone.classList.remove('drag-over'); });
-    zone.addEventListener('drop', function (e) {
-      e.preventDefault(); zone.classList.remove('drag-over'); activeZone = zoneId;
-      readFilesInto(arr, Array.from(e.dataTransfer.files).filter(function (f) {
-        return f.type.startsWith('image/') || f.type.startsWith('video/');
-      }), renderFn);
-    });
-  }
-
-  setupZone('photo-zone-main',  'af-photos-main',  pendingMainPhotos,  renderMainThumbs);
-  setupZone('photo-zone-extra', 'af-photos-extra', pendingExtraPhotos, renderExtraThumbs);
-
-  /* ── HTML Prototype upload zone ──────── */
-  (function () {
-    var zone    = document.getElementById('proto-zone');
-    var input   = document.getElementById('af-proto-file');
-    var chip    = document.getElementById('proto-file-chip');
-    var nameEl  = document.getElementById('proto-file-name');
-    var rmBtn   = document.getElementById('proto-file-rm');
-    var label   = document.getElementById('proto-zone-label');
-    var urlInput = document.getElementById('af-proto-url');
-
-    function isHtml(f) { return f && (f.name.toLowerCase().endsWith('.html') || f.type === 'text/html'); }
-
-    function showChip(filename) {
-      nameEl.textContent = filename;
-      chip.style.display = 'inline-flex';
-      label.style.display = 'none';
-    }
-    function hideChip() {
-      chip.style.display = 'none';
-      label.style.display = '';
-    }
-
-    zone.addEventListener('click', function (e) {
-      if (e.target === rmBtn || rmBtn.contains(e.target)) return;
-      input.click();
-    });
-    zone.addEventListener('dragover', function (e) { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', function () { zone.classList.remove('drag-over'); });
-    zone.addEventListener('drop', function (e) {
-      e.preventDefault(); zone.classList.remove('drag-over');
-      var file = Array.from(e.dataTransfer.files).find(isHtml);
-      if (file) uploadProtoFile(file);
-    });
-    input.addEventListener('change', function () {
-      if (input.files[0] && isHtml(input.files[0])) uploadProtoFile(input.files[0]);
-      input.value = '';
-    });
-    rmBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      hideChip();
-      urlInput.value = '';
-    });
-
-    function uploadProtoFile(file) {
-      var btn = document.getElementById('adm-save');
-      var prevText = btn.textContent;
-      btn.disabled = true; btn.style.opacity = '0.6'; btn.style.pointerEvents = 'none';
-      btn.textContent = 'Uploading HTML…';
-      var reader = new FileReader();
-      reader.onload = function (ev) {
-        var htmlBlob = new Blob([ev.target.result], { type: 'text/html' });
-        fetch('/api/upload?ext=html', {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/html', 'x-admin-password': getAdminPw() },
-          body: htmlBlob,
-        }).then(function (r) {
-          if (!r.ok) return r.text().then(function (t) { throw new Error('HTTP ' + r.status + ': ' + t); });
-          return r.json();
-        }).then(function (j) {
-          urlInput.value = j.url;
-          showChip(file.name);
-        }).catch(function (e) {
-          alert('HTML upload failed: ' + (e && e.message || e));
-        }).then(function () {
-          btn.disabled = false; btn.style.opacity = ''; btn.style.pointerEvents = '';
-          btn.textContent = prevText;
-        });
-      };
-      reader.onerror = function () {
-        btn.disabled = false; btn.style.opacity = ''; btn.style.pointerEvents = '';
-        btn.textContent = prevText;
-      };
-      reader.readAsText(file, 'utf-8');
-    }
-  })();
-
-  function compressImage(dataURL, callback) {
-    var MAX = 1800;        // max dimension on longest side
-    var QUALITY = 0.9;
-    var img = new Image();
-    img.onload = function () {
-      var w = img.width, h = img.height;
-      var scale = Math.min(1, MAX / Math.max(w, h));
-      w = Math.max(1, Math.round(w * scale));
-      h = Math.max(1, Math.round(h * scale));
-      var canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      var ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, w, h);      // preserve alpha
-      ctx.drawImage(img, 0, 0, w, h);
-      try {
-        // WebP supports alpha and compresses well — fall back to PNG if unsupported.
-        var out = canvas.toDataURL('image/webp', QUALITY);
-        if (!out || out.indexOf('data:image/webp') !== 0) {
-          out = canvas.toDataURL('image/png');
-        }
-        callback(out);
-      } catch (e) { callback(dataURL); }
-    };
-    img.onerror = function () { callback(dataURL); };
-    img.src = dataURL;
-  }
-
-  /* ── Upload state (disables Save while compressing) ── */
-  var pendingUploads = 0;
-  function setUploadingState() {
-    var btn = document.getElementById('adm-save');
-    if (!btn) return;
-    if (pendingUploads > 0) {
-      btn.disabled = true;
-      btn.style.opacity = '0.6';
-      btn.style.pointerEvents = 'none';
-      btn.textContent = 'Processing ' + pendingUploads + ' image' + (pendingUploads > 1 ? 's' : '') + '...';
-    } else {
-      btn.disabled = false;
-      btn.style.opacity = '';
-      btn.style.pointerEvents = '';
-      btn.textContent = editingId ? 'Update Project' : 'Add Project';
-    }
-  }
-
-  function readFilesInto(arr, files, renderFn) {
-    files.forEach(function (file) {
-      /* Videos: upload the raw file (no compression / canvas re-encode). */
-      if ((file.type && file.type.startsWith('video/')) || isVideoSrc(file.name)) {
-        pendingUploads++;
-        setUploadingState();
-        uploadFile(file).then(function (url) {
-          arr.push(url);
-          renderFn();
-        }).catch(function (e) {
-          console.warn('Upload failed:', e);
-          alert('Video upload failed: ' + (e && e.message || e));
-        }).then(function () {
-          pendingUploads--;
-          setUploadingState();
-        });
-        return;
-      }
-      var reader = new FileReader();
-      pendingUploads++;
-      setUploadingState();
-      reader.onload = function (ev) {
-        compressImage(ev.target.result, function (compressed) {
-          uploadImage(compressed).then(function (url) {
-            arr.push(url);
-            renderFn();
-          }).catch(function (e) {
-            console.warn('Upload failed:', e);
-            alert('Image upload failed: ' + (e && e.message || e));
-          }).then(function () {
-            pendingUploads--;
-            setUploadingState();
-          });
-        });
-      };
-      reader.onerror = function () { pendingUploads--; setUploadingState(); };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function renderMainThumbs()  { renderThumbs('photo-thumbs-main',  pendingMainPhotos,  renderMainThumbs);  renderCsEditor(); }
-  function renderExtraThumbs() { renderThumbs('photo-thumbs-extra', pendingExtraPhotos, renderExtraThumbs); renderCsEditor(); }
-
-  /* ── Case study editor ───────────────── */
-  var csEdit = [];   /* [{ title, body, media, pins: [{ x, y, text }] }] */
-
-  function csClone(arr) { return JSON.parse(JSON.stringify(Array.isArray(arr) ? arr : [])); }
-  function csMediaPool() {
-    return pendingMainPhotos.concat(pendingExtraPhotos).filter(function (s, i, a) { return a.indexOf(s) === i; });
-  }
-  function csMediaEl(src, ctrl) {
-    var el;
-    if (isVideoSrc(src)) {
-      el = document.createElement('video');
-      el.src = src; el.muted = true; el.preload = 'metadata'; el.playsInline = true;
-      if (ctrl) { el.loop = true; el.autoplay = true; }
-    } else {
-      el = document.createElement('img'); el.src = src; el.alt = '';
-    }
-    return el;
-  }
-  function csBtn(label, title, fn, danger) {
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'cs-ed-mini' + (danger ? ' danger' : '');
-    b.textContent = label; b.title = title;
-    b.addEventListener('click', fn);
-    return b;
-  }
-
-  function renderCsEditor() {
-    var list = document.getElementById('cs-ed-list');
-    if (!list || !csEdit) return;
-    list.innerHTML = '';
-    var pool = csMediaPool();
-
-    csEdit.forEach(function (c, i) {
-      c.pins = Array.isArray(c.pins) ? c.pins : [];
-      var card = document.createElement('div'); card.className = 'cs-ed-card';
-
-      var top = document.createElement('div'); top.className = 'cs-ed-top';
-      var num = document.createElement('span'); num.className = 'cs-ed-num'; num.textContent = String(i + 1).padStart(2, '0');
-      var title = document.createElement('input');
-      title.className = 'adm-input'; title.type = 'text'; title.placeholder = 'Chapter title, e.g. The problem';
-      title.value = c.title || '';
-      title.addEventListener('input', function () { c.title = title.value; });
-      top.appendChild(num); top.appendChild(title);
-      top.appendChild(csBtn('↑', 'Move up', function () {
-        if (i > 0) { csEdit.splice(i - 1, 0, csEdit.splice(i, 1)[0]); renderCsEditor(); }
-      }));
-      top.appendChild(csBtn('↓', 'Move down', function () {
-        if (i < csEdit.length - 1) { csEdit.splice(i + 1, 0, csEdit.splice(i, 1)[0]); renderCsEditor(); }
-      }));
-      top.appendChild(csBtn('✕', 'Delete chapter', function () { csEdit.splice(i, 1); renderCsEditor(); }, true));
-      card.appendChild(top);
-
-      var body = document.createElement('textarea');
-      body.className = 'adm-input'; body.rows = 4;
-      body.placeholder = 'What was the problem here, what did you decide, and why?';
-      body.value = c.body || '';
-      body.addEventListener('input', function () { c.body = body.value; });
-      card.appendChild(body);
-
-      /* Screen picker — any photo or video already attached to the project. */
-      var pick = document.createElement('div'); pick.className = 'cs-ed-media';
-      if (c.media && pool.indexOf(c.media) < 0) pool = pool.concat([c.media]);
-      pool.forEach(function (src) {
-        var b = document.createElement('button');
-        b.type = 'button'; b.className = src === c.media ? 'sel' : '';
-        b.title = 'Use this screen';
-        b.appendChild(csMediaEl(src, false));
-        b.addEventListener('click', function () {
-          if (c.media !== src) { c.media = src; c.pins = []; }
-          renderCsEditor();
-        });
-        pick.appendChild(b);
-      });
-      if (!pool.length) {
-        var none = document.createElement('span'); none.className = 'adm-hint';
-        none.textContent = 'Add photos above first, then pick one for this chapter.';
-        pick.appendChild(none);
-      }
-      card.appendChild(pick);
-
-      if (c.media) {
-        var canvas = document.createElement('div'); canvas.className = 'cs-ed-canvas';
-        canvas.appendChild(csMediaEl(c.media, true));
-        c.pins.forEach(function (pin, j) {
-          var dot = document.createElement('span');
-          dot.className = 'cs-pin'; dot.textContent = j + 1;
-          dot.style.left = pin.x + '%'; dot.style.top = pin.y + '%';
-          dot.addEventListener('pointerdown', function (e) {
-            e.preventDefault(); e.stopPropagation();
-            dot.setPointerCapture(e.pointerId);
-            function move(ev) {
-              var r = canvas.getBoundingClientRect();
-              pin.x = Math.round(Math.max(0, Math.min(100, (ev.clientX - r.left) / r.width  * 100)) * 10) / 10;
-              pin.y = Math.round(Math.max(0, Math.min(100, (ev.clientY - r.top)  / r.height * 100)) * 10) / 10;
-              dot.style.left = pin.x + '%'; dot.style.top = pin.y + '%';
-            }
-            function up() { dot.removeEventListener('pointermove', move); dot.removeEventListener('pointerup', up); }
-            dot.addEventListener('pointermove', move);
-            dot.addEventListener('pointerup', up);
-          });
-          canvas.appendChild(dot);
-        });
-        canvas.addEventListener('click', function (e) {
-          if (e.target.classList.contains('cs-pin')) return;
-          var r = canvas.getBoundingClientRect();
-          c.pins.push({
-            x: Math.round((e.clientX - r.left) / r.width  * 1000) / 10,
-            y: Math.round((e.clientY - r.top)  / r.height * 1000) / 10,
-            text: ''
-          });
-          renderCsEditor();
-          var areas = document.querySelectorAll('#cs-ed-list .cs-ed-card')[i].querySelectorAll('.cs-ed-pin textarea');
-          if (areas.length) areas[areas.length - 1].focus();
-        });
-        card.appendChild(canvas);
-
-        var pinsWrap = document.createElement('div'); pinsWrap.className = 'cs-ed-pins';
-        c.pins.forEach(function (pin, j) {
-          var row = document.createElement('div'); row.className = 'cs-ed-pin';
-          var d = document.createElement('span'); d.className = 'cs-dot'; d.textContent = j + 1;
-          var ta = document.createElement('textarea');
-          ta.className = 'adm-input'; ta.rows = 2; ta.placeholder = 'Note for pin ' + (j + 1) + ': what decision does this point at?';
-          ta.value = pin.text || '';
-          ta.addEventListener('input', function () { pin.text = ta.value; });
-          row.appendChild(d); row.appendChild(ta);
-          row.appendChild(csBtn('✕', 'Remove pin', function () { c.pins.splice(j, 1); renderCsEditor(); }, true));
-          pinsWrap.appendChild(row);
-        });
-        card.appendChild(pinsWrap);
-      }
-      list.appendChild(card);
-    });
-  }
-
-  document.getElementById('cs-ed-add').addEventListener('click', function () {
-    var pool = csMediaPool();
-    var used = csEdit.map(function (c) { return c.media; });
-    var next = pool.find(function (s) { return used.indexOf(s) < 0; }) || pool[0] || '';
-    csEdit.push({ title: '', body: '', media: next, pins: [] });
-    renderCsEditor();
-    var titles = document.querySelectorAll('#cs-ed-list .cs-ed-top input');
-    if (titles.length) titles[titles.length - 1].focus();
-  });
-
-  /* Reads the paste box into the editor. Returns true when there was nothing
-     to load or it loaded; false (with a visible message) when it can't. */
-  function loadCsJson() {
-    var box = document.getElementById('cs-ed-json');
-    var msg = document.getElementById('cs-ed-json-msg');
-    var raw = box.value.trim();
-    if (!raw) return true;
-    try {
-      var data = JSON.parse(raw);
-      /* The combined preview file is an array of whole projects: take ours. */
-      if (Array.isArray(data) && data.length && data[0] && data[0].id !== undefined) {
-        var mine = data.find(function (p) { return p.id === editingId; });
-        if (!mine) throw new Error('this file has no case study for the project you are editing');
-        data = mine;
-      }
-      var chapters = Array.isArray(data) ? data : data.caseStudy;
-      if (!Array.isArray(chapters)) throw new Error('expected a "caseStudy" list');
-      csEdit = csClone(chapters);
-      if (!Array.isArray(data) && typeof data.csLabel === 'string') document.getElementById('af-cs-label').value = data.csLabel;
-      renderCsEditor();
-      box.value = '';
-      msg.classList.remove('err');
-      msg.textContent = 'Loaded ' + csEdit.length + ' chapters.';
-      return true;
-    } catch (e) {
-      var details = msg.closest('details');
-      if (details) details.open = true;
-      msg.classList.add('err');
-      msg.textContent = "Couldn't read the pasted JSON (" + e.message + '). Copy the whole file and paste again.';
-      msg.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      return false;
-    }
-  }
-  document.getElementById('cs-ed-json-load').addEventListener('click', loadCsJson);
-
-  function renderThumbs(containerId, arr, refreshFn) {
-    var el = document.getElementById(containerId);
-    el.innerHTML = '';
-    arr.forEach(function (src, idx) {
-      var wrap = document.createElement('div'); wrap.className = 'photo-thumb';
-      if (isVideoSrc(src)) {
-        var vid = document.createElement('video');
-        vid.src = src; vid.muted = true; vid.preload = 'metadata';
-        vid.playsInline = true; vid.setAttribute('playsinline', '');
-        wrap.appendChild(vid);
-        var badge = document.createElement('span'); badge.className = 'photo-thumb-vid'; badge.textContent = '▶';
-        wrap.appendChild(badge);
-      } else {
-        var img = document.createElement('img'); img.src = src;
-        wrap.appendChild(img);
-      }
-      var rm = document.createElement('button'); rm.className = 'photo-thumb-rm'; rm.textContent = '✕';
-      rm.addEventListener('click', function (e) {
-        e.stopPropagation(); arr.splice(idx, 1); refreshFn();
-      });
-      wrap.appendChild(rm); el.appendChild(wrap);
-    });
-  }
-
-  /* ── Paste images ────────────────────── */
-  document.addEventListener('paste', function (e) {
-    if (!adm.classList.contains('open')) return;
-    var items = Array.from((e.clipboardData || e.originalEvent.clipboardData).items);
-    var imgFiles = items.filter(function (i) { return i.type.startsWith('image/'); })
-                        .map(function (i) { return i.getAsFile(); });
-    if (!imgFiles.length) return;
-    var isMain = activeZone === 'photo-zone-main';
-    readFilesInto(
-      isMain ? pendingMainPhotos : pendingExtraPhotos,
-      imgFiles,
-      isMain ? renderMainThumbs : renderExtraThumbs
-    );
-  });
-
-  /* ── Save / Update ───────────────────── */
-  document.getElementById('adm-save').addEventListener('click', function () {
-    if (pendingUploads > 0) return;
-
-    var title    = document.getElementById('af-title').value.trim();
-    var desc     = document.getElementById('af-desc').value.trim();
-    var tags     = document.getElementById('af-tags').value.trim();
-    var figma    = document.getElementById('af-figma').value.trim();
-    var year     = document.getElementById('af-year').value.trim();
-    var duration = document.getElementById('af-duration').value.trim();
-    var role     = document.getElementById('af-role').value.trim();
-    var tools    = document.getElementById('af-tools').value.trim();
-    var goals    = document.getElementById('af-goals').value.trim();
-    var workflow = document.getElementById('af-workflow').value.trim();
-    var outcomes = document.getElementById('af-outcomes').value.trim();
-    if (!title) { document.getElementById('af-title').focus(); return; }
-    /* Pasted JSON counts even if "Load into form" was never pressed. */
-    if (!loadCsJson()) return;
-
-    var protoUrl = document.getElementById('af-proto-url').value.trim();
-    var fields = {
-      title: title, desc: desc || title, tags: tags || 'Design',
-      figmaUrl: figma, protoUrl: protoUrl,
-      year: year, duration: duration, role: role, tools: tools,
-      goals: goals, workflow: workflow, outcomes: outcomes,
-      photos: pendingMainPhotos.slice(), extraPhotos: pendingExtraPhotos.slice(),
-      csLabel: document.getElementById('af-cs-label').value.trim(),
-      caseStudy: csClone(csEdit).map(function (c) {
-        return {
-          title: (c.title || '').trim(), body: (c.body || '').trim(), media: c.media || '',
-          pins: (c.pins || []).filter(function (pin) { return (pin.text || '').trim(); })
-                              .map(function (pin) { return { x: pin.x, y: pin.y, text: pin.text.trim() }; })
-        };
-      }).filter(function (c) { return c.title || c.body || c.media; })
-    };
-
-    var custom = loadCustomProjects();
-    if (editingId) {
-      var idx = custom.findIndex(function (p) { return p.id === editingId; });
-      if (idx >= 0) Object.assign(custom[idx], fields);
-    } else {
-      custom.push(Object.assign({ id: 'custom_' + Date.now() }, fields));
-    }
-
-    var btn = document.getElementById('adm-save');
-    var prevText = btn.textContent;
-    btn.disabled = true; btn.style.opacity = '0.6';
-    btn.textContent = 'Saving…';
-
-    saveCustomProjects(custom).then(function (ok) {
-      btn.disabled = false; btn.style.opacity = '';
-      btn.textContent = prevText;
-      if (!ok) return;
-      PROJECTS = buildProjectList();
-      buildNav(); renderAdmList();
-      var goTo = editingId ? curProj : PROJECTS.length - 1;
-      clearForm();
-      if (ov.classList.contains('open')) selectProject(goTo);
-    });
-  });
-
-  function clearForm() {
-    editingId = null;
-    ['af-title','af-desc','af-tags','af-figma','af-proto-url',
-     'af-year','af-duration','af-role','af-tools',
-     'af-goals','af-workflow','af-outcomes','af-cs-label','cs-ed-json'].forEach(function (id) {
-      document.getElementById(id).value = '';
-    });
-    csEdit = [];
-    document.getElementById('cs-ed-json-msg').textContent = '';
-    document.getElementById('proto-file-chip').style.display = 'none';
-    document.getElementById('proto-zone-label').style.display = '';
-    pendingMainPhotos.length = 0; pendingExtraPhotos.length = 0;
-    renderMainThumbs(); renderExtraThumbs();
-    document.getElementById('adm-form-title').textContent    = 'Add New Project';
-    document.getElementById('adm-edit-banner').style.display = 'none';
-    document.getElementById('adm-save').textContent          = 'Add Project';
-  }
-
-  document.getElementById('adm-edit-discard').addEventListener('click', clearForm);
-
-  /* ── Backup: Export projects.json (Import removed — server is source of truth) ── */
-  var stExport = document.getElementById('st-export');
-  if (stExport) stExport.addEventListener('click', function () {
-    var data = loadCustomProjects();
-    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url; a.download = 'projects.json';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-  });
-
-  /* ── Startup: pull projects from backend ── */
-  fetchProjects().then(function () {
-    PROJECTS = buildProjectList();
-    buildNav();
-    renderAdmList();
-    if (ov.classList.contains('open') && PROJECTS.length) {
-      if (curProj >= PROJECTS.length) curProj = 0;
-      selectProject(curProj);
-    }
-  });
+  if (location.hash === '#admin') openAdmin();
 
 })();
 </script>

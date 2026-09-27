@@ -1,4 +1,5 @@
 import { put, list } from '@vercel/blob';
+import { isAdmin } from './_auth.js';
 
 const BLOB_NAME = 'projects.json';
 
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
     if (!expected) return res.status(500).json({ error: 'ADMIN_PASSWORD not configured' });
 
     const body = req.body || {};
-    if (body.password !== expected) return res.status(401).json({ error: 'unauthorized' });
+    if (!isAdmin(body.password)) return res.status(401).json({ error: 'unauthorized' });
 
     const projects = body.projects;
     if (!Array.isArray(projects)) return res.status(400).json({ error: 'projects must be an array' });

@@ -1,3 +1,5 @@
+import { isAdmin } from './_auth.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -7,8 +9,7 @@ export default async function handler(req, res) {
   if (!expected) {
     return res.status(500).json({ error: 'ADMIN_PASSWORD not configured' });
   }
-  const provided = (req.body && req.body.password) || '';
-  if (provided !== expected) {
+  if (!isAdmin(req.body && req.body.password)) {
     return res.status(401).json({ error: 'invalid' });
   }
   return res.status(200).json({ ok: true });

@@ -1,4 +1,5 @@
 import { handleUpload } from '@vercel/blob/client';
+import { isAdmin } from './_auth.js';
 
 // Client-side (direct browser → Blob) upload handler. Used for large files
 // like videos that exceed the ~4.5MB serverless function request-body limit.
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
       body: req.body,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         // The admin password is passed as clientPayload (over HTTPS) for auth.
-        if (!clientPayload || clientPayload !== expected) {
+        if (!isAdmin(clientPayload)) {
           throw new Error('unauthorized');
         }
         return {

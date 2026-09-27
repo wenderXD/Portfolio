@@ -1,4 +1,5 @@
 import { put } from '@vercel/blob';
+import { isAdmin } from './_auth.js';
 
 // Raw binary upload — skip Vercel's default body parser.
 export const config = {
@@ -23,8 +24,7 @@ export default async function handler(req, res) {
   const expected = process.env.ADMIN_PASSWORD;
   if (!expected) return res.status(500).json({ error: 'ADMIN_PASSWORD not configured' });
 
-  const provided = req.headers['x-admin-password'] || '';
-  if (provided !== expected) return res.status(401).json({ error: 'unauthorized' });
+  if (!isAdmin(req.headers['x-admin-password'])) return res.status(401).json({ error: 'unauthorized' });
 
   const contentType = req.headers['content-type'] || 'application/octet-stream';
   const extQuery = (req.query && req.query.ext) || '';

@@ -1,4 +1,5 @@
 import { put, list } from '@vercel/blob';
+import { isAdmin } from './_auth.js';
 
 // Lead-magnet email capture. Public POST appends an email to leads.json in
 // Vercel Blob; GET is admin-only (same ADMIN_PASSWORD as the rest of the API)
@@ -36,8 +37,8 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const expected = process.env.ADMIN_PASSWORD;
     if (!expected) return res.status(500).json({ error: 'ADMIN_PASSWORD not configured' });
-    const provided = req.headers['x-admin-password'] || (req.query && req.query.password) || '';
-    if (provided !== expected) return res.status(401).json({ error: 'unauthorized' });
+    // Header only: a password in the query string ends up in access logs.
+    if (!isAdmin(req.headers['x-admin-password'])) return res.status(401).json({ error: 'unauthorized' });
     try {
       const leads = await readLeads();
       res.setHeader('Cache-Control', 'no-store, max-age=0');
