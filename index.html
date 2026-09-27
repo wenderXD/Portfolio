@@ -384,6 +384,7 @@
       color: var(--faint);
     }
     .pi-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pi-proto-badge.pi-client-badge { color: #fff; background: var(--accent); border-color: var(--accent); }
     .pi-proto-badge {
       font-family: var(--font-ui);
       font-size: 12px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase;
@@ -1098,6 +1099,12 @@
           <button class="pov-tab active" data-tab="gallery" id="tab-gallery">Gallery</button>
           <button class="pov-tab" data-tab="about" id="tab-about">About</button>
         </div>
+        <a id="live-link" class="figma-btn hidden" target="_blank" rel="noopener">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" style="flex-shrink:0;display:block">
+            <path d="M5 2H2v8h8V7M7 1h4v4M11 1 5.5 6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Live site
+        </a>
         <a id="figma-link" class="figma-btn hidden" target="_blank" rel="noopener">
           <svg width="10" height="15" viewBox="0 0 10 15" fill="none" aria-hidden="true" style="flex-shrink:0;display:block">
             <path d="M0 12.5A2.5 2.5 0 0 0 2.5 15 2.5 2.5 0 0 0 5 12.5V10H2.5A2.5 2.5 0 0 0 0 12.5Z" fill="currentColor" opacity=".55"/>
@@ -1759,6 +1766,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
   var titleEl     = document.getElementById('pov-title');
   var descEl      = document.getElementById('pov-desc');
   var figmaLink   = document.getElementById('figma-link');
+  var liveLink    = document.getElementById('live-link');
   var pcTrack     = document.getElementById('pc-track');
   var pcDots      = document.getElementById('pc-dots');
   var pcCounter   = document.getElementById('pc-counter');
@@ -1827,6 +1835,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     frameCEl.classList.remove('active');
     povTabs.style.display = 'none';
     figmaLink.classList.add('hidden');
+    liveLink.classList.add('hidden');
     protoIframe.removeAttribute('srcdoc');
     protoIframe.src = 'about:blank';
     protoIframe.classList.remove('active');
@@ -1866,7 +1875,9 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
       var btn = document.createElement('button');
       btn.className = 'pov-item' + (i === curProj ? ' sel' : '');
       btn.style.setProperty('--r', i);   /* drives the cascade stagger */
-      var protoBadge = p.protoUrl ? '<span class="pi-proto-badge">Prototype</span>' : '';
+      /* Shipped client work is marked so it reads apart from the concepts. */
+      var protoBadge = (p.client ? '<span class="pi-proto-badge pi-client-badge">Client</span>' : '') +
+                       (p.protoUrl ? '<span class="pi-proto-badge">Prototype</span>' : '');
       btn.innerHTML =
         '<span class="pi-num">' + String(i + 1).padStart(2, '0') + '</span>' +
         '<span class="pi-body"><span class="pi-name">' + p.title + '</span>' +
@@ -1908,6 +1919,8 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     if (changed) replayAnim([document.querySelector('.pov-meta'), povPreview]);
     if (p.figmaUrl) { figmaLink.href = p.figmaUrl; figmaLink.classList.remove('hidden'); }
     else            { figmaLink.removeAttribute('href'); figmaLink.classList.add('hidden'); }
+    if (p.liveUrl)  { liveLink.href = p.liveUrl; liveLink.classList.remove('hidden'); }
+    else            { liveLink.removeAttribute('href'); liveLink.classList.add('hidden'); }
     buildCarousel(p.photos || []);
     buildExtraPhotos(p.extraPhotos || []);
     buildDetails(p);
