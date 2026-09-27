@@ -871,14 +871,25 @@
       transform-origin: top left;
     }
     .proto-inline.active { display: block; }
-    .proto-note {
-      position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 40;
-      font-family: var(--font-text); font-size: var(--t-label); line-height: 1.5;
-      color: var(--muted); background: #fff;
-      border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px;
+    .frame-x {
+      flex: 1; min-height: 0; width: 100%;
+      position: relative; overflow: hidden; display: none;
     }
-    .proto-note[hidden] { display: none; }
-    .proto-note a { color: var(--accent); font-weight: 500; }
+    .frame-x.active { display: block; }
+    .proto-launch {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 24px; text-align: center;
+    }
+    .proto-launch[hidden] { display: none; }
+    .proto-launch-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: .04em; color: var(--text);
+    }
+    .proto-launch-body {
+      font-family: var(--font-text); font-size: var(--t-body); line-height: 1.6;
+      color: var(--muted); max-width: 32ch;
+    }
+    .proto-launch-btn { text-decoration: none; margin-top: 6px; }
 
     /* ══════════════════════════════════════════════
        Focus — the page hides the system cursor, so a
@@ -936,7 +947,7 @@
       .pov-meta-n     { font-size: 30px; }
       .pov-meta-title { font-size: 24px; }
       .pd-meta-row { gap: 20px 28px; }
-      .frame-p { flex: none; height: min(62vh, 560px); min-height: 300px; }
+      .frame-p, .frame-x { flex: none; height: min(62vh, 560px); min-height: 300px; }
       .frame-d { overflow: visible; padding: 20px 16px 24px; }
 
       /* Case study stacks: the screen sticks under the chip row and chapters
@@ -1082,6 +1093,7 @@
       </div>
       <div class="pov-topbar-right">
         <div class="pov-tabs" id="pov-tabs">
+          <button class="pov-tab hidden" data-tab="proto" id="tab-proto">Prototype</button>
           <button class="pov-tab hidden" data-tab="case" id="tab-case">Case study</button>
           <button class="pov-tab active" data-tab="gallery" id="tab-gallery">Gallery</button>
           <button class="pov-tab" data-tab="about" id="tab-about">About</button>
@@ -1124,13 +1136,6 @@
             <div class="pc-dots" id="pc-dots"></div>
             <div class="pc-counter" id="pc-counter"></div>
           </div>
-          <p class="proto-note" id="proto-note" hidden>
-            Interactive prototype, built for a 1440px screen.
-            <a id="proto-open" target="_blank" rel="noopener">Open it on desktop</a>
-          </p>
-          <iframe id="proto-iframe" class="proto-inline"
-            sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals"
-            src="about:blank"></iframe>
         </div>
         <div class="pc-extra-bar" id="pc-extra-bar" style="display:none">
           <button class="pc-extra-toggle" id="pc-extra-toggle">
@@ -1138,6 +1143,20 @@
             <svg class="pc-extra-arrow" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <div class="pc-extra-grid" id="pc-extra-grid"></div>
+        </div>
+      </div>
+
+      <!-- Live prototype. Its own tab so it's never hidden behind the gallery
+           or a case study. Phones get a launcher instead of a 1440px page
+           shrunk to a thumbnail. -->
+      <div class="frame-x" id="frame-x">
+        <iframe id="proto-iframe" class="proto-inline" title="Interactive prototype"
+          sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals"
+          src="about:blank"></iframe>
+        <div class="proto-launch" id="proto-launch" hidden>
+          <p class="proto-launch-title">Interactive prototype</p>
+          <p class="proto-launch-body">Built for a desktop screen. It opens full size in a new tab. Best viewed on a laptop.</p>
+          <a class="cta proto-launch-btn" id="proto-open" target="_blank" rel="noopener">Open prototype</a>
         </div>
       </div>
 
@@ -1752,9 +1771,10 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
   var tabGallery  = document.getElementById('tab-gallery');
   var tabAbout    = document.getElementById('tab-about');
   var protoIframe = document.getElementById('proto-iframe');
-  var protoNote   = document.getElementById('proto-note');
+  var protoLaunch = document.getElementById('proto-launch');
+  var frameXEl    = document.getElementById('frame-x');
+  var tabProto    = document.getElementById('tab-proto');
   var protoOpen   = document.getElementById('proto-open');
-  var pcWrapEl    = document.getElementById('pc-wrap');
   var pdMetaRow   = document.getElementById('pd-meta-row');
   var pdTools     = document.getElementById('pd-tools');
   var pdGoals     = document.getElementById('pd-goals');
@@ -1803,6 +1823,7 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     /* Hide every control that has nothing to act on. */
     framePEl.classList.remove('active');
     frameDEl.classList.remove('active');
+    frameXEl.classList.remove('active');
     frameCEl.classList.remove('active');
     povTabs.style.display = 'none';
     figmaLink.classList.add('hidden');
@@ -1893,18 +1914,24 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
     /* Lead with the story when a project has one; otherwise never strand
        the viewer on an empty Case study tab. */
     var hasCase = buildCaseStudy(p);
-    if (hasCase && (changed || !caseShownOnce)) { caseShownOnce = true; setView('case'); }
+    var protoUrl = p.protoUrl || '';
+    tabProto.classList.toggle('hidden', !protoUrl);
+    /* Lead with the most convincing view: a live prototype first, then the
+       case study, then the gallery. */
+    if (changed || !caseShownOnce) {
+      caseShownOnce = true;
+      setView(protoUrl ? 'proto' : hasCase ? 'case' : 'gallery');
+    }
+    else if (!protoUrl && curView === 'proto') setView(hasCase ? 'case' : 'gallery');
     else if (!hasCase && curView === 'case') setView('gallery');
     else setView(curView);
-    var protoUrl = p.protoUrl || '';
     /* A 1440px prototype scaled into a phone is an unreadable thumbnail:
-       show the screenshots instead and point to the live version. */
+       phones get a launcher that opens it full size instead. */
     var protoFits = !matchMedia('(max-width: 900px)').matches;
-    protoNote.hidden = !(protoUrl && !protoFits);
+    protoLaunch.hidden = !(protoUrl && !protoFits);
     if (protoUrl) protoOpen.href = protoUrl; else protoOpen.removeAttribute('href');
     if (protoUrl && protoFits) {
       protoIframe.classList.add('active');
-      pcWrapEl.style.display = 'none';
       scaleProtoIframe();
       fetch(protoUrl)
         .then(function(r) { return r.text(); })
@@ -1924,7 +1951,6 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
       protoIframe.removeAttribute('srcdoc');
       protoIframe.src = 'about:blank';
       protoIframe.classList.remove('active');
-      pcWrapEl.style.display = '';
     }
   }
 
@@ -1985,15 +2011,19 @@ var COARSE_POINTER = matchMedia('(hover: none), (pointer: coarse)').matches;
 
   function setView(v) {
     curView = v;
+    tabProto.classList.toggle('active', v === 'proto');
     tabCase.classList.toggle('active', v === 'case');
     tabGallery.classList.toggle('active', v === 'gallery');
     tabAbout.classList.toggle('active', v === 'about');
     frameCEl.classList.toggle('active', v === 'case');
     framePEl.classList.toggle('active', v === 'gallery');
     frameDEl.classList.toggle('active', v === 'about');
+    frameXEl.classList.toggle('active', v === 'proto');
+    if (v === 'proto') scaleProtoIframe();
     if (v === 'case') fitShot();
     if (v === 'gallery') refitGallery();   /* photos may have loaded while hidden */
   }
+  tabProto.addEventListener('click',   function () { setView('proto'); });
   tabGallery.addEventListener('click', function () { setView('gallery'); });
   tabAbout.addEventListener('click',   function () { setView('about'); });
 
